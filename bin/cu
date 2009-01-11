@@ -1,0 +1,1 @@
+curl -X GET http://localhost:5984/dmi/$1 -H "Content-Type: text/plain;charset: utf8"

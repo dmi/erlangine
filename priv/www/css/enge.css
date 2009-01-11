@@ -1,0 +1,150 @@
+html {
+    background-color: #808080;
+}
+
+body{
+    padding:0;
+    margin:0;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    font-size: 8pt;
+    font-family: sans-serif;
+}
+
+label
+{
+   color:#ffc400;
+}     
+input[type=text], input[type=password]
+{
+   border: solid 1px #4d3a24;
+   width: 75px;
+} 
+input[type=button]
+{
+   font-size: 1em;
+   margin: 2px;
+}
+.button
+{
+   background-color:#4d3a24;
+   border:solid 1px #23150c;
+   color:#fecd28;
+   padding:2px;
+}
+
+#headLine
+{
+   border-bottom: 1px solid white;
+   height: 3em;
+}
+#siteTitle
+{
+   color: yellow;
+   font-family: serif;
+   font-weight: bold;
+   font-size: 1.5em;
+   float: left;
+   padding: 0.35em;
+}
+#loginContainer, #loggedContainer
+{
+   padding:0.5em;
+   float: right;
+}
+#loginContainer #loginForm
+{
+   border:none;
+}     
+
+#loggedContainer
+{
+   display: none;
+}
+
+#registerContainer
+{
+   background: #6d5a44;
+   padding:5px;
+   width: 225px;
+   display: none;
+   float: right;
+}
+#registerContainer input[type=text], #registerContainer input[type=password]
+{
+   border: solid 1px #4d3a24;
+   width: 200px;
+   display: block;
+}
+#registerContainer img
+{
+   padding-top: 5px;
+}
+#registerContainer #registerButton
+{
+   margin: 0.5em;
+   float:left;
+}
+#registerContainer #closeRegister
+{
+   margin: 0.5em;
+   float: right;
+}
+
+#pageContent
+{
+   padding: 5px;
+}
+#pageContent input
+{
+   margin: 3px;
+}
+
+#welcomePage
+{
+   font-size: 3em;
+   font-family: serif;
+   color: blue;
+}
+#docEditor
+{
+   display:none;
+}
+#docEditor .label
+{
+   margin-top: 0.5em;
+}
+#docTitle
+{
+   width: 500px;
+}
+#docAnnotation
+{
+   width: 500px;
+   height: 10em;
+}
+
+#docSelect
+{
+   background: #4d3a24;
+}
+
+#docSelect td, th
+{
+   background: #808080;
+}
+
+.xtreeChilds
+{
+   margin-left: 20px;
+}
+
+.xtreeCollapsed
+{
+   display: none;
+}
+
+.xtrePlus
+{
+}

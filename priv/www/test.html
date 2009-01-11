@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru-ru" lang="en-us">
+	<head>
+		<title>mochi test</title>
+
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+
+		<link href="css/enge.css" rel="stylesheet" type="text/css"/>
+
+		<script src="js/json2.js" type="text/javascript"></script>
+
+		<script src="MochiKit/MochiKit.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+function ajax(json, url){
+	var data = "json=" + urlEncode(JSON.stringify(json));
+	var d = doXHR( url, {method: 'POST', sendContent: data, headers: {"Content-Type": "application/x-www-form-urlencoded"}});
+	d.addCallbacks(cbResult, cbError);
+}
+
+function cbResult(result){
+	log("Ajax Result: " + result.responseText + " status: " + result.status);
+	json = evalJSONRequest(result);
+	log("Ajax json: " + JSON.stringify(json));
+	log("Ajax event: " + json.event);
+	signal(xapi, json.event, json);
+}
+
+function cbError(result){
+	log("Ajax Error: " + result + " status: " + result.status);
+	/*if(XMLHttpRequest.status == "403"){
+	    alert("Session has expired! Login again please.");
+	    logOut();
+        }else if(XMLHttpRequest.status == "404"){
+	    alert("This function is not available (possible You have to log in?)");
+        }else if(XMLHttpRequest.status == "500"){
+	    alert("Unexpected error occured while processing request");
+        }else if(XMLHttpRequest.status == "501"){
+	    alert("Function not implemented");
+	}*/
+}
+
+function doTest(){
+	//signal(xapi, 'test', "test");
+	var json = {
+		"module": "test",
+		"action": "test"
+	}
+	log("test request: " + JSON.stringify(json));
+	ajax(json, "/enge");
+};
+
+function cbTest(json){
+        log("cbTest: " + JSON.stringify(json));
+	$('testResult').innerHTML = json.reply;
+}
+
+function srvapi(){}
+
+function pageLoadFunction(){
+	// on-click handlers
+	connect('testButton', 'onclick', doTest);
+
+	// ajax reply event handlers
+	xapi = new srvapi();
+	connect(xapi, 'test', cbTest);
+}
+
+MochiKit.Signal.connect(window, "onload", pageLoadFunction);
+
+</script>
+
+	</head>
+	<body>
+
+            <div id="loginContainer">
+		<div id="loginForm">
+                    <fieldset>
+			<label for="inputLogin">Login</label>
+			<input id="inputLogin" type=text tabindex=1 />
+			<label for="inputPassword">Password</label>
+			<input id="inputPassword" type=password tabindex=2 />
+		        <a href="">Forgot password</a>
+                   </fieldset>
+		</div>
+		<div id="registerForm">
+		    <fieldset>
+			<label for="inputName">Full Name</label>
+			<input id="inputName" type=text tabindex=1 />
+			<label for="inputLogin">Login</label>
+			<input id="inputLogin" type=text tabindex=2 />
+			<label for="inputPassword">Password</label>
+			<input id="inputPassword" type=password tabindex=3 />
+			<label for="repeatPassword">Repeat password</label>
+			<input id="repeatPassword" type=password tabindex=4 />
+			<label for="eMail">E-Mail</label>
+			<input id="eMail" type=text tabindex=5 />
+			<div id=captchaimg></div>
+			<label for="Captcha">Enter code</label>
+			<input id="Captcha" type=text tabindex=6 />
+			<input id=CaptchaLink type=hidden />
+		   </fieldset>
+		</div>
+		<div id="loginLink">
+		    <div id=closeLogin class=login-button>X</div>
+		    <div id=openLogin class=login-button>Login now!</div>
+		    <div id=loginButton class=login-button>Login</div>
+		    <div id=openRegister class=login-button>Register now!</div>
+		    <div id=registerButton class=login-button>Register</div>
+		    <span id=loggedIn>
+		        <span id=loggedUid></span>
+		        <span id=logoutNow class=login-button>logout</span>
+	            </span>
+		</div>
+	    </div>
+
+		<input id="testButton" type=button value="Test"/>
+		<div id="testRequest"></div>
+		<div id="testResult"></div>
+
+		<div id="console"></div>
+		<div id="sample">
+			<table id="sampleTable">
+			<tr><th>Первая колонка</th><th>Вторая колонка</th></tr>
+			<tr><td><input type=text id="sampleTable_1_1" /></td><td><input type=text id="sampleTable_1_2" /></td></tr>
+			<tr><td><input type=text id="sampleTable_2_1" /></td><td><input type=text id="sampleTable_2_2" /></td></tr>
+			</table>
+		</div>
+
+	</body>
+</html>
+

@@ -1,0 +1,1 @@
+-record(session, {sid, expires, opaque}).

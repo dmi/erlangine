@@ -1,0 +1,378 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+TODO:
+В пространстве пользователя:
+адресная книга - простой таблицей. поиск/подписка?
+документ: автор, имя, дата, аннотаця, id документа-родителя, метки
+установка меток распространяется на всех дочек
+аттачи - в каталоге документа, с правами документа
+метки - объект раздачи прав, база меток локально для пользователя
+
+запускать ФЦК один раз, далее только подменять контент
+интерфейс ФЦК для аплоада файлов (разрешить только картинки) -> простая база с правами
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru-ru" lang="en-us">
+	<head>
+		<title>ErlanNGinE</title>
+
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+
+		<link href="css/enge.css" rel="stylesheet" type="text/css"/>
+
+		<script src="js/json2.js" type="text/javascript"></script>
+
+		<script src="MochiKit/MochiKit.js" type="text/javascript"></script>
+
+		<script type="text/javascript" src="fckeditor/fckeditor.js"></script>
+
+		<script type="text/javascript" src="js/base64.js"></script>
+
+		<script src="js/enge.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+/* Signal Handlers start */
+
+function cbLoggedIn(json){
+	hideElement('loginContainer');
+	$('loginPassword').value = "";
+	$('loggedUid').innerHTML = "<a href=foo>" + $('loginName').value + "</a>";
+	showElement('loggedContainer');
+	hideElement('welcomePage');
+	showElement('mainDesk');
+}
+
+function cbNotLoggedIn(json){
+	alert(JSON.stringify(json));
+}
+
+function cbRegistered(json){
+	alert("Log in now!");
+	$('regPassword').value = "";
+	$('regPassword2').value = "";
+	$('loginName').value = $('regLogin').value;
+        closeRegister();
+}
+
+function cbNotRegistered(json){
+	alert(JSON.stringify(json));
+}
+
+function cbLoggedOut(json){
+	loggedOut();
+}
+
+function cbCaptcha(json){
+    log("cbCaptcha: " + json.link);
+    $('regCaptchaImg').innerHTML = '<img src="'+ json.link + '"/>';
+    $('regCaptcha').value = "";
+    $('regCaptchaLink').value = json.link;
+}
+
+function cbDocSaved(json){
+	log("document saved: " + JSON.stringify(json))
+	$('testResult').innerHTML = json.reply;
+	Highlight('testResult');
+}
+
+function composeDocRow(doc){
+    	return "<td>" + '<input type=checkbox name="_id:' + doc._id + ', _rev:' + doc._rev + '">'
+	+ "</td><td>" + '<a title="' + doc.anno + '">' + doc.title + '</a>'
+        + "</td><td>" + doc.date.D + "." + doc.date.M + "." + doc.date.Y
+	+ "</td>";
+}
+
+function cbSearchResult(json){
+	log("search results: " + JSON.stringify(json))
+	$('testResult').innerHTML = json.event;
+	Highlight('testResult');
+	var tab = "";
+	for(i in json.reply){
+	    tab += "<tr>" + composeDocRow(json.reply[i]) + "</tr>\n";
+	}
+	$('docSearchResult').innerHTML = tab;
+}
+
+function cbTest(json){
+        log("cbTest: " + JSON.stringify(json));
+	$('testResult').innerHTML = json.reply;
+	Highlight('testResult');
+}
+
+/* Signal Handlers end */
+
+/* Button Handlers start */
+
+function openRegister(){
+	slideDown('registerContainer');
+	var json = {
+		"module": "register",
+		"action": "captcha"
+	}
+	ajax(json, "/enge");
+};
+
+function closeRegister(){
+	slideUp('registerContainer');
+};
+
+function loggedOut(){
+    hideElement('loggedContainer');
+    showElement('loginContainer');
+    hideElement('mainDesk');
+    showElement('welcomePage');
+}
+
+function checkSession(){
+	var json = {
+		"module": "login",
+		"action": "check"
+	}
+	ajax(json, "/enge");
+}
+
+function doTest(){
+	var json = {
+		"module": "test",
+		"action": "test"
+	}
+	log("test request: " + JSON.stringify(json));
+	ajax(json, "/enge");
+}
+
+function showDocAnnotation(){
+	$('docToggleAnno').innerHTML = "hide";
+	disconnectAll('docToggleAnno');
+	connect('docToggleAnno', 'onclick', hideDocAnnotation);
+	showElement('docAnnotation');
+}
+
+function hideDocAnnotation(){
+	$('docToggleAnno').innerHTML = "show";
+	disconnectAll('docToggleAnno');
+	connect('docToggleAnno', 'onclick', showDocAnnotation);
+	hideElement('docAnnotation');
+}
+
+function doNewDocument(){
+	log("fck test request");
+	openEditor('docText');
+	showElement('docEditor');
+	showDocAnnotation();
+}
+
+function openEditor(Id){
+	var fck = new FCKeditor(Id);
+	fck.Height = 300;
+	fck.Value = "Текстовый редактор ФЦК";
+	$(Id).innerHTML = fck.CreateHtml();
+}
+
+function docSave(){
+        var fck = FCKeditorAPI.GetInstance('docText') ;
+	var json = {
+		"module": "doc",
+		"action": "save",
+		"title": $('docTitle').value,
+		"anno": $('docAnnotation').value,
+		"text": Base64.encode(fck.GetHTML())
+	}
+	ajax(json, "/enge");
+};
+
+function doSearchDoc(){
+	var json = {
+		"module": "doc",
+		"action": "search"
+	}
+	ajax(json, "/enge");
+};
+
+/* Button Handlers end */
+
+function xtreeToggle(){
+        var par = this.parentNode;
+	var childs = getFirstElementByTagAndClassName("*", 'xtreeChilds', par);
+	if(getNodeAttribute(this, 'src') == "images/plus.gif"){
+		showElement(childs);
+		setNodeAttribute(this, 'src', "images/minus.gif");
+	}else{
+		hideElement(childs);
+		addElementClass(childs, 'xtreeCollapsed');
+		setNodeAttribute(this, 'src', "images/plus.gif");
+	}
+}
+
+function xtreeActivate(Id){
+	map(
+		function(elt){log(elt);connect(elt, 'onclick', xtreeToggle)},
+		findChildElements($(Id), ['.xtreePlus']));
+}
+
+function pageLoadFunction(){
+        //createLoggingPane();
+
+	// on-click handlers
+	connect('loginButton', 'onclick', logIn);
+	connect('openRegister', 'onclick', openRegister);
+	connect('closeRegister', 'onclick', closeRegister);
+	connect('logoutNow', 'onclick', logOut);
+	connect('registerButton', 'onclick', registerAccount);
+
+	connect('testButton', 'onclick', doTest);
+
+	connect('docSearch', 'onclick', doSearchDoc);
+	connect('newDocument', 'onclick', doNewDocument);
+	connect('docToggleAnno', 'onclick', hideDocAnnotation);
+	connect('docSave', 'onclick', docSave);
+
+	xtreeActivate('xtreeTest');
+
+	// ajax reply event handlers
+	connect(xapi, 'test', cbTest);
+	connect(xapi, 'login-ok', cbLoggedIn);
+	connect(xapi, 'login-fail', cbNotLoggedIn);
+	connect(xapi, 'logout', cbLoggedOut);
+	connect(xapi, 'captcha', cbCaptcha);
+	connect(xapi, 'register-ok', cbRegistered);
+	connect(xapi, 'register-fail', cbNotRegistered);
+	connect(xapi, 'docsave-done', cbDocSaved);
+	connect(xapi, 'docsearch-done', cbSearchResult);
+
+	checkSession();
+}
+
+MochiKit.Signal.connect(window, "onload", pageLoadFunction);
+
+</script>
+
+	</head>
+	<body>
+
+	    <div id=headLine>
+	        <div id=siteTitle>ErlaNGinE</div>
+		<div id=loginContainer>
+		    <span id=loginForm>
+			<label for=loginName>Login</label>
+			<input id=loginName type=text tabindex=1 />
+			<label for=loginPassword>Password</label>
+			<input id=loginPassword type=password tabindex=2 />
+		    </span>
+		    <input id=loginButton type=button value="Login"/>
+		    <span id=openRegister class=button>Register now!</span>
+		</div>
+		<div id=loggedContainer>
+		    <span id=loggedUid></span>
+		    <input id=logoutNow type=button value="logout"/>
+		</div>
+	    </div>
+
+	    <div id=registerContainer>
+		<div id=registerForm>
+		    <fieldset>
+		       <div><label for=regName>Full Name</label></div>
+		       <div><input id=regName type=text tabindex=1 /></div>
+		       <div><label for=regLogin>Login</label></div>
+		       <div><input id=regLogin type=text tabindex=2 /></div>
+		       <div><label for=regPassword>Password</label></div>
+		       <div><input id=regPassword type=password tabindex=3 /></div>
+		       <div><label for=regPassword2>Repeat password</label></div>
+		       <div><input id=regPassword2 type=password tabindex=4 /></div>
+		       <div><label for=regMail>E-Mail</label></div>
+		       <div><input id=regMail type=text tabindex=5 /></div>
+		       <div><div id=regCaptchaImg></div></div>
+		       <div><label for=regCaptcha>Enter verification code</label></div>
+		       <div><input id=regCaptcha type=text tabindex=6 /></div>
+		       <div><input id=regCaptchaLink type=hidden /></div>
+		   </fieldset>
+		</div>
+		<input id=registerButton type=button value="Register" />
+		<div id=closeRegister class=button>Cancel</div>
+	    </div>
+
+	    <input id="testButton" type=button value="Test"/>
+	    <div id="testRequest"></div>
+	    <div id="testResult"></div>
+
+            <div id=pageContent>
+		<div id=welcomePage>Welcome</div>
+
+		<div id=mainDesk style="display: none"> <!-- trick for FCKEditor -->
+		    <div id=activTabs>
+		        <span id=newDocument class=button>New document</span>
+		        <span id=findDocument class=button>Find document</span>
+		    </div>
+		    <div id=docSelector>
+			<input id="docSearch" type=button value="Search"/>
+			<table id="docSelect" cellspacing=1>
+			    <thead>
+				<tr><th></th><th>Name</th><th>Date</th></tr>
+			    </thead>
+			    <tbody id="docSearchResult">
+			    </tbody>
+			</table>
+		    </div>
+
+		    <div id=docEditor>
+			<div id=docInfo>
+			    <label for=docTitle>Document Title</label>
+			    <input id=docTitle type=text />
+			    <div class=label>
+				<label for=docAnnotation>Annotation</label>
+				<span id=docToggleAnno class=button>hide</span>
+			    </div>
+			    <textarea id=docAnnotation></textarea>
+			</div>
+			<div class=label><label for=docTitle>Document</label><input id=docSave type=button value="Save" /></div>
+		    </div>
+			<div id=docText></div>
+		</div>
+	    </div>
+
+	    <div  id=xtreeTest class=xtreeChilds>
+		<div class=xtreeNode>
+		    <img src="images/minus.gif" class=xtreePlus />
+		    <span class=xtreeItem>item1</span>
+		    <div class=xtreeChilds>
+			<div class=xtreeNode>
+			    <img src="images/minus.gif" class=xtreePlus />
+			    <span class=xtreeItem>item1-1</span>
+				<div class=xtreeChilds>
+				    <div class=xtreeNode>
+					<img src="images/minus.gif" class=xtreePlus />
+					<span class=xtreeItem>item1-1-1</span>
+				        <div class=xtreeChilds></div>
+				    </div>
+				    <div class=xtreeNode>
+					<img src="images/minus.gif" class=xtreePlus />
+					<span class=xtreeItem>item1-1-2</span>
+				        <div class=xtreeChilds></div>
+				    </div>
+				</div>
+			</div>
+			<div class=xtreeNode>
+			    <img src="images/minus.gif" class=xtreePlus />
+			    <span class=xtreeItem>item1-2</span>
+			    <div class=xtreeChilds></div>
+			</div>
+		    </div>
+		</div>
+		<div class=xtreeNode>
+		    <img src="images/minus.gif" class=xtreePlus />
+		    <span class=xtreeItem>item2</span>
+		    <div class=xtreeChilds>
+			<div class=xtreeNode>
+			    <img src="images/minus.gif" class=xtreePlus />
+			    <span class=xtreeItem>item2-1</span>
+			    <div class=xtreeChilds></div>
+			</div>
+			<div class=xtreeNode>
+			    <img src="images/minus.gif" class=xtreePlus />
+			    <span class=xtreeItem>item2-2</span>
+			    <div class=xtreeChilds></div>
+			</div>
+		    </div>
+		</div>
+	    </div>
+
+	</body>
+</html>
