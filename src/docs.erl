@@ -3,7 +3,7 @@
 
 newdb(Db) ->
 	case ecouch:db_create(Db) of
-	    {ok,{obj,[{"ok",true}]}} -> 
+	    {ok,{obj,[{<<"ok">>,true}]}} -> 
 			io:format("db create ok: ~p~n",[Db]),
 			ok;
 		Err ->

@@ -1,0 +1,15 @@
+ErlaNGinE
+
+The Erlang, Web and CouchDB experimental concept
+
+INSTALLATION INSTRUCTIONS
+
+brief:
+make for . and deps/
+./start-dev.sh
+enge2:prepare_db().
+
+not forgot to install couchdb
+
+TODO
+change port.
