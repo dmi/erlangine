@@ -12,4 +12,4 @@ enge2:prepare_db().
 not forgot to install couchdb
 
 TODO
-change port.
+include deps/ into Makefile

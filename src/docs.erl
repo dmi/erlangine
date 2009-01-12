@@ -1,22 +1,27 @@
 -module(docs).
 -compile(export_all).
 
+userdb(Db) ->
+    "user/" ++ Db.
+
 newdb(Db) ->
-	case ecouch:db_create(Db) of
+    Udb = userdb(Db),
+	case ecouch:db_create(Udb) of
 	    {ok,{obj,[{<<"ok">>,true}]}} -> 
-			io:format("db create ok: ~p~n",[Db]),
+			io:format("db create ok: ~p~n",[Udb]),
 			ok;
 		Err ->
-			io:format("db create fail: ~p, ~p~n",[Db, Err]),
+			io:format("db create fail: ~p, ~p~n",[Udb, Err]),
 			error
 	end.
 
 % {ok, id(), rev()} | {error, reason()}
 create(Db, Obj) ->
+    Udb = userdb(Db),
     %{obj,[{"ok",true},
     %      {"id",<<"8d80981151b8cecd024b804c0c51c97b">>},
     %	   {"rev",<<"101943079">>}]}
-	case ecouch:doc_create(Db, Obj) of
+	case ecouch:doc_create(Udb, Obj) of
 		{ok, Result} -> 
 			io:format("save doc: ~p~n", [Result]),
 			case obj:get_values(["ok", "id", "rev"], Result) of
@@ -29,10 +34,11 @@ create(Db, Obj) ->
 	end.
 
 create(Db, Name, Obj) ->
+    Udb = userdb(Db),
     %{obj,[{"ok",true},
     %      {"id",<<"8d80981151b8cecd024b804c0c51c97b">>},
     %	   {"rev",<<"101943079">>}]}
-	case ecouch:doc_create(Db, Name, Obj) of
+	case ecouch:doc_create(Udb, Name, Obj) of
 		{ok, Result} -> 
 			io:format("save doc: ~p~n", [Result]),
 			case obj:get_values(["ok", "id", "rev"], Result) of
@@ -62,15 +68,17 @@ compose_views([{Name, Map, Reduce} | T], Acc) ->
 % Db -> db(); map, reduce -> javascript()
 % MRList -> {name(), map(), reduce())
 create_view(Db, Name, MRList) ->
+    Udb = userdb(Db),
     ViewName = "_design/" ++ Name,
 	Views = compose_views(MRList),
 	Obj = {obj, [{"_id", list_to_binary(ViewName)},
 	             {"language", <<"javascript">>},
 				 {"views", {obj, Views}}]},
 	io:format("create view: ~p~n", [Obj]),
-	create(Db, ViewName, Obj).
+	create(Udb, ViewName, Obj).
 
 reset_db(Db) ->
-	ecouch:db_delete(Db),
-	ecouch:db_create(Db),
+    Udb = userdb(Db),
+	ecouch:db_delete(Udb),
+	ecouch:db_create(Udb),
 	create_view("dmi","writings",[{"all", "function(doc){ if(doc.type == 'writing') emit(null, doc) }", null}]).
