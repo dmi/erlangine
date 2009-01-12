@@ -2,7 +2,7 @@
 -compile(export_all).
 
 userdb(Db) ->
-    "_user_" ++ Db.
+    "user_" ++ Db.
 
 newdb(Db) ->
     Udb = userdb(Db),

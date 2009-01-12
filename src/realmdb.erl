@@ -37,7 +37,7 @@ realms() -> gen_server:call(?MODULE, realms).
 initial_tables() ->
     [%% The realmdb table
      {realms, admin, "Administrator", []},
-     {realms, user, "Regular User", [ajax_test]},
+     {realms, user, "Regular User", [ajax_test, ajax_doc]},
      {realms, guest, "Guest", [ajax_login, ajax_register]},
      {realms, expired, "Expired Session", [ajax_login]}
      ].
