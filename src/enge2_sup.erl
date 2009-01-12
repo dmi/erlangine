@@ -44,7 +44,7 @@ init([]) ->
     Ip = case os:getenv("MOCHIWEB_IP") of false -> "0.0.0.0"; Any -> Any end,   
     WebConfig = [
          {ip, Ip},
-                 {port, 8001},
+                 {port, 8080},
                  {docroot, enge2_deps:local_path(["priv", "www"])}],
 
     Web = {enge2_web,
