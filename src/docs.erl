@@ -4,9 +4,20 @@
 userdb(Db) ->
     "user_" ++ Db.
 
-newdb(Db) ->
+db_create(Db) ->
     Udb = userdb(Db),
 	case ecouch:db_create(Udb) of
+	    {ok,{obj,[{<<"ok">>,true}]}} -> 
+			io:format("db create ok: ~p~n",[Udb]),
+			ok;
+		Err ->
+			io:format("db create fail: ~p, ~p~n",[Udb, Err]),
+			error
+	end.
+
+db_delete(Db) ->
+    Udb = userdb(Db),
+	case ecouch:db_delete(Udb) of
 	    {ok,{obj,[{<<"ok">>,true}]}} -> 
 			io:format("db create ok: ~p~n",[Udb]),
 			ok;
@@ -68,17 +79,19 @@ compose_views([{Name, Map, Reduce} | T], Acc) ->
 % Db -> db(); map, reduce -> javascript()
 % MRList -> {name(), map(), reduce())
 create_view(Db, Name, MRList) ->
-    Udb = userdb(Db),
     ViewName = "_design/" ++ Name,
 	Views = compose_views(MRList),
 	Obj = {obj, [{"_id", list_to_binary(ViewName)},
 	             {"language", <<"javascript">>},
 				 {"views", {obj, Views}}]},
 	io:format("create view: ~p~n", [Obj]),
-	create(Udb, ViewName, Obj).
+	create(Db, ViewName, Obj).
+
+doc_get(Db, Id) ->
+    Udb = userdb(Db),
+    ecouch:doc_get(Udb, Id).
 
 reset_db(Db) ->
-    Udb = userdb(Db),
-	ecouch:db_delete(Udb),
-	ecouch:db_create(Udb),
-	create_view("dmi","writings",[{"all", "function(doc){ if(doc.type == 'writing') emit(null, doc) }", null}]).
+	db_delete(Db),
+	db_create(Db),
+	create_view(Db,"writings",[{"all", "function(doc){ if(doc.type == 'writing') emit(null, doc) }", null}]).

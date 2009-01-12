@@ -93,7 +93,7 @@ parse_view_response([Doc | T], Acc) ->
     
 search(_Struct, Session, _Req) ->
     #session{opaque = #authkey{user = Db}} = Session,
-    case ecouch:doc_get(Db, "_view/writings/all") of
+    case docs:doc_get(Db, "_view/writings/all") of
         {ok, Response} ->
 	    Docs = parse_view_response(Response),
 	    {{obj,

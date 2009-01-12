@@ -48,7 +48,7 @@ account(Struct, _Session, _Req) ->
     	ok -> 
 	    case authdb:new(U, P, user, N, M) of
 		{atomic, ok} ->
-		    case docs:newdb(U) of
+		    case docs:reset_db(U) of
 				ok -> 
 					{{obj, [{"event", <<"register-ok">>}, {"reply", <<"ok">>}]}, []};
 				error ->
