@@ -144,7 +144,16 @@ function hideDocAnnotation(){
 }
 
 function doNewDocument(){
-	log("fck test request");
+	$('docId').value="",
+	$('docRev').value="",
+	openEditor('docText');
+	showElement('docEditor');
+	showDocAnnotation();
+}
+
+function doEditDocument(){
+	$('docId').value="",
+	$('docRev').value="",
 	openEditor('docText');
 	showElement('docEditor');
 	showDocAnnotation();

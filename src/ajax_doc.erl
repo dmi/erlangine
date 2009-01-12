@@ -16,8 +16,8 @@ compose_attachment([{Name, CType, Data} | T], Acc) ->
 	compose_attachment(T, [Att | Acc]).
 
 save(Struct, Session, _Req) ->
-    Keys = ["title", "anno", "text"],
-    [Title, Anno, Text] = obj:get_values(Keys, Struct),
+    Keys = ["title", "anno", "text", "id", "rev"],
+    [Title, Anno, Text, Id_old, Rev_old] = obj:get_values(Keys, Struct),
     #session{opaque = #authkey{user = U = Db}} = Session,
     {Y, M, D} = date(),
 
@@ -26,25 +26,41 @@ save(Struct, Session, _Req) ->
 	        {"author", list_to_binary(U)},
 	        {"title", Title},
 	        {"anno", Anno}],
-    Obj = 
-        {obj, case Text of
-	          null -> AttrList;
-		  _ -> 
-		      Att = compose_attachment([{"text", "text/html", Text}]),
-		      lists:reverse([Att | AttrList])
-	      end},
+
+    AttrList1 = case Rev_old of
+        <<>> -> AttrList;
+        Rev_old -> [{"_rev", Rev_old} | AttrList]
+    end,
+
+    AttrList2 = case Text of
+        <<>> -> AttrList1;
+        _ ->
+            Att = compose_attachment([{"text", "text/html", Text}]),
+            lists:reverse([Att | AttrList1])
+    end,
+
+    Obj = {obj, AttrList2},
 
     io:format("Save doc: ~p: ~p~nObj: ~p~n", [U, Title, Obj]),
 
     %{obj,[{"ok",true},
     %      {"id",<<"8d80981151b8cecd024b804c0c51c97b">>},
     %	   {"rev",<<"101943079">>}]}
-	case docs:create(Db, Obj) of
+    CreateResult = case Id_old of
+        <<>> ->
+            SaveNature = <<"saved">>,
+            docs:create(Db, Obj);
+        Id_old ->
+            SaveNature = <<"updated">>,
+            docs:create(Db, Id_old, Obj)
+    end,
+
+    case CreateResult of
 		{ok, Id, Rev} -> 
 			io:format("doc id=~p, rev=~p~n",[Id, Rev]),
 			{{obj,
 			  [{"event", <<"docsave-ok">>},
-			   {"reply", <<"ok">>},
+			   {"reply", SaveNature},
 			   {"id", Id},
 			   {"rev", Rev}]},
 			  []};
