@@ -1,16 +1,4 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<!--
-TODO:
-В пространстве пользователя:
-адресная книга - простой таблицей. поиск/подписка?
-документ: автор, имя, дата, аннотаця, id документа-родителя, метки
-установка меток распространяется на всех дочек
-аттачи - в каталоге документа, с правами документа
-метки - объект раздачи прав, база меток локально для пользователя
-
-запускать ФЦК один раз, далее только подменять контент
-интерфейс ФЦК для аплоада файлов (разрешить только картинки) -> простая база с правами
--->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru-ru" lang="en-us">
 	<head>
 		<title>ErlanNGinE</title>
@@ -71,6 +59,8 @@ function cbCaptcha(json){
 function cbDocSaved(json){
 	log("document saved: " + JSON.stringify(json))
 	$('testResult').innerHTML = json.reply;
+	$('docId').value = json.id;
+	$('docRev').value = json.rev;
 	Highlight('testResult');
 }
 
@@ -173,6 +163,8 @@ function docSave(){
 		"module": "doc",
 		"action": "save",
 		"title": $('docTitle').value,
+		"id": $('docId').value,
+		"rev": $('docRev').value,
 		"anno": $('docAnnotation').value,
 		"text": Base64.encode(fck.GetHTML())
 	}
@@ -314,6 +306,8 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 
 		    <div id=docEditor>
 			<div id=docInfo>
+			    <input id=docId type=hidden />
+			    <input id=docRev type=hidden />
 			    <label for=docTitle>Document Title</label>
 			    <input id=docTitle type=text />
 			    <div class=label>
