@@ -19,10 +19,10 @@ db_delete(Db) ->
     Udb = userdb(Db),
 	case ecouch:db_delete(Udb) of
 	    {ok,{obj,[{<<"ok">>,true}]}} -> 
-			io:format("db create ok: ~p~n",[Udb]),
+			io:format("db delete ok: ~p~n",[Udb]),
 			ok;
 		Err ->
-			io:format("db create fail: ~p, ~p~n",[Udb, Err]),
+			io:format("db delete fail: ~p, ~p~n",[Udb, Err]),
 			error
 	end.
 
@@ -94,4 +94,7 @@ doc_get(Db, Id) ->
 reset_db(Db) ->
 	db_delete(Db),
 	db_create(Db),
-	create_view(Db,"writings",[{"all", "function(doc){ if(doc.type == 'writing') emit(null, doc) }", null}]).
+	case create_view(Db,"writings",[{"all", "function(doc){ if(doc.type == 'writing') emit(null, doc) }", null}]) of
+        {ok, _Id, _Rev} -> ok;
+        {error, _Reason} -> error
+    end.
