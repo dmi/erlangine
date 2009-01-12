@@ -4,12 +4,41 @@ The Erlang, Web and CouchDB experimental concept
 
 INSTALLATION INSTRUCTIONS
 
-brief:
-make for . and deps/
+* Install git.
+
+For Debian-based linux: apt-get install git-core
+For others see http://github.com/guides/home
+
+* Install apache CouchDB.
+
+Follow http://couchdb.apache.org/
+Run CouchDb on localhost
+
+* Obtain sources:
+
+git clone git://github.com/dmi/erlangine.git
+
+* Compile
+
+cd erlangine
+make
+
+* Init
+
 ./start-dev.sh
 enge2:prepare_db().
+q().
 
-not forgot to install couchdb
+* Run
 
-TODO
-include deps/ into Makefile
+./start-dev.sh
+
+* Try
+
+- Point your browser to http://localhost:8080
+- Register an account (Internet access to http://captchas.net required)
+- Log in
+- Create document
+- Try search
+
+It's all for now ;-)
