@@ -235,7 +235,7 @@ function pageLoadFunction(){
 	connect(xapi, 'captcha', cbCaptcha);
 	connect(xapi, 'register-ok', cbRegistered);
 	connect(xapi, 'register-fail', cbNotRegistered);
-	connect(xapi, 'docsave-done', cbDocSaved);
+	connect(xapi, 'docsave-ok', cbDocSaved);
 	connect(xapi, 'docsearch-done', cbSearchResult);
 
 	checkSession();
