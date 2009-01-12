@@ -75,7 +75,7 @@ function cbDocSaved(json){
 }
 
 function composeDocRow(doc){
-    	return "<td>" + '<input type=checkbox name="_id:' + doc._id + ', _rev:' + doc._rev + '">'
+    	return "<td>" + '<input type=checkbox name="' + doc._id + '">'
 	+ "</td><td>" + '<a title="' + doc.anno + '">' + doc.title + '</a>'
         + "</td><td>" + doc.date.D + "." + doc.date.M + "." + doc.date.Y
 	+ "</td>";
