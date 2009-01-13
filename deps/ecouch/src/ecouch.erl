@@ -59,6 +59,7 @@
         doc_get/3,
         doc_get_all/1,
         doc_get_all/2,
+        attach_get/2,
         view_create/2,
         view_update/3,
         view_delete/2,
@@ -290,6 +291,23 @@ doc_get(DatabaseName, DocName, Options) ->
     Path = lists:flatten(io_lib:format("/~s/~s", [DatabaseName, DocName])),
     Reply = gen_server:call(ec_listener, {get, Path, Options}),
     handle_reply(Reply).
+
+%% @spec attach_get(DatabaseName::string(), DocName::string()) -> {ok, Response::binary()} | {error, Reason::term()}
+%%
+%% @doc Get binary attach
+
+% TODO this all is ugly and ineffective. must be fixed
+attach_get(DatabaseName, DocName) ->
+    Path = lists:flatten(io_lib:format("/~s/~s", [DatabaseName, DocName])),
+    Reply = gen_server:call(ec_listener, {get, Path, []}),
+    case Reply of
+        {error, Reason} -> {error, Reason};
+        Reply ->
+	    case handle_reply(Reply) of
+		{ok, Json} -> {error, Json};
+		{error, Reason} -> {ok, list_to_binary(Reply)}
+            end
+    end.
 
 %% @spec doc_get_all(DatabaseName::string()) -> {ok, Response::json()} | {error, Reason::term()}
 %%

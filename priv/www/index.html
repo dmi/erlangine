@@ -66,7 +66,7 @@ function cbDocSaved(json){
 
 function composeDocRow(doc){
     	return "<td>" + '<input type=checkbox name="' + doc._id + '">'
-	+ "</td><td>" + '<a title="' + doc.anno + '">' + doc.title + '</a>'
+	+ "</td><td>" + '<span id="docs:' + doc._id + ':' + doc._rev + '" title="' + doc.anno + '">' + doc.title + '</span>'
         + "</td><td>" + doc.date.D + "." + doc.date.M + "." + doc.date.Y
 	+ "</td>";
 }
@@ -75,11 +75,31 @@ function cbSearchResult(json){
 	log("search results: " + JSON.stringify(json))
 	$('testResult').innerHTML = json.event;
 	Highlight('testResult');
+	disconnectAllTo(doDocEdit);
 	var tab = "";
+	var tabn = 0;
+        var ids = [];
 	for(i in json.reply){
 	    tab += "<tr>" + composeDocRow(json.reply[i]) + "</tr>\n";
+            ids[tabn++] = "docs:" + json.reply[i]._id + ":" + json.reply[i]._rev;
 	}
 	$('docSearchResult').innerHTML = tab;
+	log(ids);
+        for(i in ids){
+	    log(ids[i]);
+	    connect($(ids[i]), 'onclick', doDocEdit);
+        }
+}
+
+function doDocEdit(what){
+	var idd = what.target().id.split(":",3);
+	var json = {
+		"module": "doc",
+		"action": "doc_get",
+		"id": idd[1],
+		"rev": idd[2]
+	}
+	ajax(json, "/enge");
 }
 
 function cbTest(json){
@@ -146,23 +166,39 @@ function hideDocAnnotation(){
 function doNewDocument(){
 	$('docId').value="",
 	$('docRev').value="",
-	openEditor('docText');
+	openEditor('docText','Текстовый редактор ФЦК');
 	showElement('docEditor');
 	showDocAnnotation();
 }
 
-function doEditDocument(){
-	$('docId').value="",
-	$('docRev').value="",
-	openEditor('docText');
+function cbEditDocument(json){
+        log("EditDocument: " + json.reply._id + " : " + json.reply._rev);
+	$('docId').value = json.reply._id,
+	$('docRev').value = json.reply._rev,
+	$('docTitle').value = json.reply.title,
+	$('docAnnotation').value = json.reply.anno,
+	$('docText').innerHTML = "loading...";
 	showElement('docEditor');
 	showDocAnnotation();
+	var json = {
+		"module": "doc",
+		"action": "attach_get",
+		"id": $('docId').value + "/text",
+		"rev": $('docRev').value
+	}
+	ajax(json, "/enge");
 }
 
-function openEditor(Id){
+function cbEditAttach(json){
+        log("Attach: " + JSON.stringify(json));
+	//$('docText').innerHTML = json.reply;
+	openEditor('docText',json.reply);
+}
+
+function openEditor(Id, fckvalue){
 	var fck = new FCKeditor(Id);
 	fck.Height = 300;
-	fck.Value = "Текстовый редактор ФЦК";
+	fck.Value = fckvalue;
 	$(Id).innerHTML = fck.CreateHtml();
 }
 
@@ -238,6 +274,8 @@ function pageLoadFunction(){
 	connect(xapi, 'register-fail', cbNotRegistered);
 	connect(xapi, 'docsave-ok', cbDocSaved);
 	connect(xapi, 'docsearch-done', cbSearchResult);
+	connect(xapi, 'document-ok', cbEditDocument);
+	connect(xapi, 'attach-ok', cbEditAttach);
 
 	checkSession();
 }

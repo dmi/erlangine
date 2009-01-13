@@ -119,7 +119,44 @@ search(_Struct, Session, _Req) ->
 	{error, Reason} ->
 		io:format("failure ~p~n",[Reason]),
 		{{obj,
-		  [{"event", <<"docsearct-fail">>},
+		  [{"event", <<"docsearch-fail">>},
 		   {"error", <<"search failed">>}]},
+		 []}
+    end.
+
+doc_get(Struct, Session, _Req) ->
+    Keys = ["id", "rev"],
+    [Id, Rev] = obj:get_values(Keys, Struct),
+    #session{opaque = #authkey{user = Db}} = Session,
+    case docs:doc_get(Db, binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev)) of
+        {ok, Response} ->
+            Doc = Response,
+	    {{obj,
+	      [{"event", <<"document-ok">>},
+	       {"reply", Doc}]},
+	      []};
+	{error, Reason} ->
+		io:format("failure ~p~n",[Reason]),
+		{{obj,
+		  [{"event", <<"document-fail">>},
+		   {"error", <<"Document retrieve failed">>}]},
+		 []}
+    end.
+
+attach_get(Struct, Session, _Req) ->
+    Keys = ["id", "rev"],
+    [Id, Rev] = obj:get_values(Keys, Struct),
+    #session{opaque = #authkey{user = Db}} = Session,
+    case docs:attach_get(Db, binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev)) of
+        {ok, Doc} ->
+	    {{obj,
+	      [{"event", <<"attach-ok">>},
+	       {"reply", Doc}]},
+	      []};
+	{error, Reason} ->
+		io:format("failure ~p~n",[Reason]),
+		{{obj,
+		  [{"event", <<"attach-fail">>},
+		   {"error", <<"Attach retrieve failed">>}]},
 		 []}
     end.
