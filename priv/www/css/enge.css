@@ -107,6 +107,10 @@ input[type=button]
    font-family: serif;
    color: blue;
 }
+#docSelector
+{
+   display:none;
+}
 #docEditor
 {
    display:none;

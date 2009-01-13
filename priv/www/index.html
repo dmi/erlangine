@@ -167,8 +167,14 @@ function doNewDocument(){
 	$('docId').value="",
 	$('docRev').value="",
 	openEditor('docText','Текстовый редактор ФЦК');
+	hideElement('docSelector');
 	showElement('docEditor');
 	showDocAnnotation();
+}
+
+function doFindDocument(){
+	hideElement('docEditor');
+	showElement('docSelector');
 }
 
 function cbEditDocument(json){
@@ -177,7 +183,7 @@ function cbEditDocument(json){
 	$('docRev').value = json.reply._rev,
 	$('docTitle').value = json.reply.title,
 	$('docAnnotation').value = json.reply.anno,
-	$('docText').innerHTML = "loading...";
+	hideElement('docSelector');
 	showElement('docEditor');
 	showDocAnnotation();
 	var json = {
@@ -191,15 +197,26 @@ function cbEditDocument(json){
 
 function cbEditAttach(json){
         log("Attach: " + JSON.stringify(json));
-	//$('docText').innerHTML = json.reply;
 	openEditor('docText',json.reply);
 }
 
+function FCKeditor_OnComplete( fck )
+{
+	    fck.SetHTML($('docView').innerHTML);
+	    hideElement('docView');
+	    $('docView').innerHTML = "";
+}
+
 function openEditor(Id, fckvalue){
-	var fck = new FCKeditor(Id);
-	fck.Height = 300;
-	fck.Value = fckvalue;
-	$(Id).innerHTML = fck.CreateHtml();
+	try{
+	    var fck = FCKeditorAPI.GetInstance('docText') ;
+	    fck.SetHTML(fckvalue);
+	}catch(err){
+	    $('docView').innerHTML = fckvalue;
+            var fck = new FCKeditor(Id);
+	    fck.Height = 300;
+	    $('docText').innerHTML = fck.CreateHtml(fckvalue);
+        }
 }
 
 function docSave(){
@@ -226,27 +243,7 @@ function doSearchDoc(){
 
 /* Button Handlers end */
 
-function xtreeToggle(){
-        var par = this.parentNode;
-	var childs = getFirstElementByTagAndClassName("*", 'xtreeChilds', par);
-	if(getNodeAttribute(this, 'src') == "images/plus.gif"){
-		showElement(childs);
-		setNodeAttribute(this, 'src', "images/minus.gif");
-	}else{
-		hideElement(childs);
-		addElementClass(childs, 'xtreeCollapsed');
-		setNodeAttribute(this, 'src', "images/plus.gif");
-	}
-}
-
-function xtreeActivate(Id){
-	map(
-		function(elt){log(elt);connect(elt, 'onclick', xtreeToggle)},
-		findChildElements($(Id), ['.xtreePlus']));
-}
-
 function pageLoadFunction(){
-        //createLoggingPane();
 
 	// on-click handlers
 	connect('loginButton', 'onclick', logIn);
@@ -259,10 +256,9 @@ function pageLoadFunction(){
 
 	connect('docSearch', 'onclick', doSearchDoc);
 	connect('newDocument', 'onclick', doNewDocument);
+	connect('findDocument', 'onclick', doFindDocument);
 	connect('docToggleAnno', 'onclick', hideDocAnnotation);
 	connect('docSave', 'onclick', docSave);
-
-	xtreeActivate('xtreeTest');
 
 	// ajax reply event handlers
 	connect(xapi, 'test', cbTest);
@@ -344,7 +340,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 			<input id="docSearch" type=button value="Search"/>
 			<table id="docSelect" cellspacing=1>
 			    <thead>
-				<tr><th></th><th>Name</th><th>Date</th></tr>
+				<tr><th>x</th><th>Name</th><th>Date</th></tr>
 			    </thead>
 			    <tbody id="docSearchResult">
 			    </tbody>
@@ -364,53 +360,8 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 			    <textarea id=docAnnotation></textarea>
 			</div>
 			<div class=label><label for=docTitle>Document</label><input id=docSave type=button value="Save" /></div>
-		    </div>
+			<div id=docView></div>
 			<div id=docText></div>
-		</div>
-	    </div>
-
-	    <div  id=xtreeTest class=xtreeChilds>
-		<div class=xtreeNode>
-		    <img src="images/minus.gif" class=xtreePlus />
-		    <span class=xtreeItem>item1</span>
-		    <div class=xtreeChilds>
-			<div class=xtreeNode>
-			    <img src="images/minus.gif" class=xtreePlus />
-			    <span class=xtreeItem>item1-1</span>
-				<div class=xtreeChilds>
-				    <div class=xtreeNode>
-					<img src="images/minus.gif" class=xtreePlus />
-					<span class=xtreeItem>item1-1-1</span>
-				        <div class=xtreeChilds></div>
-				    </div>
-				    <div class=xtreeNode>
-					<img src="images/minus.gif" class=xtreePlus />
-					<span class=xtreeItem>item1-1-2</span>
-				        <div class=xtreeChilds></div>
-				    </div>
-				</div>
-			</div>
-			<div class=xtreeNode>
-			    <img src="images/minus.gif" class=xtreePlus />
-			    <span class=xtreeItem>item1-2</span>
-			    <div class=xtreeChilds></div>
-			</div>
-		    </div>
-		</div>
-		<div class=xtreeNode>
-		    <img src="images/minus.gif" class=xtreePlus />
-		    <span class=xtreeItem>item2</span>
-		    <div class=xtreeChilds>
-			<div class=xtreeNode>
-			    <img src="images/minus.gif" class=xtreePlus />
-			    <span class=xtreeItem>item2-1</span>
-			    <div class=xtreeChilds></div>
-			</div>
-			<div class=xtreeNode>
-			    <img src="images/minus.gif" class=xtreePlus />
-			    <span class=xtreeItem>item2-2</span>
-			    <div class=xtreeChilds></div>
-			</div>
 		    </div>
 		</div>
 	    </div>

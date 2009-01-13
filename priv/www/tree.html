@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru-ru" lang="en-us">
+	<head>
+		<title>Mochiweb TreeView</title>
+
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+
+		<link href="css/enge.css" rel="stylesheet" type="text/css"/>
+
+		<script src="MochiKit/MochiKit.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+/* Signal Handlers start */
+
+function xtreeToggle(){
+        var par = this.parentNode;
+	var childs = getFirstElementByTagAndClassName("*", 'xtreeChilds', par);
+	if(getNodeAttribute(this, 'src') == "images/plus.gif"){
+		showElement(childs);
+		setNodeAttribute(this, 'src', "images/minus.gif");
+	}else{
+		hideElement(childs);
+		addElementClass(childs, 'xtreeCollapsed');
+		setNodeAttribute(this, 'src', "images/plus.gif");
+	}
+}
+
+function xtreeActivate(Id){
+	map(
+		function(elt){log(elt);connect(elt, 'onclick', xtreeToggle)},
+		findChildElements($(Id), ['.xtreePlus']));
+}
+
+function pageLoadFunction(){
+	// on-click handlers
+	xtreeActivate('xtreeTest');
+
+}
+
+MochiKit.Signal.connect(window, "onload", pageLoadFunction);
+
+</script>
+
+	</head>
+	<body>
+	    <div  id=xtreeTest class=xtreeChilds>
+		<div class=xtreeNode>
+		    <img src="images/minus.gif" class=xtreePlus />
+		    <span class=xtreeItem>item1</span>
+		    <div class=xtreeChilds>
+			<div class=xtreeNode>
+			    <img src="images/minus.gif" class=xtreePlus />
+			    <span class=xtreeItem>item1-1</span>
+				<div class=xtreeChilds>
+				    <div class=xtreeNode>
+					<img src="images/minus.gif" class=xtreePlus />
+					<span class=xtreeItem>item1-1-1</span>
+				        <div class=xtreeChilds></div>
+				    </div>
+				    <div class=xtreeNode>
+					<img src="images/minus.gif" class=xtreePlus />
+					<span class=xtreeItem>item1-1-2</span>
+				        <div class=xtreeChilds></div>
+				    </div>
+				</div>
+			</div>
+			<div class=xtreeNode>
+			    <img src="images/minus.gif" class=xtreePlus />
+			    <span class=xtreeItem>item1-2</span>
+			    <div class=xtreeChilds></div>
+			</div>
+		    </div>
+		</div>
+		<div class=xtreeNode>
+		    <img src="images/minus.gif" class=xtreePlus />
+		    <span class=xtreeItem>item2</span>
+		    <div class=xtreeChilds>
+			<div class=xtreeNode>
+			    <img src="images/minus.gif" class=xtreePlus />
+			    <span class=xtreeItem>item2-1</span>
+			    <div class=xtreeChilds></div>
+			</div>
+			<div class=xtreeNode>
+			    <img src="images/minus.gif" class=xtreePlus />
+			    <span class=xtreeItem>item2-2</span>
+			    <div class=xtreeChilds></div>
+			</div>
+		    </div>
+		</div>
+	    </div>
+
+	</body>
+</html>
