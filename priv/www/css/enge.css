@@ -48,34 +48,54 @@ input[type=button]
    float: left;
    padding: 0.35em;
 }
-#loginContainer, #loggedContainer
+
+#loggedContainer
 {
    padding:0.5em;
    float: right;
 }
-#loginContainer #loginForm
-{
-   border:none;
-}     
-
 #loggedContainer
 {
    display: none;
 }
 
+#loginContainer
+{
+   background: #6d5a44;
+   padding:0.5em;
+   width: 30%;
+   text-align: center;
+   float: left;
+}
+#loginContainer #loginButton
+{
+   margin: 0.5em;
+   float:left;
+}
+#loginContainer  #openRegister
+{
+   margin: 0.5em;
+   float: right;
+}
+#loginContainer input[type=text], #loginContainer input[type=password]
+{
+   border: solid 1px #4d3a24;
+   width: 200px;
+}
+
 #registerContainer
 {
    background: #6d5a44;
-   padding:5px;
-   width: 225px;
+   padding: 0.5em;
+   width: 30%;
+   text-align: center;
+   float: left;
    display: none;
-   float: right;
 }
 #registerContainer input[type=text], #registerContainer input[type=password]
 {
    border: solid 1px #4d3a24;
    width: 200px;
-   display: block;
 }
 #registerContainer img
 {
@@ -103,13 +123,21 @@ input[type=button]
 
 #welcomePage
 {
-   font-size: 3em;
    font-family: serif;
    color: blue;
 }
+.welcomeHead
+{
+   text-align: center;
+   width: 30%;
+   float: left;
+   clear: both;
+}
+
 #docSelector
 {
    display:none;
+   padding: 0.5em;
 }
 #docEditor
 {
@@ -151,4 +179,10 @@ input[type=button]
 
 .xtrePlus
 {
+}
+
+.thirdPart
+{
+   width: 30%;
+   float: left;
 }

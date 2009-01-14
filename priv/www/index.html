@@ -113,7 +113,8 @@ function cbTest(json){
 /* Button Handlers start */
 
 function openRegister(){
-	slideDown('registerContainer');
+	hideElement('loginContainer');
+	showElement('registerContainer');
 	var json = {
 		"module": "register",
 		"action": "captcha"
@@ -122,7 +123,8 @@ function openRegister(){
 };
 
 function closeRegister(){
-	slideUp('registerContainer');
+	hideElement('registerContainer');
+	showElement('loginContainer');
 };
 
 function loggedOut(){
@@ -285,43 +287,10 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 
 	    <div id=headLine>
 	        <div id=siteTitle>ErlaNGinE</div>
-		<div id=loginContainer>
-		    <span id=loginForm>
-			<label for=loginName>Login</label>
-			<input id=loginName type=text tabindex=1 />
-			<label for=loginPassword>Password</label>
-			<input id=loginPassword type=password tabindex=2 />
-		    </span>
-		    <input id=loginButton type=button value="Login"/>
-		    <span id=openRegister class=button>Register now!</span>
-		</div>
 		<div id=loggedContainer>
 		    <span id=loggedUid></span>
 		    <input id=logoutNow type=button value="logout"/>
 		</div>
-	    </div>
-
-	    <div id=registerContainer>
-		<div id=registerForm>
-		    <fieldset>
-		       <div><label for=regName>Full Name</label></div>
-		       <div><input id=regName type=text tabindex=1 /></div>
-		       <div><label for=regLogin>Login</label></div>
-		       <div><input id=regLogin type=text tabindex=2 /></div>
-		       <div><label for=regPassword>Password</label></div>
-		       <div><input id=regPassword type=password tabindex=3 /></div>
-		       <div><label for=regPassword2>Repeat password</label></div>
-		       <div><input id=regPassword2 type=password tabindex=4 /></div>
-		       <div><label for=regMail>E-Mail</label></div>
-		       <div><input id=regMail type=text tabindex=5 /></div>
-		       <div><div id=regCaptchaImg></div></div>
-		       <div><label for=regCaptcha>Enter verification code</label></div>
-		       <div><input id=regCaptcha type=text tabindex=6 /></div>
-		       <div><input id=regCaptchaLink type=hidden /></div>
-		   </fieldset>
-		</div>
-		<input id=registerButton type=button value="Register" />
-		<div id=closeRegister class=button>Cancel</div>
 	    </div>
 
 	    <input id="testButton" type=button value="Test"/>
@@ -329,14 +298,51 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 	    <div id="testResult"></div>
 
             <div id=pageContent>
-		<div id=welcomePage>Welcome</div>
+		<div id=welcomePage>
+		    <!--div class=welcomeHead>
+			<div class=thirdPart>&nbsp;</div>
+			<h1>Welcome</h1>
+		    </div-->
+		    <div class=thirdPart>&nbsp;</div>
+		    <div id=loginContainer>
+			<fieldset>
+			    <div><label for=loginName>Login</label></div>
+			    <div><input id=loginName type=text tabindex=1 /></div>
+			    <div><label for=loginPassword>Password</label></div>
+			    <div><input id=loginPassword type=password tabindex=2 /></div>
+		        </fieldset>
+			<input id=loginButton type=button value="Login"/>
+			<div id=openRegister class=button>Register now!</div>
+		    </div>
+		    <div id=registerContainer>
+			<fieldset>
+			   <div><label for=regName>Full Name</label></div>
+			   <div><input id=regName type=text tabindex=1 /></div>
+			   <div><label for=regLogin>Login</label></div>
+			   <div><input id=regLogin type=text tabindex=2 /></div>
+			   <div><label for=regPassword>Password</label></div>
+			   <div><input id=regPassword type=password tabindex=3 /></div>
+			   <div><label for=regPassword2>Repeat password</label></div>
+			   <div><input id=regPassword2 type=password tabindex=4 /></div>
+			   <div><label for=regMail>E-Mail</label></div>
+			   <div><input id=regMail type=text tabindex=5 /></div>
+			   <div><div id=regCaptchaImg></div></div>
+			   <div><label for=regCaptcha>Enter verification code</label></div>
+			   <div><input id=regCaptcha type=text tabindex=6 /></div>
+			   <div><input id=regCaptchaLink type=hidden /></div>
+		       </fieldset>
+			<input id=registerButton type=button value="Register" />
+			<div id=closeRegister class=button>Cancel</div>
+		    </div>
+		</div>
 
 		<div id=mainDesk style="display: none"> <!-- trick for FCKEditor -->
 		    <div id=activTabs>
-		        <span id=newDocument class=button>New document</span>
-		        <span id=findDocument class=button>Find document</span>
+		        <span id=findDocument class=button>Navigator</span>
+		        <span id=newDocument class=button>Document Editor</span>
 		    </div>
 		    <div id=docSelector>
+			<input id="docDelete" type=button value="Delete"/>
 			<input id="docSearch" type=button value="Search"/>
 			<table id="docSelect" cellspacing=1>
 			    <thead>
