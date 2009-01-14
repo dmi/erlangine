@@ -91,6 +91,10 @@ doc_get(Db, Id) ->
     Udb = userdb(Db),
     ecouch:doc_get(Udb, Id).
 
+doc_delete(Db, Id, Rev) ->
+    Udb = userdb(Db),
+    ecouch:doc_delete(Udb, Id, Rev).
+
 attach_get(Db, Id) ->
     Udb = userdb(Db),
     ecouch:attach_get(Udb, Id).

@@ -143,11 +143,13 @@ doc_get(Struct, Session, _Req) ->
 		 []}
     end.
 
+idrev(Id, Rev) ->
+     binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev).
+
 attach_get(Struct, Session, _Req) ->
-    Keys = ["id", "rev"],
-    [Id, Rev] = obj:get_values(Keys, Struct),
+    [Id, Rev] = obj:get_values(["id", "rev"], Struct),
     #session{opaque = #authkey{user = Db}} = Session,
-    case docs:attach_get(Db, binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev)) of
+    case docs:attach_get(Db, idrev(Id, Rev)) of
         {ok, Doc} ->
 	    {{obj,
 	      [{"event", <<"attach-ok">>},
@@ -160,3 +162,17 @@ attach_get(Struct, Session, _Req) ->
 		   {"error", <<"Attach retrieve failed">>}]},
 		 []}
     end.
+
+bulk_delete(_Db, []) -> ok;
+
+bulk_delete(Db, [H | T]) ->
+    [Id, Rev] = obj:get_values(["id", "rev"], H),
+    io:format("bulk_delete: ~p ~p~n",[Id, Rev]),
+    docs:doc_delete(Db, Id, Rev),
+    bulk_delete(Db, T).
+
+bulk_delete(Struct, Session, _Req) ->
+    #session{opaque = #authkey{user = Db}} = Session,
+    ToDelete = obj:get_value("docs", Struct),
+    bulk_delete(Db, ToDelete),
+    {{obj, [{"event", <<"bulk_delete-ok">>}]}, []}.
