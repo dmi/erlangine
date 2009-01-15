@@ -21,7 +21,6 @@
 /* Signal Handlers start */
 
 function cbLoggedIn(json){
-	hideElement('loginContainer');
 	$('loginPassword').value = "";
 	$('loggedUid').innerHTML = "<a>" + $('loginName').value + "</a>";
 	showElement('loggedContainer');
