@@ -166,18 +166,20 @@ function hideDocAnnotation(){
 	hideElement('docAnnotation');
 }
 
-function doNewDocument(){
-	$('docId').value="",
-	$('docRev').value="",
-	openEditor('docText','Текстовый редактор ФЦК');
-	hideElement('docSelector');
-	showElement('docEditor');
-	showDocAnnotation();
-}
-
 function doFindDocument(){
 	hideElement('docEditor');
 	showElement('docSelector');
+}
+
+function doNewDocument(){
+	$('docId').value="",
+	$('docRev').value="",
+	$('docTitle').value="",
+	$('docAnnotation').value="",
+	openEditor('docText','');
+	hideElement('docSelector');
+	showElement('docEditor');
+	showDocAnnotation();
 }
 
 function cbEditDocument(json){
@@ -289,6 +291,7 @@ function pageLoadFunction(){
 	connect(xapi, 'register-fail', cbNotRegistered);
 	connect(xapi, 'docsave-ok', cbDocSaved);
 	connect(xapi, 'docsearch-done', cbSearchResult);
+	connect(xapi, 'bulk_delete-ok', doSearchDocs);
 	connect(xapi, 'document-ok', cbEditDocument);
 	connect(xapi, 'attach-ok', cbEditAttach);
 
