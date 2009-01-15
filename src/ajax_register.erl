@@ -26,11 +26,11 @@ account(Struct, _Session, _Req) ->
 	    "Internal error 1";
 	{match, _MStart, _MLength} -> ok
     end,
-    UidTest = case regexp:match(M, "^[a-zA-Z0-9_.@ ]+$") of
-        nomatch -> "Email is incorrect";
+    UidTest = case regexp:match(U, "^[a-zA-Z][a-zA-Z0-9_.@ ]+$") of
+        nomatch -> "Uid is incorrect";
 	{error, ReasonU} ->
-            io:format("email match error: ~p~n",[ReasonU]),
-	    "Internal error 1";
+            io:format("uid match error: ~p~n",[ReasonU]),
+	    "Internal error 2";
 	{match, _UStart, _ULength} -> ok
     end,
     Test = if
