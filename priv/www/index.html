@@ -23,7 +23,7 @@
 function cbLoggedIn(json){
 	hideElement('loginContainer');
 	$('loginPassword').value = "";
-	$('loggedUid').innerHTML = "<a href=foo>" + $('loginName').value + "</a>";
+	$('loggedUid').innerHTML = "<a>" + $('loginName').value + "</a>";
 	showElement('loggedContainer');
 	hideElement('welcomePage');
 	showElement('mainDesk');
@@ -113,6 +113,7 @@ function cbTest(json){
 /* Button Handlers start */
 
 function openRegister(){
+        $('regCaptchaImg').innerHTML = '';
 	hideElement('loginContainer');
 	showElement('registerContainer');
 	var json = {
@@ -269,7 +270,7 @@ function pageLoadFunction(){
 	connect('logoutNow', 'onclick', logOut);
 	connect('registerButton', 'onclick', registerAccount);
 
-	connect('testButton', 'onclick', doTest);
+	connect('siteTitle', 'onclick', doTest);
 
 	connect('docSearch', 'onclick', doSearchDocs);
 	connect('docDelete', 'onclick', doDeleteDocs);
@@ -309,23 +310,31 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		</div>
 	    </div>
 
-	    <input id="testButton" type=button value="Test"/>
+	    <!--input id="testButton" type=button value="Test"/-->
 	    <div id="testRequest"></div>
 	    <div id="testResult"></div>
 
             <div id=pageContent>
 		<div id=welcomePage>
-		    <!--div class=welcomeHead>
-			<div class=thirdPart>&nbsp;</div>
-			<h1>Welcome</h1>
-		    </div-->
-		    <div class=thirdPart>&nbsp;</div>
+		    <div class=thirdPart>
+			<div class=welcomeText>
+			    <p align=center>Добро пожаловать на тестовый сервер проекта<br>
+				<span class=logo><a href="http://erlangine.feautec.pp.ru/">ErlaNGinE</a></span>
+			    </p>
+			    <p>Проект создан для исследования некоторых технологий построения веб-приложений на языке
+			    <a href="http://www.erlang.org">Erlang</a>, а также с целью реализации несложной системы
+			    для серверного хранения и обмена текстовыми документами.</p>
+			    <p>Исходный код проекта свободно доступен в репозитории <a href="http://github.com/dmi/erlangine/">GitHub</a></p>
+			    <p>Буду рад видеть любые отзывы и вопросы в <a href="http://erlangine.feautec.pp.ru/">Блоге проекта</a></p>
+			    <p align=right>2008-2009, Дмитрий Черняк</p>
+			</div>
+                    </div>
 		    <div id=loginContainer>
 			<fieldset>
 			    <div><label for=loginName>Login</label></div>
-			    <div><input id=loginName type=text tabindex=1 /></div>
+			    <div><input id=loginName type=text /></div>
 			    <div><label for=loginPassword>Password</label></div>
-			    <div><input id=loginPassword type=password tabindex=2 /></div>
+			    <div><input id=loginPassword type=password /></div>
 		        </fieldset>
 			<input id=loginButton type=button value="Login"/>
 			<div id=openRegister class=button>Register now!</div>
@@ -333,22 +342,27 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		    <div id=registerContainer>
 			<fieldset>
 			   <div><label for=regName>Full Name</label></div>
-			   <div><input id=regName type=text tabindex=1 /></div>
+			   <div><input id=regName type=text /></div>
 			   <div><label for=regLogin>Login</label></div>
-			   <div><input id=regLogin type=text tabindex=2 /></div>
+			   <div><input id=regLogin type=text /></div>
 			   <div><label for=regPassword>Password</label></div>
-			   <div><input id=regPassword type=password tabindex=3 /></div>
+			   <div><input id=regPassword type=password /></div>
 			   <div><label for=regPassword2>Repeat password</label></div>
-			   <div><input id=regPassword2 type=password tabindex=4 /></div>
+			   <div><input id=regPassword2 type=password /></div>
 			   <div><label for=regMail>E-Mail</label></div>
-			   <div><input id=regMail type=text tabindex=5 /></div>
+			   <div><input id=regMail type=text /></div>
 			   <div><div id=regCaptchaImg></div></div>
 			   <div><label for=regCaptcha>Enter verification code</label></div>
-			   <div><input id=regCaptcha type=text tabindex=6 /></div>
+			   <div><input id=regCaptcha type=text /></div>
 			   <div><input id=regCaptchaLink type=hidden /></div>
-		       </fieldset>
+		        </fieldset>
 			<input id=registerButton type=button value="Register" />
 			<div id=closeRegister class=button>Cancel</div>
+		    </div>
+		    <div class=thirdPart>
+			<div class=welcomeText>
+			    <p align=center>Инструкция</p>
+			</div>
 		    </div>
 		</div>
 
