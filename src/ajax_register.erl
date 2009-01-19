@@ -12,7 +12,7 @@ account(Struct, _Session, _Req) ->
         lists:map(fun(A) -> binary_to_list(A) end, obj:get_values(Keys, Struct)),
 
     LL = length(P),
-    SessionTest = case session:get({captcha, CL}, -1) of
+    SessionTest = case session:get_session({captcha, CL}, -1) of
         {error, expired} -> "Verification code expired";
         {error, nosession} -> "Bad verification code";
 	#session{opaque = CS} when CC /= CS -> "Wrong verification code";

@@ -26,7 +26,7 @@ loop(Req, DocRoot) ->
     "/" ++ Path = Req:get(path),
 
     Sid = Req:get_cookie_value("enge2-sid"),
-    Session = session:get({auth, Sid}, ?AUTHKEY_TIMEOUT),
+    Session = session:get_session({auth, Sid}, ?AUTHKEY_TIMEOUT),
 
     case Req:get(method) of
         Method when Method =:= 'GET'; Method =:= 'HEAD' ->
