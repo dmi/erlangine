@@ -59,5 +59,5 @@ init([]) ->
               {realmdb, start, []},
 	      permanent, 5000, worker, [realmdb]},
 
-    Processes = [Web, AuthDB, RealmDB, Session],
+    Processes = [Web, AuthDB, RealmDB],
     {ok, {{one_for_one, 10, 10}, Processes}}.

@@ -23,14 +23,13 @@ start() ->
     ensure_started(mnesia),
     ensure_started(inets),
     ensure_started(ecouch),
+    session:init(),
     application:start(enge2).
 
 %% @spec stop() -> ok
 %% @doc Stop the enge2 server.
 stop() ->
     Res = application:stop(enge2),
-    % XXX must go to supervision tree
-    authdb:stop(),
     application:stop(ecouch),
     application:stop(inets),
     application:stop(mnesia),
