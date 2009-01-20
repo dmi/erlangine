@@ -4,10 +4,6 @@
 -include("session.hrl").
 -include("authdb.hrl").
 
-guid() ->
-    <<I:160/integer>> = crypto:sha(term_to_binary({node(), make_ref(), now()})),
-    erlang:integer_to_list(I, 16).
-
 % {Result, Headers} | error
 dispatch(Struct, Session, Req) ->
 

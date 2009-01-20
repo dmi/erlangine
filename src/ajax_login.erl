@@ -8,7 +8,7 @@ login(Struct, _Session, _Req) ->
     P = binary_to_list(obj:get_value(<<"password">>, Struct)),
     case authdb:auth(U, P) of
         {ok, Realm} ->
-	    SessionId = enge:guid(),
+	    SessionId = session:guid(),
 	    H = mochiweb_cookies:cookie("enge2-sid", SessionId, [{path, "/"}]), 
 	    io:format("cookie is ~p~n", [H]),
 

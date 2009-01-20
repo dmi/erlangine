@@ -16,7 +16,7 @@
 -include_lib("stdlib/include/qlc.hrl").
 -include("session.hrl").
 
--export([init/0, add/3, get_session/1, get_session/2, remove/1, list_sessions/0, expire/0, test_engine/0]).
+-export([init/0, add/3, get_session/1, get_session/2, remove/1, list_sessions/0, expire/0, test_engine/0, guid/0]).
 
 %% @spec init() -> ok
 %% @doc Create in-memory system table after start.
@@ -138,6 +138,12 @@ test_engine() ->
     io:format("list after 2nd expire: ~p~n",[session:list_sessions()]),
     ok.
 
+
+%% @spec guid() -> string()
+%% @doc Generate unique Id
+guid() ->
+    <<I:160/integer>> = crypto:sha(term_to_binary({node(), make_ref(), now()})),
+    erlang:integer_to_list(I, 16).
 
 %
 % internals

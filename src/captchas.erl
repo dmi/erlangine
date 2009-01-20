@@ -11,7 +11,7 @@ password(Secret, Random, Alphabet, Letters) ->
     lists:map(fun(X) -> lists:nth(X rem AbLength + 1, Alphabet) end, binary_to_list(HeadLetters)).
 
 make_href(User, Password, Width) ->
-    Random = enge:guid(),
+    Random = session:guid(),
     Pw = password(Password, Random ,"abcdefghijklmnopqrstuvwxyz", 6),
     Link = ["http://image.captchas.net/?client=", User, "&random=", Random, "&width=", io_lib:format("~p", [Width])],
     {lists:flatten(Link), Pw}.
