@@ -12,6 +12,7 @@
 <ul class="index"><li><a href="#description">Description</a></li><li><a href="#types">Data Types</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>Session server, unspecial storage with expiration support.
 <p>Copyright © Copyleft 2009</p>
 
+<p><b>Behaviours:</b> <a href="gen_server.html"><tt>gen_server</tt></a>.</p>
 <p><b>Authors:</b> Dmitry Chernyak (<a href="mailto:losthost@narod.ru"><tt>losthost@narod.ru</tt></a>).</p>
 
 <h2><a name="description">Description</a></h2>Session server, unspecial storage with expiration support.
@@ -27,6 +28,10 @@
 <p><tt>expires() = term()</tt></p>
 <p>Expiration date/dime as in erlang:now()</p>
 
+<h3 class="typedecl"><a name="type-name">name()</a></h3>
+<p><tt>name() = atom()</tt></p>
+<p>Server name - for multiple servers config.</p>
+
 <h3 class="typedecl"><a name="type-opaque">opaque()</a></h3>
 <p><tt>opaque() = term()</tt></p>
 <p>Session data</p>
@@ -41,13 +46,20 @@
 
 <h2><a name="index">Function Index</a></h2>
 <table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#add-3">add/3</a></td><td>Create new session, unconditionally replace old with the same key.</td></tr>
+<tr><td valign="top"><a href="#code_change-3">code_change/3</a></td><td></td></tr>
 <tr><td valign="top"><a href="#expire-0">expire/0</a></td><td>Cleanup all expired sessions, returns the count.</td></tr>
 <tr><td valign="top"><a href="#get_session-1">get_session/1</a></td><td>Return session(), not touch expiration time.</td></tr>
 <tr><td valign="top"><a href="#get_session-2">get_session/2</a></td><td>Return session(), change expiration time.</td></tr>
 <tr><td valign="top"><a href="#guid-0">guid/0</a></td><td>Generate unique Id.</td></tr>
-<tr><td valign="top"><a href="#init-0">init/0</a></td><td>Create in-memory system table after start.</td></tr>
+<tr><td valign="top"><a href="#handle_call-3">handle_call/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#handle_cast-2">handle_cast/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#handle_info-2">handle_info/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#init-1">init/1</a></td><td>Create in-memory system table after start.</td></tr>
 <tr><td valign="top"><a href="#list_sessions-0">list_sessions/0</a></td><td>List all database include expired sessions.</td></tr>
 <tr><td valign="top"><a href="#remove-1">remove/1</a></td><td>Remove session from database.</td></tr>
+<tr><td valign="top"><a href="#start-0">start/0</a></td><td>Does start(?MODULE).</td></tr>
+<tr><td valign="top"><a href="#stop-0">stop/0</a></td><td>Stop server.</td></tr>
+<tr><td valign="top"><a href="#terminate-2">terminate/2</a></td><td></td></tr>
 <tr><td valign="top"><a href="#test_engine-0">test_engine/0</a></td><td>Interactive, destructive automatic test.</td></tr>
 </table>
 
@@ -57,6 +69,11 @@
 <div class="spec">
 <p><tt>add(Sid::<a href="#type-sid">sid()</a>, Expire::<a href="#type-expire">expire()</a>, Opaque::<a href="#type-opaque">opaque()</a>) -&gt; ok</tt></p>
 </div><p>Create new session, unconditionally replace old with the same key.</p>
+
+<h3 class="function"><a name="code_change-3">code_change/3</a></h3>
+<div class="spec">
+<p><tt>code_change(OldVsn, State, Extra) -&gt; any()</tt></p>
+</div>
 
 <h3 class="function"><a name="expire-0">expire/0</a></h3>
 <div class="spec">
@@ -86,12 +103,25 @@
 <p><tt>guid() -&gt; string()</tt></p>
 </div><p>Generate unique Id</p>
 
-<h3 class="function"><a name="init-0">init/0</a></h3>
+<h3 class="function"><a name="handle_call-3">handle_call/3</a></h3>
 <div class="spec">
-<p><tt>init() -&gt; ok</tt></p>
-</div><p><p>Create in-memory system table after start.</p>
- 
-  Currently - one-node configuration only, but can be improved</p>
+<p><tt>handle_call(Other, From, State) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="handle_cast-2">handle_cast/2</a></h3>
+<div class="spec">
+<p><tt>handle_cast(Msg, State) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="handle_info-2">handle_info/2</a></h3>
+<div class="spec">
+<p><tt>handle_info(Info, State) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="init-1">init/1</a></h3>
+<div class="spec">
+<p><tt>init(Name::<a href="#type-name">name()</a>) -&gt; ok</tt></p>
+</div><p>Create in-memory system table after start.</p>
 
 <h3 class="function"><a name="list_sessions-0">list_sessions/0</a></h3>
 <div class="spec">
@@ -103,6 +133,22 @@
 <p><tt>remove(Sid::<a href="#type-sid">sid()</a>) -&gt; ok</tt></p>
 </div><p>Remove session from database.</p>
 
+<h3 class="function"><a name="start-0">start/0</a></h3>
+<div class="spec">
+<p><tt>start() -&gt; Result</tt></p>
+</div><p>Does start(?MODULE)</p>
+
+<h3 class="function"><a name="stop-0">stop/0</a></h3>
+<div class="spec">
+<p><tt>stop() -&gt; {stop, stopped}</tt></p>
+</div><p>Stop server
+ </p>
+
+<h3 class="function"><a name="terminate-2">terminate/2</a></h3>
+<div class="spec">
+<p><tt>terminate(Reason, State) -&gt; any()</tt></p>
+</div>
+
 <h3 class="function"><a name="test_engine-0">test_engine/0</a></h3>
 <div class="spec">
 <p><tt>test_engine() -&gt; ok</tt></p>
@@ -112,6 +158,6 @@
 <hr>
 
 <div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
-<p><i>Generated by EDoc, Jan 20 2009, 14:38:03.</i></p>
+<p><i>Generated by EDoc, Jan 21 2009, 12:02:47.</i></p>
 </body>
 </html>

@@ -5,6 +5,7 @@
 %%      Saves {SID, Opaque} data
 %%      Uses Mnesia in-memory storage
 
+%% @type name() = atom(). Server name - for multiple servers config.
 %% @type session() = {session, sid(), expires(), opaque()}
 %% @type sid() = term(). Session Id
 %% @type opaque() = term(). Session data
@@ -16,27 +17,21 @@
 -include_lib("stdlib/include/qlc.hrl").
 -include("session.hrl").
 
--export([init/0, add/3, get_session/1, get_session/2, remove/1, list_sessions/0, expire/0, test_engine/0, guid/0]).
+-behaviour(gen_server).
 
-%% @spec init() -> ok
-%% @doc Create in-memory system table after start.
-%%
-%% Currently - one-node configuration only, but can be improved
-init() ->
-    % ram-only fast table
-    {atomic, ok} = mnesia:create_table(session, [{attributes, record_info(fields, session)}]),
-    ok.
+%% gen_server callbacks
+-export([start/0, stop/0, init/1, handle_call/3, handle_cast/2, handle_info/2,
+         terminate/2, code_change/3]).
 
+-export([add/3, get_session/1, get_session/2, remove/1, list_sessions/0, expire/0, test_engine/0, guid/0]).
+
+%
+% Interface
+%
 
 %% @spec add(sid(), expire(), opaque()) -> ok
 %% @doc Create new session, unconditionally replace old with the same key.
-add(Sid, Expire, Opaque) ->
-    Row = #session{sid = Sid, expires = expire_time(Expire), opaque = Opaque},
-    F = fun() ->
-                mnesia:write(Row)
-        end,
-    tr(F).
-
+add(Sid, Expire, Opaque) -> gen_server:call(?MODULE, {add, Sid, Expire, Opaque}).
 
 %% @spec get_session(sid()) -> {error, nosession} | {error, expired} | session()
 %% @doc Return session(), not touch expiration time.
@@ -111,9 +106,7 @@ list_sessions() ->
 %%
 %% Note: it will destroy and recreate session tabe.
 test_engine() ->
-    {atomic, ok} = mnesia:delete_table(session),
-    {atomic, ok} = mnesia:create_table(session, [{attributes, record_info(fields, session)}]),
-    ok = mnesia:wait_for_tables([session],1000),
+    session:start(),
     ok = session:add("sid1", 1, {o1, o2}),
     ok = session:add("sid2", 10, {o3, o4}),
     {error, nosession} = get_session("sid0"),
@@ -136,6 +129,8 @@ test_engine() ->
     end,
     1 = session:expire(),
     io:format("list after 2nd expire: ~p~n",[session:list_sessions()]),
+    Stop = session:stop(),
+    io:format("stop: ~p~n", [Stop]),
     ok.
 
 
@@ -146,9 +141,63 @@ guid() ->
     erlang:integer_to_list(I, 16).
 
 %
-% internals
+% gen_server interface
 %
 
+%% @spec start() -> Result
+%% @doc Does start(?MODULE)
+start() -> start(?MODULE).
+
+%% @spec start(name()) -> {ok, pid()} | ignore | {error, Error}
+%% @doc Start session server, named 'session'
+%%
+%% Error = {already_started, pid()} | term()
+start(Name) -> gen_server:start_link({local, Name}, ?MODULE, Name, []).
+
+%% @spec stop() -> {stop, stopped}
+%% @doc Stop server
+%%
+%% TODO: check result against manual
+stop() -> gen_server:call(?MODULE, stop).
+
+
+%
+% gen_server internals
+%
+
+%% @spec init(name()) -> ok
+%% @doc Create in-memory system table after start.
+init(_Name) ->
+    %ets:new(Name, [set, named_table, public, {keypos, 2}]),
+    mnesia:delete_table(session),
+    {atomic, ok} = mnesia:create_table(session, [{attributes, record_info(fields, session)}]),
+    ok = mnesia:wait_for_tables([session],1000),
+    io:format("Module: ~p ok~n",[?MODULE]),
+    {ok, []}.
+
+
+handle_call({add, Sid, Expire, Opaque}, _From, State) ->
+    Row = #session{sid = Sid, expires = expire_time(Expire), opaque = Opaque},
+    F = fun() ->
+                mnesia:write(Row)
+        end,
+    Reply = tr(F),
+    {reply, Reply, State};
+
+handle_call(stop, _From, State) ->
+    {stop, stopped, State};
+
+handle_call(Other, _From, State) ->
+    io:format("Unknown ~p request: ~p~n", [?MODULE, Other]),
+    {reply, unknown, State}.
+
+handle_cast(_Msg, State) -> {noreply, State}.
+handle_info(_Info, State) -> {noreply, State}.
+terminate(_Reason, _State) -> ok.
+code_change(_OldVsn, State, _Extra) -> {ok, State}.
+%
+% internals
+%
 
 % calculate expire time in period from now
 expire_time(Period) ->
