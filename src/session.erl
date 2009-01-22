@@ -2,10 +2,11 @@
 %% @copyright Copyleft 2009 
 
 %% @doc Session server, unspecial storage with expiration support.
-%%      Saves {SID, Opaque} data
-%%      Uses Mnesia in-memory storage
+%%
+%% Saves {sid(), opaque()} data.
+%%
+%% Uses ETS storage.
 
-%% @type name() = atom(). Server name - for multiple servers config.
 %% @type session() = {session, sid(), expires(), opaque()}
 %% @type sid() = term(). Session Id
 %% @type opaque() = term(). Session data
@@ -14,7 +15,6 @@
 
 -module(session).
 
--include_lib("stdlib/include/qlc.hrl").
 -include("session.hrl").
 
 -behaviour(gen_server).
@@ -23,20 +23,23 @@
 -export([start/0, stop/0, init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
 
--export([add/3, get_session/1, get_session/2, remove/1, list_sessions/0, expire/0, test_engine/0, guid/0]).
+-export([new_session/3, get_session/1, get_session/2, replace_session/3, end_session/1, list_sessions/0, expire/0, test_engine/0, guid/0]).
 
 %
 % Interface
 %
 
-%% @spec add(sid(), expire(), opaque()) -> ok
+%% @spec new_session(sid(), expire(), opaque()) -> ok | {error, exists}
 %% @doc Create new session, unconditionally replace old with the same key.
-add(Sid, Expire, Opaque) -> gen_server:call(?MODULE, {add, Sid, Expire, Opaque}).
+new_session(Sid, Expire, Opaque) ->
+    gen_server:call(?MODULE, {new_session, Sid, Expire, Opaque}).
 
 %% @spec get_session(sid()) -> {error, nosession} | {error, expired} | session()
-%% @doc Return session(), not touch expiration time.
-get_session(Sid) -> get_session(Sid, 0).
-
+%% @doc Return session(), don't touch expiration time.
+%%
+%% Actually calls get_session(sid(), 0)
+get_session(Sid) ->
+    get_session(Sid, 0).
 
 %% @spec get_session(sid(), expire()) -> {error, nosession} | {error, expired} | session()
 %% @doc Return session(), change expiration time.
@@ -47,35 +50,49 @@ get_session(Sid) -> get_session(Sid, 0).
 %% <li>When expire() = 0, expiration leaves unchanged.</li>
 %% </ul>
 get_session(Sid, Expire) ->
-    F = fun() ->
-                case mnesia:read({session, Sid}) of
-                    [S] -> 
-            case expired(S#session.expires) of
-                true -> {error, expired};
-                _ ->
-                    if Expire > 0 ->
-                    Row = S#session{expires = expire_time(Expire)},
-                    mnesia:write(Row);
-                   Expire < 0 ->
-                    Row = S#session{expires = now()},
-                    mnesia:write(Row);
-                   true -> ok
-                end,
-                S
-            end;
-            _ -> {error, nosession}
-        end
-        end,
-    tr(F).
+    case ets:lookup(?MODULE, Sid) of
+	[S] -> 
+	    case expired(S#session.expires) of
+		true ->
+		    ets:delete(?MODULE, Sid),
+		    {error, expired};
+		_ ->
+		    if
+			Expire > 0 ->
+			    Row = S#session{expires = expire_time(Expire)},
+			    ets:insert(?MODULE, Row);
+			Expire < 0 ->
+			    ets:delete(?MODULE, Sid);
+			true -> ok
+		    end,
+		    S
+	    end;
+	_ -> {error, nosession}
+     end.
+
+%% @spec replace_session(sid(), expire(), opaque()) -> ok | {error, nosession} | {error, expired}
+replace_session(Sid, Expire, Opaque) ->
+    Expired = case ets:lookup(?MODULE, Sid) of
+        [#session{expires = Expires}] -> expired(Expires);
+	_ -> nosession
+    end, 
+    case Expired of
+        false ->
+	    Row = #session{sid = Sid, expires = expire_time(Expire), opaque = Opaque},
+	    ets:insert(?MODULE, Row),
+	    ok;
+	nosession -> {error, nosession};
+	true ->
+	    ets:delete(?MODULE, Sid),
+	    {error,  expired}
+    end.
 
 
-%% @spec remove(sid()) -> ok
+%% @spec end_session(sid()) -> ok
 %% @doc Remove session from database.
-remove(Sid) ->
-    F = fun() ->
-        mnesia:delete({session, Sid})
-    end,
-    tr(F).
+end_session(Sid) ->
+    ets:delete(?MODULE, Sid),
+    ok.
 
 
 %% @spec expire() -> integer()
@@ -83,54 +100,77 @@ remove(Sid) ->
 %%
 %% Must be called explicitly (gen_event supposed)
 expire() ->
-    F = fun() ->
-        mnesia:foldl(fun(#session{sid = Sid, expires = Expires}, Counter) ->
-        case expired(Expires) of
-            true -> mnesia:delete({session, Sid}),
-        Counter + 1;
-        _ -> Counter
-        end end,
-        0,
-        session)
-    end,
-    tr(F).
+    ets:safe_fixtable(?MODULE, true),
+    Ret = expire(ets:first(?MODULE), 0),
+    ets:safe_fixtable(?MODULE, false),
+    Ret.
+    
+expire('$end_of_table', Counter) ->
+    Counter;
 
+expire(Sid, Counter) ->
+    [#session{expires = Expires}] = ets:lookup(?MODULE, Sid),
+    Counter1 = case expired(Expires) of
+	true ->
+	    ets:delete(?MODULE, Sid),
+	    Counter + 1;
+	_ -> Counter
+    end,
+    expire(ets:next(?MODULE, Sid), Counter1).
 
 %% @spec list_sessions() -> [session()]
 %% @doc List all database include expired sessions.
 list_sessions() ->
-    do(qlc:q([X || X <- mnesia:table(session)])).
+    ets:tab2list(?MODULE).
 
 %% @spec test_engine() -> ok
 %% @doc Interactive, destructive automatic test.
 %%
 %% Note: it will destroy and recreate session tabe.
 test_engine() ->
+    io:format("start server~n"),
     session:start(),
-    ok = session:add("sid1", 1, {o1, o2}),
-    ok = session:add("sid2", 10, {o3, o4}),
-    {error, nosession} = get_session("sid0"),
-    receive
-    after 1000 -> ok
-    end,
-    {error, expired} = get_session("sid1"),
-    #session{opaque = {o3, o4}}  = get_session("sid2"),
-    io:format("list before expire: ~p~n",[session:list_sessions()]),
+
+    io:format("fill session table~n"),
+    ok = session:new_session("sid1", 1, {o1, o2}),
+    ok = session:new_session("sid2", 10, {o3, o4}),
+    ok = session:new_session("sid3", 1, {o5, o6}),
+
+    io:format("test nosession~n"),
+    {error, nosession} = session:get_session("sid0"),
+
+    io:format("test expiration~n"),
+    receive after 1000 -> ok end,
+    {error, expired} = session:get_session("sid1"),
+
+    io:format("test noexpiration~n"),
+    #session{opaque = {o3, o4}}  = session:get_session("sid2"),
+
+    io:format("test expire()~n"),
+    L1 = session:list_sessions(),
+    2 = length(L1),
+    io:format("list before expire: ~p~n",[L1]),
     1 = session:expire(),
-    io:format("list after 1st expire: ~p~n",[session:list_sessions()]),
-    io:format("timeout 3 secs to test update...~n",[]),
-    receive
-    after 3000 -> ok
-    end,
-    #session{opaque = {o3, o4}}  = get_session("sid2", 5),
-    io:format("list after update: ~p~ntimeout 10 secs...~n",[session:list_sessions()]),
-    receive
-    after 10000 -> ok
-    end,
-    1 = session:expire(),
-    io:format("list after 2nd expire: ~p~n",[session:list_sessions()]),
-    Stop = session:stop(),
-    io:format("stop: ~p~n", [Stop]),
+    io:format("list after 1st expire: ~p~n", [session:list_sessions()]),
+
+    io:format("test expiration update~n"),
+    io:format("before update: ~p~n",[session:get_session("sid2", 5)]),
+    io:format("after update: ~p~n",[session:get_session("sid2")]),
+
+    io:format("test replace~n"),
+    ok = session:replace_session("sid2", 5, {o7, o8}),
+    #session{opaque = {o7, o8}} = session:get_session("sid2"),
+
+    io:format("test replace expired~n"),
+    io:format("timeout 5 secs...~n"),
+    receive after 5000 -> ok end,
+    {error, expired} = session:replace_session("sid2", 5, {o7, o8}),
+
+    io:format("test replace expired~n"),
+    {error, nosession} = session:replace_session("sid2", 5, {o7, o8}),
+
+    [] = session:list_sessions(),
+    io:format("all passed ok~n"),
     ok.
 
 
@@ -144,20 +184,14 @@ guid() ->
 % gen_server interface
 %
 
-%% @spec start() -> Result
-%% @doc Does start(?MODULE)
-start() -> start(?MODULE).
-
-%% @spec start(name()) -> {ok, pid()} | ignore | {error, Error}
-%% @doc Start session server, named 'session'
+%% @spec start() -> {ok, pid()} | ignore | {error, Error}
+%% @doc Start session server
 %%
 %% Error = {already_started, pid()} | term()
-start(Name) -> gen_server:start_link({local, Name}, ?MODULE, Name, []).
+start() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-%% @spec stop() -> {stop, stopped}
+%% @spec stop() -> void
 %% @doc Stop server
-%%
-%% TODO: check result against manual
 stop() -> gen_server:call(?MODULE, stop).
 
 
@@ -165,24 +199,27 @@ stop() -> gen_server:call(?MODULE, stop).
 % gen_server internals
 %
 
-%% @spec init(name()) -> ok
-%% @doc Create in-memory system table after start.
-init(_Name) ->
-    %ets:new(Name, [set, named_table, public, {keypos, 2}]),
-    mnesia:delete_table(session),
-    {atomic, ok} = mnesia:create_table(session, [{attributes, record_info(fields, session)}]),
-    ok = mnesia:wait_for_tables([session],1000),
+%% @spec init([]) -> ok
+%% @doc Create in-memory ssession table after start. Called by start/1
+init([]) ->
+    mnesia:delete_table(session), % XXX for migration period only
+    ets:new(?MODULE, [set, named_table, public, {keypos, 2}]),
     io:format("Module: ~p ok~n",[?MODULE]),
     {ok, []}.
 
 
-handle_call({add, Sid, Expire, Opaque}, _From, State) ->
-    Row = #session{sid = Sid, expires = expire_time(Expire), opaque = Opaque},
-    F = fun() ->
-                mnesia:write(Row)
-        end,
-    Reply = tr(F),
-    {reply, Reply, State};
+handle_call({new_session, Sid, Expire, Opaque}, _From, State) ->
+    Expired = case ets:lookup(?MODULE, Sid) of
+        [#session{expires = Expires}] -> expired(Expires);
+	_ -> true
+    end, 
+    case Expired of
+        true ->
+	    Row = #session{sid = Sid, expires = expire_time(Expire), opaque = Opaque},
+	    ets:insert(?MODULE, Row),
+	    {reply, ok, State};
+	_ -> {reply, {error, exists}, State}
+    end;
 
 handle_call(stop, _From, State) ->
     {stop, stopped, State};
@@ -195,6 +232,7 @@ handle_cast(_Msg, State) -> {noreply, State}.
 handle_info(_Info, State) -> {noreply, State}.
 terminate(_Reason, _State) -> ok.
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
+
 %
 % internals
 %
@@ -211,17 +249,3 @@ expire_time(Period) ->
 expired(Expires) ->
     ExpPeriod = timer:now_diff(Expires, now()),
     ExpPeriod < 0.
-
-
-do(Q) ->
-    F = fun() ->
-                qlc:e(Q) end,
-    {atomic, Val} = mnesia:transaction(F),
-    Val.
-
-
-% return Result or 'error'
-% the error reason is not returned. U may log it right herein
-tr(F) ->
-    {atomic, Value} = mnesia:transaction(F),
-    Value.

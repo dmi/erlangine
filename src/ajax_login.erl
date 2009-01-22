@@ -12,7 +12,7 @@ login(Struct, _Session, _Req) ->
 	    H = mochiweb_cookies:cookie("enge2-sid", SessionId, [{path, "/"}]), 
 	    io:format("cookie is ~p~n", [H]),
 
-            session:add({auth, SessionId}, ?AUTHKEY_TIMEOUT, #authkey{user = U, realm = Realm}),
+            session:new_session({auth, SessionId}, ?AUTHKEY_TIMEOUT, #authkey{user = U, realm = Realm}),
             {{obj, [{"event", <<"login-ok">>}, {"reply", <<"ok">>}]}, [H]};
 
 	_ -> {{obj, [{"event", <<"login-fail">>}, {"error", <<"Bad login">>}]}, []}
@@ -22,7 +22,7 @@ logout(_Struct, Session, _Req) ->
     H = mochiweb_cookies:cookie("enge2-sid", "", [{path, "/"}]), 
     case Session of
         {error, _} -> void;
-	_ -> session:remove(Session#session.sid)
+	_ -> session:end_session(Session#session.sid)
     end,
     H = mochiweb_cookies:cookie("enge2-sid", "", [{path, "/"}]), 
     {{obj, [{"event", <<"logout">>}, {"ok", []}]}, [H]}.

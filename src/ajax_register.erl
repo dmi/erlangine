@@ -68,6 +68,6 @@ account(Struct, _Session, _Req) ->
 
 captcha(_Struct, _Session, _Req) ->
     {Link, Code} = captchas:make_href("demo", "secret", 200), % possible to retrieve size from request
-    session:add({captcha, Link}, ?CAPTCHA_TIMEOUT, Code),
+    session:new_session({captcha, Link}, ?CAPTCHA_TIMEOUT, Code),
     {{obj, [{"event", <<"captcha">>}, {"link", list_to_binary(Link)}]},
      []}.
