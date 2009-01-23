@@ -51,40 +51,40 @@ get_session(Sid) ->
 %% </ul>
 get_session(Sid, Expire) ->
     case ets:lookup(?MODULE, Sid) of
-	[S] -> 
-	    case expired(S#session.expires) of
-		true ->
-		    ets:delete(?MODULE, Sid),
-		    {error, expired};
-		_ ->
-		    if
-			Expire > 0 ->
-			    Row = S#session{expires = expire_time(Expire)},
-			    ets:insert(?MODULE, Row);
-			Expire < 0 ->
-			    ets:delete(?MODULE, Sid);
-			true -> ok
-		    end,
-		    S
-	    end;
-	_ -> {error, nosession}
+    [S] -> 
+        case expired(S#session.expires) of
+        true ->
+            ets:delete(?MODULE, Sid),
+            {error, expired};
+        _ ->
+            if
+            Expire > 0 ->
+                Row = S#session{expires = expire_time(Expire)},
+                ets:insert(?MODULE, Row);
+            Expire < 0 ->
+                ets:delete(?MODULE, Sid);
+            true -> ok
+            end,
+            S
+        end;
+    _ -> {error, nosession}
      end.
 
 %% @spec replace_session(sid(), expire(), opaque()) -> ok | {error, nosession} | {error, expired}
 replace_session(Sid, Expire, Opaque) ->
     Expired = case ets:lookup(?MODULE, Sid) of
         [#session{expires = Expires}] -> expired(Expires);
-	_ -> nosession
+    _ -> nosession
     end, 
     case Expired of
         false ->
-	    Row = #session{sid = Sid, expires = expire_time(Expire), opaque = Opaque},
-	    ets:insert(?MODULE, Row),
-	    ok;
-	nosession -> {error, nosession};
-	true ->
-	    ets:delete(?MODULE, Sid),
-	    {error,  expired}
+        Row = #session{sid = Sid, expires = expire_time(Expire), opaque = Opaque},
+        ets:insert(?MODULE, Row),
+        ok;
+    nosession -> {error, nosession};
+    true ->
+        ets:delete(?MODULE, Sid),
+        {error,  expired}
     end.
 
 
@@ -111,10 +111,10 @@ expire('$end_of_table', Counter) ->
 expire(Sid, Counter) ->
     [#session{expires = Expires}] = ets:lookup(?MODULE, Sid),
     Counter1 = case expired(Expires) of
-	true ->
-	    ets:delete(?MODULE, Sid),
-	    Counter + 1;
-	_ -> Counter
+    true ->
+        ets:delete(?MODULE, Sid),
+        Counter + 1;
+    _ -> Counter
     end,
     expire(ets:next(?MODULE, Sid), Counter1).
 
@@ -211,14 +211,14 @@ init([]) ->
 handle_call({new_session, Sid, Expire, Opaque}, _From, State) ->
     Expired = case ets:lookup(?MODULE, Sid) of
         [#session{expires = Expires}] -> expired(Expires);
-	_ -> true
+    _ -> true
     end, 
     case Expired of
         true ->
-	    Row = #session{sid = Sid, expires = expire_time(Expire), opaque = Opaque},
-	    ets:insert(?MODULE, Row),
-	    {reply, ok, State};
-	_ -> {reply, {error, exists}, State}
+        Row = #session{sid = Sid, expires = expire_time(Expire), opaque = Opaque},
+        ets:insert(?MODULE, Row),
+        {reply, ok, State};
+    _ -> {reply, {error, exists}, State}
     end;
 
 handle_call(stop, _From, State) ->
