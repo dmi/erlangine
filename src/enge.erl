@@ -1,3 +1,9 @@
+%% notes for wiki
+%% json request is: module, action, callback
+%% json reply is: event:callback, reply:result
+%% result must be a valid json value (binary | {obj, list} | list
+%% if callback is omited value "enge-reply" is used
+
 -module(enge).
 -compile(export_all).
 
@@ -11,14 +17,14 @@ dispatch(Struct, Session, Req) ->
     Module = list_to_atom("ajax_" ++ binary_to_list(M)),
 
     Grant = case Session of
-	{error, expired} ->
+    {error, expired} ->
             realmdb:check_access(expired, Module);
 
         {error, nosession} ->
             realmdb:check_access(guest, Module);
 
         #session{opaque = #authkey{realm=Realm}} ->
-	    io:format("Grant check: ~p ~p~n",[Realm, Module]),
+        io:format("Grant check: ~p ~p~n",[Realm, Module]),
             realmdb:check_access(Realm, Module)
     end,
     
@@ -27,23 +33,23 @@ dispatch(Struct, Session, Req) ->
         true ->
             A = obj:get_value(<<"action">>, Struct),
             Action = list_to_atom(binary_to_list(A)),
-	    % XXX case and introduce reply/respond type here
-	    try Module:Action(Struct, Session, Req) of
-                {Result, Headers} ->
-                    {reply, {Result, Headers}};
-		_ -> {respond, {500, [], []}}     % Internal Server Error
-	    catch
-	        Error:Reason ->
-		    io:format("Happens ~p when calling ~p:~p with reason: ~p~n",[Error, Module, Action, Reason]),
-		    {respond, {501, [], []}}   % Not Implemented XXX both no action found _and_ a runtime error
-	    end;
+            % XXX case and introduce reply/respond type here
+            try Module:Action(Struct, Session, Req) of
+                    {Result, Headers} ->
+                        {reply, {Result, Headers}};
+        _ -> {respond, {500, [], []}}     % Internal Server Error
+        catch
+            Error:Reason ->
+            io:format("Happens ~p when calling ~p:~p with reason: ~p~n",[Error, Module, Action, Reason]),
+            {respond, {501, [], []}}   % Not Implemented XXX both no action found _and_ a runtime error
+        end;
 
         _ ->
             Code = case Session of
-	        expired -> 403;             % Forbiden
-		_ -> 404                    % Not found
-	    end,
-	    {respond, {Code, [], []}}
+            expired -> 403;             % Forbiden
+        _ -> 404                    % Not found
+        end,
+        {respond, {Code, [], []}}
 
     end.
 
