@@ -143,7 +143,7 @@ input[type=button]
    padding: 1em;
 }
 
-#docSelector
+#docNavigator
 {
    display:none;
 }
@@ -169,10 +169,12 @@ input[type=button]
    border: solid 1px #202020;
 }
 
-#mainDesk, #activTabs, #docSelector, #docEditor{
+#mainDesk, #activTabs, #docNavigator, #docEditor
+{
    margin-top: 1em;
 }
-#docSelector, #docEditor{
+#docNavigator, #docEditor
+{
    margin-top: 1em;
 }
 
@@ -185,6 +187,11 @@ input[type=button]
 #docSelect td, th
 {
    background: #e7e7e7;
+}
+
+#viewToggleAnno, #viewEditDocument
+{
+   display: inline;
 }
 
 .xtreeChilds
@@ -205,4 +212,9 @@ input[type=button]
 {
    width: 33%;
    float: left;
+}
+
+.docSearchResultRow:hover, .button:hover
+{
+   cursor: pointer;
 }
