@@ -313,9 +313,7 @@ function doDeleteDocs(){
     var json = {
 	"module": "doc",
 	"action": "bulk_delete",
-	"data": {
-	    "docs": doclist
-	}
+	"data": doclist
     }
     ajax(json, "/enge");
 };

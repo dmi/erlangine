@@ -144,6 +144,6 @@ bulk_delete(Db, [H | T]) ->
 
 bulk_delete(Struct, Session, _Req) ->
     #session{opaque = #authkey{user = Db}} = Session,
-    ToDelete = obj:get_value("docs", Struct),
+    ToDelete = Struct,
     bulk_delete(Db, ToDelete),
     {{ok, []}, []}.
