@@ -49,17 +49,17 @@ function cbLoggedOut(json){
 }
 
 function cbCaptcha(json){
-    log("cbCaptcha: " + json.link);
-    $('regCaptchaImg').innerHTML = '<img src="'+ json.link + '"/>';
+    log("cbCaptcha: " + json.reply);
+    $('regCaptchaImg').innerHTML = '<img src="'+ json.reply + '"/>';
     $('regCaptcha').value = "";
-    $('regCaptchaLink').value = json.link;
+    $('regCaptchaLink').value = json.reply;
 }
 
 function cbDocSaved(json){
 	log("document saved: " + JSON.stringify(json))
-	$('testResult').innerHTML = json.reply;
-	$('docId').value = json.id;
-	$('docRev').value = json.rev;
+	$('testResult').innerHTML = json.reply.action;
+	$('docId').value = json.reply.id;
+	$('docRev').value = json.reply.rev;
 	Highlight('testResult');
 }
 
@@ -74,29 +74,45 @@ function cbSearchResult(json){
 	log("search results: " + JSON.stringify(json))
 	$('testResult').innerHTML = json.event;
 	Highlight('testResult');
-	disconnectAllTo(doDocEdit);
+	disconnectAllTo(doDocView); // was doDocEdit
 	var tab = "";
 	var tabn = 0;
         var ids = [];
 	for(i in json.reply){
-	    tab += "<tr>" + composeDocRow(json.reply[i]) + "</tr>\n";
+	    tab += "<tr class=docSearchResultRow>" + composeDocRow(json.reply[i]) + "</tr>\n";
             ids[tabn++] = "docs:" + json.reply[i]._id + ":" + json.reply[i]._rev;
 	}
 	$('docSearchResult').innerHTML = tab;
 	log(ids);
         for(i in ids){
 	    log(ids[i]);
-	    connect($(ids[i]), 'onclick', doDocEdit);
+	    connect($(ids[i]), 'onclick', doDocView);
         }
 }
 
-function doDocEdit(what){
+function doDocView(what){
 	var idd = what.target().id.split(":",3);
 	var json = {
 		"module": "doc",
 		"action": "doc_get",
-		"id": idd[1],
-		"rev": idd[2]
+		"event": "show_doc",
+		"data": {
+		    "id": idd[1],
+		    "rev": idd[2]
+		}
+	}
+	ajax(json, "/enge");
+}
+
+function doDocEdit(what){
+	var json = {
+		"module": "doc",
+		"action": "doc_get",
+		"event": "edit_doc",
+		"data": {
+		    "id": $('viewId').innerHTML,
+		    "rev": $('viewRev').innerHTML
+		}
 	}
 	ajax(json, "/enge");
 }
@@ -137,7 +153,7 @@ function loggedOut(){
 function checkSession(){
 	var json = {
 		"module": "login",
-		"action": "check"
+		"action": "check",
 	}
 	ajax(json, "/enge");
 }
@@ -145,10 +161,24 @@ function checkSession(){
 function doTest(){
 	var json = {
 		"module": "test",
-		"action": "test"
+		"action": "test",
 	}
 	log("test request: " + JSON.stringify(json));
 	ajax(json, "/enge");
+}
+
+function showViewAnnotation(){
+	$('viewToggleAnno').innerHTML = "hide";
+	disconnectAll('viewToggleAnno');
+	connect('viewToggleAnno', 'onclick', hideViewAnnotation);
+	showElement('viewAnnotation');
+}
+
+function hideViewAnnotation(){
+	$('viewToggleAnno').innerHTML = "show";
+	disconnectAll('viewToggleAnno');
+	connect('viewToggleAnno', 'onclick', showViewAnnotation);
+	hideElement('viewAnnotation');
 }
 
 function showDocAnnotation(){
@@ -167,7 +197,7 @@ function hideDocAnnotation(){
 
 function doFindDocument(){
 	hideElement('docEditor');
-	showElement('docSelector');
+	showElement('docNavigator');
 }
 
 function doNewDocument(){
@@ -175,10 +205,34 @@ function doNewDocument(){
 	$('docRev').value="",
 	$('docTitle').value="",
 	$('docAnnotation').value="",
-	openEditor('docText','');
-	hideElement('docSelector');
+	openEditor('docEditorText','');
+	hideElement('docNavigator');
 	showElement('docEditor');
 	showDocAnnotation();
+}
+
+function cbShowDocument(json){
+        log("ShowDocument: " + json.reply._id + " : " + json.reply._rev);
+	$('viewId').innerHTML = json.reply._id,
+	$('viewRev').innerHTML = json.reply._rev,
+	$('viewTitle').innerHTML = json.reply.title,
+	$('viewAnnotation').innerHTML = json.reply.anno,
+	showViewAnnotation();
+	var json = {
+		"module": "doc",
+		"action": "attach_get",
+		"event": "attach_show",
+		"data": {
+		    "id": json.reply._id + "/text",
+		    "rev": json.reply._rev
+		}
+	}
+	ajax(json, "/enge");
+}
+
+function cbShowAttach(json){
+        log("Attach: " + JSON.stringify(json));
+	$('docViewText').innerHTML = json.reply;
 }
 
 function cbEditDocument(json){
@@ -187,52 +241,57 @@ function cbEditDocument(json){
 	$('docRev').value = json.reply._rev,
 	$('docTitle').value = json.reply.title,
 	$('docAnnotation').value = json.reply.anno,
-	hideElement('docSelector');
+	hideElement('docNavigator');
 	showElement('docEditor');
 	showDocAnnotation();
 	var json = {
 		"module": "doc",
 		"action": "attach_get",
-		"id": $('docId').value + "/text",
-		"rev": $('docRev').value
+		"event": "attach_edit",
+		"data": {
+		    "id": json.reply._id + "/text",
+		    "rev": json.reply._rev
+		}
 	}
 	ajax(json, "/enge");
 }
 
 function cbEditAttach(json){
         log("Attach: " + JSON.stringify(json));
-	openEditor('docText',json.reply);
+	openEditor('docEditorText',json.reply);
 }
 
 function FCKeditor_OnComplete( fck )
 {
-	    fck.SetHTML($('docView').innerHTML);
-	    hideElement('docView');
-	    $('docView').innerHTML = "";
+	    fck.SetHTML($('docEditorView').innerHTML);
+	    hideElement('docEditorView');
+	    $('docEditorView').innerHTML = "";
 }
 
 function openEditor(Id, fckvalue){
 	try{
-	    var fck = FCKeditorAPI.GetInstance('docText') ;
+	    var fck = FCKeditorAPI.GetInstance('docEditorText') ;
 	    fck.SetHTML(fckvalue);
 	}catch(err){
-	    $('docView').innerHTML = fckvalue;
+	    $('docEditorView').innerHTML = fckvalue;
             var fck = new FCKeditor(Id);
 	    fck.Height = 300;
-	    $('docText').innerHTML = fck.CreateHtml(fckvalue);
+	    $('docEditorText').innerHTML = fck.CreateHtml(fckvalue);
         }
 }
 
 function docSave(){
-        var fck = FCKeditorAPI.GetInstance('docText') ;
+        var fck = FCKeditorAPI.GetInstance('docEditorText') ;
 	var json = {
 		"module": "doc",
 		"action": "save",
-		"title": $('docTitle').value,
-		"id": $('docId').value,
-		"rev": $('docRev').value,
-		"anno": $('docAnnotation').value,
-		"text": Base64.encode(fck.GetHTML())
+		"data": {
+		    "title": $('docTitle').value,
+		    "id": $('docId').value,
+		    "rev": $('docRev').value,
+		    "anno": $('docAnnotation').value,
+		    "text": Base64.encode(fck.GetHTML())
+		}
 	}
 	ajax(json, "/enge");
 };
@@ -255,7 +314,9 @@ function doDeleteDocs(){
 	var json = {
 		"module": "doc",
 		"action": "bulk_delete",
-		"docs": doclist
+		"data": {
+		    "docs": doclist
+		}
 	}
 	ajax(json, "/enge");
 };
@@ -277,22 +338,27 @@ function pageLoadFunction(){
 	connect('docDelete', 'onclick', doDeleteDocs);
 	connect('newDocument', 'onclick', doNewDocument);
 	connect('findDocument', 'onclick', doFindDocument);
+	connect('viewToggleAnno', 'onclick', hideViewAnnotation);
+	connect('viewEditDocument', 'onclick', doDocEdit);
 	connect('docToggleAnno', 'onclick', hideDocAnnotation);
 	connect('docSave', 'onclick', docSave);
 
 	// ajax reply event handlers
-	connect(xapi, 'test', cbTest);
-	connect(xapi, 'login-ok', cbLoggedIn);
-	connect(xapi, 'login-fail', cbNotLoggedIn);
-	connect(xapi, 'logout', cbLoggedOut);
-	connect(xapi, 'captcha', cbCaptcha);
-	connect(xapi, 'register-ok', cbRegistered);
-	connect(xapi, 'register-fail', cbNotRegistered);
-	connect(xapi, 'docsave-ok', cbDocSaved);
-	connect(xapi, 'docsearch-done', cbSearchResult);
-	connect(xapi, 'bulk_delete-ok', doSearchDocs);
-	connect(xapi, 'document-ok', cbEditDocument);
-	connect(xapi, 'attach-ok', cbEditAttach);
+	connect(xapi, 'test:test-ok', cbTest);
+	connect(xapi, 'login:login-ok', cbLoggedIn);
+	connect(xapi, 'login:login-fail', cbNotLoggedIn);
+	connect(xapi, 'login:logout-ok', cbLoggedOut);
+	connect(xapi, 'login:check-ok', cbLoggedIn);
+	connect(xapi, 'register:captcha-ok', cbCaptcha);
+	connect(xapi, 'register:account-ok', cbRegistered);
+	connect(xapi, 'register:account-fail', cbNotRegistered);
+	connect(xapi, 'doc:save-ok', cbDocSaved);
+	connect(xapi, 'doc:search-ok', cbSearchResult);
+	connect(xapi, 'doc:bulk_delete-ok', doSearchDocs);
+	connect(xapi, 'edit_doc-ok', cbEditDocument);
+	connect(xapi, 'attach_edit-ok', cbEditAttach);
+	connect(xapi, 'show_doc-ok', cbShowDocument);
+	connect(xapi, 'attach_show-ok', cbShowAttach);
 
 	checkSession();
 }
@@ -395,16 +461,29 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		        <span id=findDocument class=button>Navigator</span>
 		        <span id=newDocument class=button>Document Editor</span>
 		    </div>
-		    <div id=docSelector>
-			<input id="docSearch" type=button value="Search"/>
-			<input id="docDelete" type=button value="Delete"/>
-			<table id="docSelect" cellspacing=1>
-			    <thead>
-				<tr><th>x</th><th>Name</th><th>Date</th></tr>
-			    </thead>
-			    <tbody id="docSearchResult">
-			    </tbody>
-			</table>
+		    <div id=docNavigator>
+		        <div id=docSelector>
+			    <input id="docSearch" type=button value="Search"/>
+			    <input id="docDelete" type=button value="Delete"/>
+			    <table id="docSelect" cellspacing=1>
+				<thead>
+				    <tr><th>x</th><th>Name</th><th>Date</th></tr>
+				</thead>
+				<tbody id="docSearchResult">
+				</tbody>
+			    </table>
+			</div>
+			<div id=docView>
+			    <div id=viewInfo>
+				<div id=viewId></div>
+				<div id=viewRev></div>
+				<div class=label>Title: <div id=viewTitle></div></div>
+				<div class=label>Annotation: <div id=viewToggleAnno class=button>hide</div></div>
+				<div id=viewAnnotation></div>
+				<div class=label>Document <div id=viewEditDocument class=button>Edit</div></div>
+			    </div>
+			    <div id=docViewText></div>
+			</div>
 		    </div>
 
 		    <div id=docEditor>
@@ -420,8 +499,8 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 			    <textarea id=docAnnotation></textarea>
 			</div>
 			<div class=label><label for=docTitle>Document</label><input id=docSave type=button value="Save" /></div>
-			<div id=docView></div>
-			<div id=docText></div>
+			<div id=docEditorView></div>
+			<div id=docEditorText></div>
 		    </div>
 		</div>
 	    </div>

@@ -37,6 +37,11 @@ input[type=button]
    color:#202020;
    padding:3px;
 }
+.label
+{
+   margin-top: 0.5em;
+   color:#707070;
+}
 
 #headLine
 {
@@ -151,10 +156,6 @@ input[type=button]
 {
    display:none;
 }
-#docEditor .label
-{
-   margin-top: 0.5em;
-}
 #docTitle
 {
    width: 500px;
@@ -169,11 +170,7 @@ input[type=button]
    border: solid 1px #202020;
 }
 
-#mainDesk, #activTabs, #docNavigator, #docEditor
-{
-   margin-top: 1em;
-}
-#docNavigator, #docEditor
+#mainDesk, #activTabs, #docNavigator, #docSelect, #docView, #docEditor
 {
    margin-top: 1em;
 }
@@ -181,7 +178,6 @@ input[type=button]
 #docSelect
 {
    background: #707070;
-   margin-top: 1em;
 }
 
 #docSelect td, th
@@ -217,4 +213,14 @@ input[type=button]
 .docSearchResultRow:hover, .button:hover
 {
    cursor: pointer;
+}
+
+#viewId, #viewRev
+{
+   display: none;
+}
+
+#viewTitlle, #viewToggleAnno, #viewEditDocument
+{
+   display: inline;
 }

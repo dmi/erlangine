@@ -50,25 +50,24 @@ account(Struct, _Session, _Req) ->
                 {atomic, ok} ->
                     case docs:reset_db(U) of
                         ok -> 
-                            {{obj, [{"event", <<"register-ok">>}, {"reply", <<"ok">>}]}, []};
+                            {{ok, []}, []};
                         error ->
-                            {{obj, [{"event", <<"register-fail">>}, {"error", <<"Db create failed">>}]}, []}
+                            {{fail, <<"Db create failed">>}, []}
                     end;
 
                 {atomic, exists} ->
-                    {{obj, [{"event", <<"register-fail">>}, {"error", <<"Account already exists">>}]}, []};
+                    {{fail, <<"Account already exists">>}, []};
 
                 Reason ->
                     io:format("authdb error when new: ~p~n",[Reason]),
-                    {{obj, [{"event", <<"register-fail">>}, {"error", <<"Internal error 2">>}]}, []}
+                    {{fail, <<"Internal error 2">>}, []}
             end;
 
         Error ->
-            {{obj, [{"event", <<"register-fail">>}, {"error", list_to_binary(Error)}]}, []}
+            {{fail, list_to_binary(Error)}, []}
     end.
 
 captcha(_Struct, _Session, _Req) ->
     {Link, Code} = captchas:make_href("demo", "secret", 200), % possible to retrieve size from request
     session:new_session({captcha, Link}, ?CAPTCHA_TIMEOUT, Code),
-    {{obj, [{"event", <<"captcha">>}, {"link", list_to_binary(Link)}]},
-     []}.
+    {{ok, list_to_binary(Link)}, []}.
