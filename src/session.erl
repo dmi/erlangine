@@ -202,7 +202,7 @@ stop() -> gen_server:call(?MODULE, stop).
 %% @spec init([]) -> ok
 %% @doc Create in-memory ssession table after start. Called by start/1
 init([]) ->
-    mnesia:delete_table(session), % XXX for migration period only
+    %mnesia:delete_table(session), % XXX for migration period only
     ets:new(?MODULE, [set, named_table, public, {keypos, 2}]),
     io:format("Module: ~p ok~n",[?MODULE]),
     {ok, []}.
