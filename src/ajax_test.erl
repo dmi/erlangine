@@ -5,9 +5,9 @@
 
 test(Struct, Session, _Req) ->
     io:format("Test issued: ~p ~p~n",[Struct, Session]),
-    if is_record(Session, session) ->
-        {auth, Sid} = Session#session.sid,
-        {{ok, list_to_binary(["Test ok the sid is ", Sid])}, []};
-       true ->
-        {{ok, <<"No session">>}, []}
+    case Session of
+        #session{sid = {auth, Sid}} ->
+            {{ok, list_to_binary(["Test ok the sid is ", Sid])}, []};
+        _ ->
+            {{ok, <<"No session">>}, []}
     end.
