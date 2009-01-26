@@ -18,6 +18,18 @@
     <script src="js/enge.js" type="text/javascript"></script>
 
 <script type="text/javascript">
+/* Supplemental */
+
+function buttonActivate(){
+	map(
+		function(elt){
+		    elt.innerHTML="<span>" + elt.innerHTML + "</span>";
+		    elt.href="#";
+		    connect(elt, 'onclick', function(){elt.blur()});
+		},
+		$$('.button'))
+}
+
 /* Signal Handlers start */
 
 function cbLoggedIn(json){
@@ -168,28 +180,28 @@ function doTest(){
 }
 
 function showViewAnnotation(){
-    $('viewToggleAnno').innerHTML = "hide";
+    $('viewToggleAnno').innerHTML = "<span>hide</span>";
     disconnectAll('viewToggleAnno');
     connect('viewToggleAnno', 'onclick', hideViewAnnotation);
     showElement('viewAnnotation');
 }
 
 function hideViewAnnotation(){
-    $('viewToggleAnno').innerHTML = "show";
+    $('viewToggleAnno').innerHTML = "<span>show</span>";
     disconnectAll('viewToggleAnno');
     connect('viewToggleAnno', 'onclick', showViewAnnotation);
     hideElement('viewAnnotation');
 }
 
 function showDocAnnotation(){
-    $('docToggleAnno').innerHTML = "hide";
+    $('docToggleAnno').innerHTML = "<span>hide</span>";
     disconnectAll('docToggleAnno');
     connect('docToggleAnno', 'onclick', hideDocAnnotation);
     showElement('docAnnotation');
 }
 
 function hideDocAnnotation(){
-    $('docToggleAnno').innerHTML = "show";
+    $('docToggleAnno').innerHTML = "<span>show</span>";
     disconnectAll('docToggleAnno');
     connect('docToggleAnno', 'onclick', showDocAnnotation);
     hideElement('docAnnotation');
@@ -322,6 +334,9 @@ function doDeleteDocs(){
 
 function pageLoadFunction(){
 
+    // preparations
+    buttonActivate();
+    
     // on-click handlers
     connect('loginButton', 'onclick', logIn);
     connect('openRegister', 'onclick', openRegister);
@@ -412,7 +427,8 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		    <div><input id=loginPassword type=password /></div>
 		</fieldset>
 		<input id=loginButton type=button value="Login"/>
-		<div id=openRegister class=button>Register now!</div>
+		<a id=openRegister class=button>Register now!</a>
+		<!--a class=button href=# onclick="this.blur();"><span>Register now!</span></a-->
 	    </div>
 	    <div id=registerContainer>
 		<fieldset>
@@ -432,7 +448,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		    <div><input id=regCaptchaLink type=hidden /></div>
 		</fieldset>
 		<input id=registerButton type=button value="Register" />
-		<div id=closeRegister class=button>Cancel</div>
+		<a id=closeRegister class=button>Cancel</a>
 	    </div>
 	    <div class=thirdPart>
 		<div class=welcomeText>
@@ -455,8 +471,8 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 
 	<div id=mainDesk style="display: none"> <!-- trick for FCKEditor -->
 	    <div id=activTabs>
-		<span id=findDocument class=button>Navigator</span>
-		<span id=newDocument class=button>Document Editor</span>
+		<a id=findDocument class=button>Navigator</a>
+		<a id=newDocument class=button>Document Editor</a>
 	    </div>
 	    <div id=docNavigator>
 		<div id=docSelector>
@@ -475,9 +491,9 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 			<div id=viewId></div>
 			<div id=viewRev></div>
 			<div class=label>Title: <div id=viewTitle></div></div>
-			<div class=label>Annotation: <div id=viewToggleAnno class=button>hide</div></div>
+			<div class=label>Annotation: <a id=viewToggleAnno class=button>hide</a></div>
 			<div id=viewAnnotation></div>
-			<div class=label>Document <div id=viewEditDocument class=button>Edit</div></div>
+			<div class=label>Document <a id=viewEditDocument class=button>Edit</a></div>
 		    </div>
 		    <div id=docViewText></div>
 		</div>
@@ -491,7 +507,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		    <input id=docTitle type=text />
 		    <div class=label>
 			<label for=docAnnotation>Annotation</label>
-			<span id=docToggleAnno class=button>hide</span>
+			<a id=docToggleAnno class=button>hide</a>
 		    </div>
 		    <textarea id=docAnnotation></textarea>
 		</div>
