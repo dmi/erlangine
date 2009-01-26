@@ -37,8 +37,10 @@ function logIn(){
     var json = {
 	    "module": "login",
 	    "action": "login",
-	    "uid": $('loginName').value,
-	    "password": $('loginPassword').value
+	    "data": {
+		"uid": $('loginName').value,
+		"password": $('loginPassword').value
+	    }
     }
     ajax(json, "/enge");
 };
@@ -55,13 +57,15 @@ function registerAccount(){
     var json = {
 	    "module": "register",
 	    "action": "account",
-	    "name": $('regName').value,
-	    "uid": $('regLogin').value,
-	    "password": $('regPassword').value,
-	    "repeat": $('regPassword2').value,
-	    "email": $('regMail').value,
-	    "captchalink": $('regCaptchaLink').value,
-	    "captchacode": $('regCaptcha').value
+	    "data": {
+		"name": $('regName').value,
+		"uid": $('regLogin').value,
+		"password": $('regPassword').value,
+		"repeat": $('regPassword2').value,
+		"email": $('regMail').value,
+		"captchalink": $('regCaptchaLink').value,
+		"captchacode": $('regCaptcha').value
+	    }
     }
     ajax(json, "/enge");
 }; 

@@ -8,12 +8,12 @@ compose_attachment(Attachments) ->
     compose_attachment(Attachments, []).
 
 compose_attachment([], Acc) ->
-	 {"_attachments", {obj, Acc}};
+     {"_attachments", {obj, Acc}};
 
 compose_attachment([{Name, CType, Data} | T], Acc) ->
-	Att = {Name, {obj, [{"content-type", list_to_binary(CType)},
-						{"data", Data}]}},
-	compose_attachment(T, [Att | Acc]).
+    Att = {Name, {obj, [{"content-type", list_to_binary(CType)},
+                        {"data", Data}]}},
+    compose_attachment(T, [Att | Acc]).
 
 save(Struct, Session, _Req) ->
     Keys = ["title", "anno", "text", "id", "rev"],
@@ -22,10 +22,10 @@ save(Struct, Session, _Req) ->
     {Y, M, D} = date(),
 
     AttrList = [{"type", <<"writing">>},
-	        {"date", {obj, [{"Y", Y}, {"M", M}, {"D", D}]}},
-	        {"author", list_to_binary(U)},
-	        {"title", Title},
-	        {"anno", Anno}],
+                {"date", {obj, [{"Y", Y}, {"M", M}, {"D", D}]}},
+                {"author", list_to_binary(U)},
+                {"title", Title},
+                {"anno", Anno}],
 
     AttrList1 = case Rev_old of
         <<>> -> AttrList;
@@ -45,7 +45,7 @@ save(Struct, Session, _Req) ->
 
     %{obj,[{"ok",true},
     %      {"id",<<"8d80981151b8cecd024b804c0c51c97b">>},
-    %	   {"rev",<<"101943079">>}]}
+    %       {"rev",<<"101943079">>}]}
     CreateResult = case Id_old of
         <<>> ->
             SaveNature = <<"saved">>,
@@ -56,21 +56,16 @@ save(Struct, Session, _Req) ->
     end,
 
     case CreateResult of
-		{ok, Id, Rev} -> 
-			io:format("doc id=~p, rev=~p~n",[Id, Rev]),
-			{{obj,
-			  [{"event", <<"docsave-ok">>},
-			   {"reply", SaveNature},
-			   {"id", Id},
-			   {"rev", Rev}]},
-			  []};
-		{error, Reason} ->
-			io:format("failure ~p~n",[Reason]),
-			{{obj,
-			  [{"event", <<"docsave-fail">>},
-			   {"error", <<"document not saved">>}]},
-			 []}
-	end.
+        {ok, Id, Rev} -> 
+            io:format("doc id=~p, rev=~p~n",[Id, Rev]),
+            {{ok, {obj, [{"action", SaveNature},
+                         {"id", Id},
+                         {"rev", Rev}]}},
+              []};
+        {error, Reason} ->
+            io:format("failure ~p~n",[Reason]),
+            {{fail, <<"document not saved">>}, []}
+    end.
 
 save_att(Struct, Session, _Req) ->
     Keys = ["id", "rev", "name", "ctype", "data"],
@@ -78,24 +73,18 @@ save_att(Struct, Session, _Req) ->
     #session{opaque = #authkey{user = Db}} = Session,
     Att = compose_attachment([{Name, CType, Data}]),
     Obj = [{"_id", Id},
-	       {"_rev", Rev},
-		   Att],
-	case docs:create(Db, Obj) of
-		{ok, Id, Rev} -> 
-			io:format("doc id=~p, rev=~p~n",[Id, Rev]),
-			{{obj,
-			  [{"event", <<"attsave-ok">>},
-			   {"reply", <<"ok">>},
-			   {"id", Id},
-			   {"rev", Rev}]},
-			  []};
-		{error, Reason} ->
-			io:format("failure ~p~n",[Reason]),
-			{{obj,
-			  [{"event", <<"attsave-fail">>},
-			   {"error", <<"attachment not saved">>}]},
-			 []}
-	end.
+           {"_rev", Rev},
+           Att],
+    case docs:create(Db, Obj) of
+        {ok, Id, Rev} -> 
+            io:format("doc id=~p, rev=~p~n",[Id, Rev]),
+            {{ok, {obj, [{"id", Id},
+                         {"rev", Rev}]}},
+              []};
+        {error, Reason} ->
+            io:format("failure ~p~n",[Reason]),
+            {{fail, <<"attachment not saved">>}, []}
+    end.
 
 parse_view_response(R) ->
     parse_view_response(obj:get_value("rows",R), []).
@@ -111,17 +100,11 @@ search(_Struct, Session, _Req) ->
     #session{opaque = #authkey{user = Db}} = Session,
     case docs:doc_get(Db, "_view/writings/all") of
         {ok, Response} ->
-	    Docs = parse_view_response(Response),
-	    {{obj,
-	      [{"event", <<"docsearch-done">>},
-	       {"reply", Docs}]},
-	      []};
-	{error, Reason} ->
-		io:format("failure ~p~n",[Reason]),
-		{{obj,
-		  [{"event", <<"docsearch-fail">>},
-		   {"error", <<"search failed">>}]},
-		 []}
+            Docs = parse_view_response(Response),
+            {{ok, Docs}, []};
+        {error, Reason} ->
+            io:format("failure ~p~n",[Reason]),
+            {{fail, <<"search failed">>}, []}
     end.
 
 doc_get(Struct, Session, _Req) ->
@@ -131,36 +114,24 @@ doc_get(Struct, Session, _Req) ->
     case docs:doc_get(Db, binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev)) of
         {ok, Response} ->
             Doc = Response,
-	    {{obj,
-	      [{"event", <<"document-ok">>},
-	       {"reply", Doc}]},
-	      []};
-	{error, Reason} ->
-		io:format("failure ~p~n",[Reason]),
-		{{obj,
-		  [{"event", <<"document-fail">>},
-		   {"error", <<"Document retrieve failed">>}]},
-		 []}
+            {{ok, Doc}, []};
+        {error, Reason} ->
+            io:format("failure ~p~n",[Reason]),
+            {{ok, <<"Document retrieve failed">>}, []}
     end.
 
 idrev(Id, Rev) ->
-     binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev).
+    binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev).
 
 attach_get(Struct, Session, _Req) ->
     [Id, Rev] = obj:get_values(["id", "rev"], Struct),
     #session{opaque = #authkey{user = Db}} = Session,
     case docs:attach_get(Db, idrev(Id, Rev)) of
         {ok, Doc} ->
-	    {{obj,
-	      [{"event", <<"attach-ok">>},
-	       {"reply", Doc}]},
-	      []};
-	{error, Reason} ->
-		io:format("failure ~p~n",[Reason]),
-		{{obj,
-		  [{"event", <<"attach-fail">>},
-		   {"error", <<"Attach retrieve failed">>}]},
-		 []}
+            {{ok, Doc}, []};
+        {error, Reason} ->
+            io:format("failure ~p~n",[Reason]),
+            {{fail, <<"Attach retrieve failed">>}, []}
     end.
 
 bulk_delete(_Db, []) -> ok;
@@ -173,6 +144,6 @@ bulk_delete(Db, [H | T]) ->
 
 bulk_delete(Struct, Session, _Req) ->
     #session{opaque = #authkey{user = Db}} = Session,
-    ToDelete = obj:get_value("docs", Struct),
+    ToDelete = Struct,
     bulk_delete(Db, ToDelete),
-    {{obj, [{"event", <<"bulk_delete-ok">>}]}, []}.
+    {{ok, []}, []}.
