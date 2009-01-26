@@ -180,28 +180,28 @@ function doTest(){
 }
 
 function showViewAnnotation(){
-    $('viewToggleAnno').innerHTML = "<span>hide</span>";
+    $('viewToggleAnno').innerHTML = "(hide)";
     disconnectAll('viewToggleAnno');
     connect('viewToggleAnno', 'onclick', hideViewAnnotation);
     showElement('viewAnnotation');
 }
 
 function hideViewAnnotation(){
-    $('viewToggleAnno').innerHTML = "<span>show</span>";
+    $('viewToggleAnno').innerHTML = "(show)";
     disconnectAll('viewToggleAnno');
     connect('viewToggleAnno', 'onclick', showViewAnnotation);
     hideElement('viewAnnotation');
 }
 
 function showDocAnnotation(){
-    $('docToggleAnno').innerHTML = "<span>hide</span>";
+    $('docToggleAnno').innerHTML = "(hide)";
     disconnectAll('docToggleAnno');
     connect('docToggleAnno', 'onclick', hideDocAnnotation);
     showElement('docAnnotation');
 }
 
 function hideDocAnnotation(){
-    $('docToggleAnno').innerHTML = "<span>show</span>";
+    $('docToggleAnno').innerHTML = "(show)";
     disconnectAll('docToggleAnno');
     connect('docToggleAnno', 'onclick', showDocAnnotation);
     hideElement('docAnnotation');
@@ -210,6 +210,16 @@ function hideDocAnnotation(){
 function doFindDocument(){
     hideElement('docEditor');
     showElement('docNavigator');
+}
+
+function doGoEditor(){
+    try{
+	var fck = FCKeditorAPI.GetInstance('docEditorText') ;
+	hideElement('docNavigator');
+	showElement('docEditor');
+    }catch(err){
+	doNewDocument()
+    }
 }
 
 function doNewDocument(){
@@ -349,6 +359,7 @@ function pageLoadFunction(){
     connect('docSearch', 'onclick', doSearchDocs);
     connect('docDelete', 'onclick', doDeleteDocs);
     connect('newDocument', 'onclick', doNewDocument);
+    connect('goEditor', 'onclick', doGoEditor);
     connect('findDocument', 'onclick', doFindDocument);
     connect('viewToggleAnno', 'onclick', hideViewAnnotation);
     connect('viewEditDocument', 'onclick', doDocEdit);
@@ -420,35 +431,37 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		</div>
 	    </div>
 	    <div id=loginContainer>
-		<fieldset>
-		    <div><label for=loginName>Login</label></div>
-		    <div><input id=loginName type=text /></div>
-		    <div><label for=loginPassword>Password</label></div>
-		    <div><input id=loginPassword type=password /></div>
-		</fieldset>
-		<input id=loginButton type=button value="Login"/>
-		<a id=openRegister class=button>Register now!</a>
+		<div><label for=loginName>Login</label></div>
+		<div><input id=loginName type=text /></div>
+		<div><label for=loginPassword>Password</label></div>
+		<div><input id=loginPassword type=password /></div>
+		<div class=centerWrapperLeft>&nbsp;</div>
+		<div class=centerWrapper>
+		    <input id=loginButton type=button value="Login"/>
+		    <a id=openRegister class=button>Register now!</a>
+		</div>
 		<!--a class=button href=# onclick="this.blur();"><span>Register now!</span></a-->
 	    </div>
 	    <div id=registerContainer>
-		<fieldset>
-		    <div><label for=regName>Full Name</label></div>
-		    <div><input id=regName type=text /></div>
-		    <div><label for=regLogin>Login</label></div>
-		    <div><input id=regLogin type=text /></div>
-		    <div><label for=regPassword>Password</label></div>
-		    <div><input id=regPassword type=password /></div>
-		    <div><label for=regPassword2>Repeat password</label></div>
-		    <div><input id=regPassword2 type=password /></div>
-		    <div><label for=regMail>E-Mail</label></div>
-		    <div><input id=regMail type=text /></div>
-		    <div><div id=regCaptchaImg></div></div>
-		    <div><label for=regCaptcha>Enter verification code</label></div>
-		    <div><input id=regCaptcha type=text /></div>
-		    <div><input id=regCaptchaLink type=hidden /></div>
-		</fieldset>
-		<input id=registerButton type=button value="Register" />
-		<a id=closeRegister class=button>Cancel</a>
+		<div><label for=regName>Full Name</label></div>
+		<div><input id=regName type=text /></div>
+		<div><label for=regLogin>Login</label></div>
+		<div><input id=regLogin type=text /></div>
+		<div><label for=regPassword>Password</label></div>
+		<div><input id=regPassword type=password /></div>
+		<div><label for=regPassword2>Repeat password</label></div>
+		<div><input id=regPassword2 type=password /></div>
+		<div><label for=regMail>E-Mail</label></div>
+		<div><input id=regMail type=text /></div>
+		<div><div id=regCaptchaImg></div></div>
+		<div><label for=regCaptcha>Enter verification code</label></div>
+		<div><input id=regCaptcha type=text /></div>
+		<div><input id=regCaptchaLink type=hidden /></div>
+		<div class=centerWrapperLeft>&nbsp;</div>
+		<div class=centerWrapper>
+		    <input id=registerButton type=button value="Register" />
+		    <a id=closeRegister class=button>Cancel</a>
+		</div>
 	    </div>
 	    <div class=thirdPart>
 		<div class=welcomeText>
@@ -471,13 +484,17 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 
 	<div id=mainDesk style="display: none"> <!-- trick for FCKEditor -->
 	    <div id=activTabs>
-		<a id=findDocument class=button>Navigator</a>
-		<a id=newDocument class=button>Document Editor</a>
+		<a id=findDocument class=tab>Navigator</a>
+		<a id=goEditor class=tab>Document Editor</a>
 	    </div>
 	    <div id=docNavigator>
 		<div id=docSelector>
-		    <input id="docSearch" type=button value="Search"/>
-		    <input id="docDelete" type=button value="Delete"/>
+		    <div class=toolbar>
+			<a id="docSearch" class=button>Search</a>
+			<a id=viewEditDocument class=button>Edit</a>
+			<a id=newDocument class=button>New</a>
+			<input id="docDelete" type=button value="Delete"/>
+		    </div>
 		    <table id="docSelect" cellspacing=1>
 			<thead>
 			    <tr><th>x</th><th>Name</th><th>Date</th></tr>
@@ -490,16 +507,19 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		    <div id=viewInfo>
 			<div id=viewId></div>
 			<div id=viewRev></div>
-			<div class=label>Title: <div id=viewTitle></div></div>
-			<div class=label>Annotation: <a id=viewToggleAnno class=button>hide</a></div>
-			<div id=viewAnnotation></div>
-			<div class=label>Document <a id=viewEditDocument class=button>Edit</a></div>
+			<div class=viewInfoRow><span class=label>Title</span> <span id=viewTitle class=viewField></span></div>
+			<div class=viewInfoRow><span class=label>Annotation <span id=viewToggleAnno class=hint>(hide)</span> </span></div>
+			<div id=viewAnnotation class=viewField></div>
+			<div class=label>Document</div>
 		    </div>
 		    <div id=docViewText></div>
 		</div>
 	    </div>
 
 	    <div id=docEditor>
+		<div class=toolbar>
+		    <input id=docSave type=button value="Save" />
+		</div>
 		<div id=docInfo>
 		    <input id=docId type=hidden />
 		    <input id=docRev type=hidden />
@@ -507,11 +527,11 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		    <input id=docTitle type=text />
 		    <div class=label>
 			<label for=docAnnotation>Annotation</label>
-			<a id=docToggleAnno class=button>hide</a>
+			<span id=docToggleAnno class=hint>(hide)</span>
 		    </div>
 		    <textarea id=docAnnotation></textarea>
+		    <label for=docEditorText>Document</label>
 		</div>
-		<div class=label><label for=docTitle>Document</label><input id=docSave type=button value="Save" /></div>
 		<div id=docEditorView></div>
 		<div id=docEditorText></div>
 	    </div>
