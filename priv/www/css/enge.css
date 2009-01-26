@@ -136,14 +136,10 @@ textarea
    font-weight: bold;
 }
 
-.centerWrapperLeft {
-   float:left;
-   width: 25%;
-}
-
 .centerWrapper {
-   float:left;
-   width: 50%;
+   width: 250px;
+   margin-left: auto;
+   margin-right: auto;
 }
 
 #registerContainer
