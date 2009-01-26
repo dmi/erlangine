@@ -27,6 +27,13 @@ function buttonActivate(){
 		    elt.href="#";
 		    connect(elt, 'onclick', function(){elt.blur()});
 		},
+		$$('.gbutton'))
+	map(
+		function(elt){
+		    elt.innerHTML="<span>" + elt.innerHTML + "</span>";
+		    elt.href="#";
+		    connect(elt, 'onclick', function(){elt.blur()});
+		},
 		$$('.button'))
 }
 
@@ -397,7 +404,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 	<div id=siteTitle>ErlaNGinE</div>
 	<div id=loggedContainer>
 	    <span id=loggedUid></span>
-	    <input id=logoutNow type=button value="logout"/>
+	    <a id=logoutNow class=hint>(logout)</a>
 	</div>
     </div>
 
@@ -437,7 +444,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		<div><input id=loginPassword type=password /></div>
 		<div class=centerWrapperLeft>&nbsp;</div>
 		<div class=centerWrapper>
-		    <input id=loginButton type=button value="Login"/>
+		    <a id=loginButton class=gbutton>Login</a>
 		    <a id=openRegister class=button>Register now!</a>
 		</div>
 		<!--a class=button href=# onclick="this.blur();"><span>Register now!</span></a-->
@@ -459,7 +466,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		<div><input id=regCaptchaLink type=hidden /></div>
 		<div class=centerWrapperLeft>&nbsp;</div>
 		<div class=centerWrapper>
-		    <input id=registerButton type=button value="Register" />
+		    <a id=registerButton class=gbutton>Register</a>
 		    <a id=closeRegister class=button>Cancel</a>
 		</div>
 	    </div>
@@ -493,7 +500,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 			<a id="docSearch" class=button>Search</a>
 			<a id=viewEditDocument class=button>Edit</a>
 			<a id=newDocument class=button>New</a>
-			<input id="docDelete" type=button value="Delete"/>
+			<a id="docDelete" class=gbutton>Delete</a>
 		    </div>
 		    <table id="docSelect" cellspacing=1>
 			<thead>
@@ -518,7 +525,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 
 	    <div id=docEditor>
 		<div class=toolbar>
-		    <input id=docSave type=button value="Save" />
+		    <a id=docSave class=gbutton>Save</a>
 		</div>
 		<div id=docInfo>
 		    <input id=docId type=hidden />

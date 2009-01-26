@@ -29,13 +29,6 @@ textarea
    width: 75px;
    background-color: #fcfcc0;
 }
-input[type=button]
-{
-   font-size: 11px;
-   padding: 2px;
-   margin: 2px;
-   float: left;
-}
 .label
 {
    margin-top: 0.5em;
@@ -74,7 +67,7 @@ input[type=button]
 .viewField
 {
    border: solid 1px #d0d0d0;
-   width: 200px;
+   width: 500px;
    background-color: #fcfcc0;
    font-size: 1.1em;
    margin-bottom: 1em;
@@ -232,7 +225,7 @@ input[type=button]
    margin-top: 0.5em;
 }
 
-#docNavigator .button
+#docNavigator .button, #docNavigator .gbutton
 {
    margin-top: 3px;
 }
@@ -277,7 +270,7 @@ input[type=button]
    float: left;
 }
 
-.docSearchResultRow:hover, .button:hover, .tab:hover, .hint:hover
+.docSearchResultRow:hover, .button:hover, .gbutton:hover, .tab:hover, .hint:hover
 {
    cursor: pointer;
 }
@@ -299,6 +292,9 @@ input[type=button]
     overflow: hidden;
     width: 100%;
 }
+
+
+/* Button stuff */
 
 a.button {
     background: transparent url('/images/bg_button_a.gif') no-repeat scroll top right;
@@ -326,6 +322,36 @@ a.button:active {
 }
 
 a.button:active span {
+    background-position: bottom left;
+    padding: 6px 0 4px 18px; /* push text down 1px */
+} 
+
+a.gbutton {
+    background: transparent url('/images/bg_gbutton_a.gif') no-repeat scroll top right;
+    color: #444;
+    display: block;
+    float: left;
+    font: normal 12px arial, sans-serif;
+    height: 24px;
+    margin-right: 6px;
+    padding-right: 18px; /* sliding doors padding */
+    text-decoration: none;
+}
+
+a.gbutton span {
+    background: transparent url('/images/bg_gbutton_span.gif') no-repeat;
+    display: block;
+    line-height: 14px;
+    padding: 5px 0 5px 18px;
+} 
+
+a.gbutton:active {
+    background-position: bottom right;
+    color: #000;
+    outline: none; /* hide dotted outline in Firefox */
+}
+
+a.gbutton:active span {
     background-position: bottom left;
     padding: 6px 0 4px 18px; /* push text down 1px */
 } 
