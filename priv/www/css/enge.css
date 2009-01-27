@@ -59,20 +59,6 @@ textarea
 {
    color: blue;
 }
-.viewInfoRow
-{
-   margin-top: 1em;
-   margin-bottom: 1em;
-}
-.viewField
-{
-   border: solid 1px #d0d0d0;
-   width: 500px;
-   background-color: #fcfcc0;
-   font-size: 1.1em;
-   margin-bottom: 1em;
-   padding: 2px;
-}
 
 #headLine
 {
@@ -224,6 +210,20 @@ textarea
    margin-top: 3px;
 }
 
+#docSelector
+{
+   float: left;
+   margin-right: 2em;
+   padding-right: 2em;
+   border-right: 2px solid #606060;
+}
+
+#docView
+{
+   float: left;
+   margin-left: 2em;
+}
+
 #docSelect
 {
    background: #707070;
@@ -349,3 +349,29 @@ a.gbutton:active span {
     background-position: bottom left;
     padding: 6px 0 4px 18px; /* push text down 1px */
 } 
+
+#viewInfo
+{
+}
+
+.viewInfoRow
+{
+   margin-top: 1em;
+   margin-bottom: 1em;
+}
+.viewField
+{
+   /* border: solid 1px #d0d0d0; */
+   width: 500px;
+   /* background-color: #fcfcc0; */
+   font-size: 1em;
+   /* margin-bottom: 1em; */
+   padding: 2px;
+}
+#viewAnnotation
+{
+   /* border: solid 1px #d0d0d0; */
+   background-color: #fcfcc0;
+   font-size: 1em;
+   padding: 2px;
+}

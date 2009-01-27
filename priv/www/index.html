@@ -493,13 +493,13 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		<a id=goEditor class=tab>Document Editor</a>
 	    </div>
 	    <div id=docNavigator>
+		<div class=toolbar>
+		    <a id="docSearch" class=button>Search</a>
+		    <a id=viewEditDocument class=button>Edit</a>
+		    <a id=newDocument class=button>New</a>
+		    <a id="docDelete" class=gbutton>Delete</a>
+		</div>
 		<div id=docSelector>
-		    <div class=toolbar>
-			<a id="docSearch" class=button>Search</a>
-			<a id=viewEditDocument class=button>Edit</a>
-			<a id=newDocument class=button>New</a>
-			<a id="docDelete" class=gbutton>Delete</a>
-		    </div>
 		    <table id="docSelect" cellspacing=1>
 			<thead>
 			    <tr><th>x</th><th>Name</th><th>Date</th></tr>
@@ -512,10 +512,16 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		    <div id=viewInfo>
 			<div id=viewId></div>
 			<div id=viewRev></div>
-			<div class=viewInfoRow><span class=label>Title</span> <span id=viewTitle class=viewField></span></div>
+			<!--div class=viewInfoRow><span class=label>Title</span> <span id=viewTitle class=viewField></span></div>
 			<div class=viewInfoRow><span class=label>Annotation <span id=viewToggleAnno class=hint>(hide)</span> </span></div>
-			<div id=viewAnnotation class=viewField></div>
-			<div class=label>Document</div>
+			<div id=viewAnnotation class=viewField></div-->
+			<table>
+			    <tr><td><span class=label>Title</span></td><td><span id=viewTitle class=viewField></span></td></tr>
+			    <tr><td><span class=label>Annotation <span id=viewToggleAnno class=hint>(hide)</span> </span></td>
+			        <td><pre id=viewAnnotation class=viewField></pre></td>
+			    </tr>
+			    <tr><td><span class=label>Document</div></td></tr>
+			</table>
 		    </div>
 		    <div id=docViewText></div>
 		</div>
