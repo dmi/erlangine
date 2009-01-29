@@ -33,39 +33,3 @@ function rand(upper){
 	return Math.floor(Math.random()*upper) + 50
 }
 
-function logIn(){
-    var json = {
-	    "module": "login",
-	    "action": "login",
-	    "data": {
-		"uid": $('loginName').value,
-		"password": $('loginPassword').value
-	    }
-    }
-    ajax(json, "/enge");
-};
-
-function logOut(){
-    var json = {
-	    "module": "login",
-	    "action": "logout"
-    }
-    ajax(json, "/enge");
-};
-
-function registerAccount(){
-    var json = {
-	    "module": "register",
-	    "action": "account",
-	    "data": {
-		"name": $('regName').value,
-		"uid": $('regLogin').value,
-		"password": $('regPassword').value,
-		"repeat": $('regPassword2').value,
-		"email": $('regMail').value,
-		"captchalink": $('regCaptchaLink').value,
-		"captchacode": $('regCaptcha').value
-	    }
-    }
-    ajax(json, "/enge");
-}; 

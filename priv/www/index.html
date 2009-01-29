@@ -146,6 +146,47 @@ function cbTest(json){
 
 /* Button Handlers start */
 
+function logIn(){
+    var json = {
+	    "module": "login",
+	    "action": "login",
+	    "data": {
+		"uid": $('loginName').value,
+		"password": $('loginPassword').value
+	    }
+    }
+    ajax(json, "/enge");
+};
+
+function logInFromPassw(ev){
+    if(ev.key().code==13) logIn();
+}
+
+function logOut(){
+    var json = {
+	    "module": "login",
+	    "action": "logout"
+    }
+    ajax(json, "/enge");
+};
+
+function registerAccount(){
+    var json = {
+	    "module": "register",
+	    "action": "account",
+	    "data": {
+		"name": $('regName').value,
+		"uid": $('regLogin').value,
+		"password": $('regPassword').value,
+		"repeat": $('regPassword2').value,
+		"email": $('regMail').value,
+		"captchalink": $('regCaptchaLink').value,
+		"captchacode": $('regCaptcha').value
+	    }
+    }
+    ajax(json, "/enge");
+}; 
+
 function openRegister(){
     $('regCaptchaImg').innerHTML = '';
     hideElement('loginContainer');
@@ -356,6 +397,7 @@ function pageLoadFunction(){
     
     // on-click handlers
     connect('loginButton', 'onclick', logIn);
+    connect('loginPassword', 'onkeydown', logInFromPassw);
     connect('openRegister', 'onclick', openRegister);
     connect('closeRegister', 'onclick', closeRegister);
     connect('logoutNow', 'onclick', logOut);
