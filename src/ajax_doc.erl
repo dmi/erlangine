@@ -33,7 +33,7 @@ save(Struct, Session, _Req) ->
     end,
 
     AttrList2 = case Text of
-        <<>> -> AttrList1;
+        undefined -> AttrList1;
         _ ->
             Att = compose_attachment([{"text", "text/html", Text}]),
             lists:reverse([Att | AttrList1])

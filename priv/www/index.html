@@ -305,6 +305,10 @@ function cbShowAttach(json){
     $('docViewText').innerHTML = json.reply;
 }
 
+function cbShowNoAttach(json){
+    $('docViewText').innerHTML = "";
+}
+
 function cbEditDocument(json){
     log("EditDocument: " + json.reply._id + " : " + json.reply._rev);
     $('docId').value = json.reply._id,
@@ -331,6 +335,10 @@ function cbEditAttach(json){
     openEditor('docEditorText',json.reply);
 }
 
+function cbEditNoAttach(json){
+    openEditor('docEditorText', "");
+}
+
 function FCKeditor_OnComplete( fck ){
 	fck.SetHTML($('docEditorView').innerHTML);
 	hideElement('docEditorView');
@@ -350,7 +358,12 @@ function openEditor(Id, fckvalue){
 }
 
 function docSave(){
-    var fck = FCKeditorAPI.GetInstance('docEditorText') ;
+    try {
+        var fck = FCKeditorAPI.GetInstance('docEditorText') ;
+	var text = Base64.encode(fck.GetHTML())
+    }catch(err){
+        var text = undefined
+    }
     var json = {
 	"module": "doc",
 	"action": "save",
@@ -359,7 +372,7 @@ function docSave(){
 	    "id": $('docId').value,
 	    "rev": $('docRev').value,
 	    "anno": $('docAnnotation').value,
-	    "text": Base64.encode(fck.GetHTML())
+            "text": undefined
 	}
     }
     ajax(json, "/enge");
@@ -429,8 +442,10 @@ function pageLoadFunction(){
     connect(xapi, 'doc:bulk_delete-ok', doSearchDocs);
     connect(xapi, 'edit_doc-ok', cbEditDocument);
     connect(xapi, 'attach_edit-ok', cbEditAttach);
+    connect(xapi, 'attach_edit-fail', cbEditNoAttach);
     connect(xapi, 'show_doc-ok', cbShowDocument);
     connect(xapi, 'attach_show-ok', cbShowAttach);
+    connect(xapi, 'attach_show-fail', cbShowNoAttach);
 
     checkSession();
 }
