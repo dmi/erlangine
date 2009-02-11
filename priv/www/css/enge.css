@@ -189,23 +189,24 @@ textarea
 #docAnnotation
 {
    width: 500px;
-   height: 10em;
+   height: 5em;
+   display: block;
 }
 #docText
 {
    border: solid 1px #202020;
 }
 
-#mainDesk, #activTabs, #docSelect, #docView, #docEditor
+#mainDesk, #activTabs, #docSelect, #docView
 {
    margin-top: 1em;
 }
-#docNavigator
+#docNavigator, #docEditor
 {
    margin-top: 0.5em;
 }
 
-#docNavigator .button, #docNavigator .gbutton
+#docNavigator .button, #docNavigator .gbutton, #docEditor .button, #docEditor .gbutton
 {
    margin-top: 3px;
 }
