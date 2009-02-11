@@ -310,6 +310,8 @@ guess_mime(File) ->
     case filename:extension(File) of
         ".html" ->
             "text/html";
+        ".htm" ->
+            "text/html";
         ".xhtml" ->
             "application/xhtml+xml";
         ".xml" ->
