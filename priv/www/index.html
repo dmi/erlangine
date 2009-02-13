@@ -92,7 +92,7 @@ function composeDocRow(doc){
 }
 
 function cbSearchResult(json){
-    log("search results: " + JSON.stringify(json))
+    log("search results: " + JSON.stringify(json));
     $('testResult').innerHTML = json.event;
     Highlight('testResult');
     disconnectAllTo(doDocView); // was doDocEdit
@@ -392,6 +392,7 @@ function pageLoadFunction(){
     buttonActivate();
     
     // on-click handlers
+    // login
     connect('loginButton', 'onclick', logIn);
     connect('loginPassword', 'onkeydown', logInFromPassw);
     connect('openRegister', 'onclick', openRegister);
@@ -479,6 +480,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		    <p align=right>2008-2009, Дмитрий Черняк</p>
 		</div>
 	    </div>
+	    <!-- HTML START: login -->
 	    <div id=loginContainer>
 		<div><label for=loginName>Login</label></div>
 		<div><input id=loginName type=text /></div>
@@ -490,6 +492,8 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		</div>
 		<!--a class=button href=# onclick="this.blur();"><span>Register now!</span></a-->
 	    </div>
+	    <!-- HTML END: login -->
+	    <!-- HTML START: register -->
 	    <div id=registerContainer>
 		<div><label for=regName>Full Name</label></div>
 		<div><input id=regName type=text /></div>
@@ -510,6 +514,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		    <a id=closeRegister class=button>Cancel</a>
 		</div>
 	    </div>
+	    <!-- HTML END: register -->
 	    <div class=thirdPart>
 		<div class=welcomeText>
 		    <p align=center>Инструкция</p>
@@ -535,12 +540,15 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		<a id=goEditor class=tab>Document Editor</a>
 	    </div>
 	    <div id=docNavigator>
+		<!-- HTML START: navbar -->
 		<div class=toolbar>
 		    <a id="docSearch" class=button>Search</a>
 		    <a id=viewEditDocument class=button>Edit</a>
 		    <a id=newDocument class=button>New</a>
 		    <a id="docDelete" class=gbutton>Delete</a>
 		</div>
+		<!-- HTML END: navbar -->
+		<!-- HTML START: selector -->
 		<div id=docSelector>
 		    <table id="docSelect" cellspacing=1>
 			<thead>
@@ -550,6 +558,8 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 			</tbody>
 		    </table>
 		</div>
+		<!-- HTML END: selector -->
+		<!-- HTML START: docview -->
 		<div id=docView>
 		    <div id=viewInfo>
 			<div id=viewId></div>
@@ -567,8 +577,10 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		    </div>
 		    <div id=docViewText></div>
 		</div>
+		<!-- HTML END: docview -->
 	    </div>
 
+	    <!-- HTML START: docedit -->
 	    <div id=docEditor>
 		<div class=toolbar>
 		    <a id=docSave class=gbutton>Save</a>
@@ -588,6 +600,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		<div id=docEditorView></div>
 		<div id=docEditorText></div>
 	    </div>
+	    <!-- HTML END: docedit -->
 	</div>
     </div>
 
