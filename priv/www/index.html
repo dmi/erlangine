@@ -221,12 +221,13 @@ function checkSession(){
 }
 
 function doTest(){
-    var json = {
+    /* var json = {
 	"module": "test",
 	"action": "test",
     }
     log("test request: " + JSON.stringify(json));
-    ajax(json, "/enge");
+    ajax(json, "/enge"); */
+    get('testResult', '/hello.html');
 }
 
 function showViewAnnotation(){

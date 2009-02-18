@@ -29,7 +29,22 @@ function cbError(result){
 	}
 }
 
+
+/* Simple get content into id: get('testResult', '/hello.html'); */
+function get(id, url){
+	var d = doXHR( url, {method: 'GET'});
+	d.addCallbacks(function(XHR){cbGetResult(id,XHR)}, cbGetError);
+}
+
+function cbGetResult(id, XHR){
+	log("Get Result: " + XHR.responseText + " status: " + XHR.status);
+	$(id).innerHTML = XHR.responseText;
+}
+
+function cbGetError(result){
+	log("Get Error: " + result.number);
+}
+
 function rand(upper){
 	return Math.floor(Math.random()*upper) + 50
 }
-
