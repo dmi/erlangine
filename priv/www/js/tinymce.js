@@ -14,7 +14,8 @@ function setupTinyMCE(elt, style) {
 	    theme_advanced_toolbar_location : "top",
 	    theme_advanced_toolbar_align : "left",
 	    theme_advanced_statusbar_location : "bottom",
-	    theme_advanced_resizing : true
+	    theme_advanced_resizing : true,
+	    content_css : "css/tinymce.css"
 	});
     else
 	tinyMCE.init({
@@ -29,6 +30,16 @@ function setupTinyMCE(elt, style) {
 	    theme_advanced_toolbar_location : "top",
 	    theme_advanced_toolbar_align : "left",
 	    theme_advanced_statusbar_location : "bottom",
-	    theme_advanced_resizing : true
+	    theme_advanced_resizing : true,
+	    init_instance_callback : "resizeMCE",
+	    content_css : "css/tinymce.css"
 	})
+}
+
+// XXX light hack. troubles are possible
+function resizeMCE(){
+	$('docEditorText_tbl').style.height = "300px";
+	$('docEditorText_tbl').style.width = "1000px";
+	$('docEditorText_ifr').style.height = "249px";
+	$('docEditorText_ifr').style.width = "1000px";
 }
