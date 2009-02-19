@@ -30,15 +30,30 @@ function cbError(result){
 }
 
 
-/* Simple get content into id: get('testResult', '/hello.html'); */
+/*
+   Simple get content into id.innerHTML:
+      get('testResult', '/hello.html');
+
+   hello.html may contain plain html, mixed with <script>...</script> elements,
+   which will be sequentally evaluated.
+
+*/
 function get(id, url){
 	var d = doXHR( url, {method: 'GET'});
 	d.addCallbacks(function(XHR){cbGetResult(id,XHR)}, cbGetError);
 }
 
 function cbGetResult(id, XHR){
-	log("Get Result: " + XHR.responseText + " status: " + XHR.status);
-	$(id).innerHTML = XHR.responseText;
+	//log("Get Result status: " + XHR.status);
+        var parts = XHR.responseText.split('<script>');
+	var html = parts[0];
+	for(i = 1; i<parts.length; i++){
+	    var script = parts[i].split('</script>',2);
+	    html += script[1];
+	    //log("Get script: " + script[0]);
+	    eval(script[0]);
+	}
+	$(id).innerHTML = html.replace(/\n\n/g,'\n');
 }
 
 function cbGetError(result){
