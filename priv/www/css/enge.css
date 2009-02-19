@@ -197,7 +197,11 @@ textarea
    border: solid 1px #202020;
 }
 
-#mainDesk, #activTabs, #docSelect, #docView
+#mainDesk
+{
+   display: none;
+}
+#mainDesk, #activTabs
 {
    margin-top: 1em;
 }

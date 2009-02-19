@@ -1,0 +1,98 @@
+<div id=docView>
+    <div class=toolbar>
+	<a id=viewEditDocument class=button>Edit</a>
+	<a id=newDocument class=button>New</a>
+    </div>
+    <div id=viewInfo>
+	<div id=viewId></div>
+	<div id=viewRev></div>
+	<!--div class=viewInfoRow><span class=label>Title</span> <span id=viewTitle class=viewField></span></div>
+	<div class=viewInfoRow><span class=label>Annotation <span id=viewToggleAnno class=hint>(hide)</span> </span></div>
+	<div id=viewAnnotation class=viewField></div-->
+	<table>
+	    <tr><td><span class=label>Title</span></td><td><span id=viewTitle class=viewField></span></td></tr>
+	    <tr><td><span class=label>Annotation <span id=viewToggleAnno class=hint>(hide)</span> </span></td>
+		<td><pre id=viewAnnotation class=viewField></pre></td>
+	    </tr>
+	    <tr><td><span class=label>Document</div></td></tr>
+	</table>
+    </div>
+    <div id=docViewText></div>
+</div>
+
+<script type="text/javascript">
+
+function doNewDocument(){
+    $('docId').value="",
+    $('docRev').value="",
+    $('docTitle').value="",
+    $('docAnnotation').value="",
+    openEditor('docEditorText','');
+    hideElement('docNavigator');
+    showElement('docEditor');
+    showDocAnnotation();
+}
+
+function doDocEdit(what){
+    var json = {
+	"module": "doc",
+	"action": "doc_get",
+	"event": "edit_doc",
+	"data": {
+	    "id": $('viewId').innerHTML,
+	    "rev": $('viewRev').innerHTML
+	}
+    }
+    ajax(json, "/enge");
+}
+
+function showViewAnnotation(){
+    $('viewToggleAnno').innerHTML = "(hide)";
+    disconnectAll('viewToggleAnno');
+    connect('viewToggleAnno', 'onclick', hideViewAnnotation);
+    showElement('viewAnnotation');
+}
+
+function hideViewAnnotation(){
+    $('viewToggleAnno').innerHTML = "(show)";
+    disconnectAll('viewToggleAnno');
+    connect('viewToggleAnno', 'onclick', showViewAnnotation);
+    hideElement('viewAnnotation');
+}
+
+function cbShowDocument(json){
+    log("ShowDocument: " + json.reply._id + " : " + json.reply._rev);
+    $('viewId').innerHTML = json.reply._id,
+    $('viewRev').innerHTML = json.reply._rev,
+    $('viewTitle').innerHTML = json.reply.title,
+    $('viewAnnotation').innerHTML = json.reply.anno,
+    showViewAnnotation();
+    var json = {
+	"module": "doc",
+	"action": "attach_get",
+	"event": "attach_show",
+	"data": {
+	    "id": json.reply._id + "/text",
+	    "rev": json.reply._rev
+	}
+    }
+    ajax(json, "/enge");
+}
+
+function cbShowAttach(json){
+    log("Attach: " + JSON.stringify(json));
+    $('docViewText').innerHTML = json.reply;
+}
+
+function cbShowNoAttach(json){
+    $('docViewText').innerHTML = "";
+}
+
+connect('newDocument', 'onclick', doNewDocument);
+connect('viewToggleAnno', 'onclick', hideViewAnnotation);
+connect('viewEditDocument', 'onclick', doDocEdit);
+
+connect(xapi, 'show_doc-ok', cbShowDocument);
+connect(xapi, 'attach_show-ok', cbShowAttach);
+connect(xapi, 'attach_show-fail', cbShowNoAttach);
+</script>

@@ -1,0 +1,85 @@
+<div id=docSelector>
+    <div class=toolbar>
+	<a id="docSearch" class=button>Search</a>
+	<a id="docDelete" class=gbutton>Delete</a>
+    </div>
+    <table id="docSelect" cellspacing=1>
+	<thead>
+	    <tr><th>x</th><th>Name</th><th>Date</th></tr>
+	</thead>
+	<tbody id="docSearchResult">
+	</tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+
+function doSearchDocs(){
+    var json = {
+	"module": "doc",
+	"action": "search"
+    }
+    ajax(json, "/enge");
+};
+
+function doDeleteDocs(){
+    var doclist = map(
+	function(elt){ return({"id": elt.name, "rev": elt.value}) },
+	ifilter(
+	    function(elt){return(elt.checked)},
+	    findChildElements($('docSelect'), ['.docRowCheck'])));
+    log("to delete: " + JSON.stringify(doclist));
+    var json = {
+	"module": "doc",
+	"action": "bulk_delete",
+	"data": doclist
+    }
+    ajax(json, "/enge");
+};
+
+function doDocView(what){
+    var idd = what.target().id.split(":",3);
+    var json = {
+	"module": "doc",
+	"action": "doc_get",
+	"event": "show_doc",
+	"data": {
+	    "id": idd[1],
+	    "rev": idd[2]
+	}
+    }
+    ajax(json, "/enge");
+}
+
+function composeDocRow(doc){
+    return "<td>" + '<input type=checkbox class=docRowCheck name="' + doc._id + '" value="' + doc._rev + '">'
+    + "</td><td>" + '<span id="docs:' + doc._id + ':' + doc._rev + '" title="' + doc.anno + '">' + doc.title + '</span>'
+    + "</td><td>" + doc.date.D + "." + doc.date.M + "." + doc.date.Y
+    + "</td>";
+}
+
+function cbSearchResult(json){
+    log("search results: " + JSON.stringify(json));
+    $('testResult').innerHTML = json.event;
+    Highlight('testResult');
+    disconnectAllTo(doDocView); // was doDocEdit
+    var tab = "";
+    var tabn = 0;
+    var ids = [];
+    for(i in json.reply){
+	tab += "<tr class=docSearchResultRow>" + composeDocRow(json.reply[i]) + "</tr>\n";
+	ids[tabn++] = "docs:" + json.reply[i]._id + ":" + json.reply[i]._rev;
+    }
+    $('docSearchResult').innerHTML = tab;
+    log(ids);
+    for(i in ids){
+	log(ids[i]);
+	connect($(ids[i]), 'onclick', doDocView);
+    }
+}
+
+    connect('docSearch', 'onclick', doSearchDocs);
+    connect('docDelete', 'onclick', doDeleteDocs);
+    connect(xapi, 'doc:search-ok', cbSearchResult);
+    connect(xapi, 'doc:bulk_delete-ok', doSearchDocs);
+</script>

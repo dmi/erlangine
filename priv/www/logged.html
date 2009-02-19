@@ -1,0 +1,39 @@
+<div id=loggedContainer>
+    <span id=loggedUid></span>
+    <a id=logoutNow class=hint>(logout)</a>
+</div>
+
+<script type="text/javascript">
+
+function logOut(){
+    var json = {
+	    "module": "login",
+	    "action": "logout"
+    }
+    ajax(json, "/enge");
+};
+
+function cbLoggedIn(json){
+    $('loginPassword').value = "";
+    $('loggedUid').innerHTML = "<a>" + $('loginName').value + "</a>";
+    showElement('loggedContainer');
+    hideElement('welcomePage');
+    showElement('mainDesk');
+}
+
+function cbLoggedOut(json){
+    loggedOut();
+}
+
+function loggedOut(){
+    hideElement('loggedContainer');
+    showElement('loginContainer');
+    hideElement('mainDesk');
+    showElement('welcomePage');
+}
+
+connect('logoutNow', 'onclick', logOut);
+
+connect(xapi, 'login:check-ok', cbLoggedIn);
+connect(xapi, 'login:logout-ok', cbLoggedOut);
+</script>

@@ -22,59 +22,28 @@
 <script type="text/javascript">
 /* Supplemental */
 
-function buttonActivate(){
+function tuneInterface(par){
+    buttonActivate(par);
+}
+
+function buttonActivate(par){
 	map(
 		function(elt){
 		    elt.innerHTML="<span>" + elt.innerHTML + "</span>";
 		    elt.href="#";
 		    connect(elt, 'onclick', function(){elt.blur()});
 		},
-		$$('.gbutton'))
+		findChildElements(par, ['.gbutton']))
 	map(
 		function(elt){
 		    elt.innerHTML="<span>" + elt.innerHTML + "</span>";
 		    elt.href="#";
 		    connect(elt, 'onclick', function(){elt.blur()});
 		},
-		$$('.button'))
+		findChildElements(par, ['.button']))
 }
 
 /* Signal Handlers start */
-
-function cbLoggedIn(json){
-    $('loginPassword').value = "";
-    $('loggedUid').innerHTML = "<a>" + $('loginName').value + "</a>";
-    showElement('loggedContainer');
-    hideElement('welcomePage');
-    showElement('mainDesk');
-}
-
-function cbNotLoggedIn(json){
-    alert(JSON.stringify(json));
-}
-
-function cbRegistered(json){
-    alert("Log in now!");
-    $('regPassword').value = "";
-    $('regPassword2').value = "";
-    $('loginName').value = $('regLogin').value;
-    closeRegister();
-}
-
-function cbNotRegistered(json){
-    alert(JSON.stringify(json));
-}
-
-function cbLoggedOut(json){
-    loggedOut();
-}
-
-function cbCaptcha(json){
-    log("cbCaptcha: " + json.reply);
-    $('regCaptchaImg').innerHTML = '<img src="'+ json.reply + '"/>';
-    $('regCaptcha').value = "";
-    $('regCaptchaLink').value = json.reply;
-}
 
 function cbDocSaved(json){
     log("document saved: " + JSON.stringify(json))
@@ -82,60 +51,6 @@ function cbDocSaved(json){
     $('docId').value = json.reply.id;
     $('docRev').value = json.reply.rev;
     Highlight('testResult');
-}
-
-function composeDocRow(doc){
-    return "<td>" + '<input type=checkbox class=docRowCheck name="' + doc._id + '" value="' + doc._rev + '">'
-    + "</td><td>" + '<span id="docs:' + doc._id + ':' + doc._rev + '" title="' + doc.anno + '">' + doc.title + '</span>'
-    + "</td><td>" + doc.date.D + "." + doc.date.M + "." + doc.date.Y
-    + "</td>";
-}
-
-function cbSearchResult(json){
-    log("search results: " + JSON.stringify(json));
-    $('testResult').innerHTML = json.event;
-    Highlight('testResult');
-    disconnectAllTo(doDocView); // was doDocEdit
-    var tab = "";
-    var tabn = 0;
-    var ids = [];
-    for(i in json.reply){
-	tab += "<tr class=docSearchResultRow>" + composeDocRow(json.reply[i]) + "</tr>\n";
-	ids[tabn++] = "docs:" + json.reply[i]._id + ":" + json.reply[i]._rev;
-    }
-    $('docSearchResult').innerHTML = tab;
-    log(ids);
-    for(i in ids){
-	log(ids[i]);
-	connect($(ids[i]), 'onclick', doDocView);
-    }
-}
-
-function doDocView(what){
-    var idd = what.target().id.split(":",3);
-    var json = {
-	"module": "doc",
-	"action": "doc_get",
-	"event": "show_doc",
-	"data": {
-	    "id": idd[1],
-	    "rev": idd[2]
-	}
-    }
-    ajax(json, "/enge");
-}
-
-function doDocEdit(what){
-    var json = {
-	"module": "doc",
-	"action": "doc_get",
-	"event": "edit_doc",
-	"data": {
-	    "id": $('viewId').innerHTML,
-	    "rev": $('viewRev').innerHTML
-	}
-    }
-    ajax(json, "/enge");
 }
 
 function cbTest(json){
@@ -147,70 +62,6 @@ function cbTest(json){
 /* Signal Handlers end */
 
 /* Button Handlers start */
-
-function logIn(){
-    var json = {
-	    "module": "login",
-	    "action": "login",
-	    "data": {
-		"uid": $('loginName').value,
-		"password": $('loginPassword').value
-	    }
-    }
-    ajax(json, "/enge");
-};
-
-function logInFromPassw(ev){
-    if(ev.key().code==13) logIn();
-}
-
-function logOut(){
-    var json = {
-	    "module": "login",
-	    "action": "logout"
-    }
-    ajax(json, "/enge");
-};
-
-function registerAccount(){
-    var json = {
-	    "module": "register",
-	    "action": "account",
-	    "data": {
-		"name": $('regName').value,
-		"uid": $('regLogin').value,
-		"password": $('regPassword').value,
-		"repeat": $('regPassword2').value,
-		"email": $('regMail').value,
-		"captchalink": $('regCaptchaLink').value,
-		"captchacode": $('regCaptcha').value
-	    }
-    }
-    ajax(json, "/enge");
-}; 
-
-function openRegister(){
-    $('regCaptchaImg').innerHTML = '';
-    hideElement('loginContainer');
-    showElement('registerContainer');
-    var json = {
-	"module": "register",
-	"action": "captcha"
-    }
-    ajax(json, "/enge");
-};
-
-function closeRegister(){
-    hideElement('registerContainer');
-    showElement('loginContainer');
-};
-
-function loggedOut(){
-    hideElement('loggedContainer');
-    showElement('loginContainer');
-    hideElement('mainDesk');
-    showElement('welcomePage');
-}
 
 function checkSession(){
     var json = {
@@ -230,35 +81,7 @@ function doTest(){
     get('testResult', '/hello.html');
 }
 
-function showViewAnnotation(){
-    $('viewToggleAnno').innerHTML = "(hide)";
-    disconnectAll('viewToggleAnno');
-    connect('viewToggleAnno', 'onclick', hideViewAnnotation);
-    showElement('viewAnnotation');
-}
-
-function hideViewAnnotation(){
-    $('viewToggleAnno').innerHTML = "(show)";
-    disconnectAll('viewToggleAnno');
-    connect('viewToggleAnno', 'onclick', showViewAnnotation);
-    hideElement('viewAnnotation');
-}
-
-function showDocAnnotation(){
-    $('docToggleAnno').innerHTML = "(hide)";
-    disconnectAll('docToggleAnno');
-    connect('docToggleAnno', 'onclick', hideDocAnnotation);
-    showElement('docAnnotation');
-}
-
-function hideDocAnnotation(){
-    $('docToggleAnno').innerHTML = "(show)";
-    disconnectAll('docToggleAnno');
-    connect('docToggleAnno', 'onclick', showDocAnnotation);
-    hideElement('docAnnotation');
-}
-
-function doFindDocument(){
+function doGoNavigator(){
     hideElement('docEditor');
     showElement('docNavigator');
 }
@@ -268,173 +91,31 @@ function doGoEditor(){
     showElement('docEditor');
 }
 
-function doNewDocument(){
-    $('docId').value="",
-    $('docRev').value="",
-    $('docTitle').value="",
-    $('docAnnotation').value="",
-    openEditor('docEditorText','');
-    hideElement('docNavigator');
-    showElement('docEditor');
-    showDocAnnotation();
-}
-
-function cbShowDocument(json){
-    log("ShowDocument: " + json.reply._id + " : " + json.reply._rev);
-    $('viewId').innerHTML = json.reply._id,
-    $('viewRev').innerHTML = json.reply._rev,
-    $('viewTitle').innerHTML = json.reply.title,
-    $('viewAnnotation').innerHTML = json.reply.anno,
-    showViewAnnotation();
-    var json = {
-	"module": "doc",
-	"action": "attach_get",
-	"event": "attach_show",
-	"data": {
-	    "id": json.reply._id + "/text",
-	    "rev": json.reply._rev
-	}
-    }
-    ajax(json, "/enge");
-}
-
-function cbShowAttach(json){
-    log("Attach: " + JSON.stringify(json));
-    $('docViewText').innerHTML = json.reply;
-}
-
-function cbShowNoAttach(json){
-    $('docViewText').innerHTML = "";
-}
-
-function cbEditDocument(json){
-    log("EditDocument: " + json.reply._id + " : " + json.reply._rev);
-    $('docId').value = json.reply._id,
-    $('docRev').value = json.reply._rev,
-    $('docTitle').value = json.reply.title,
-    $('docAnnotation').value = json.reply.anno,
-    hideElement('docNavigator');
-    showElement('docEditor');
-    showDocAnnotation();
-    var json = {
-	"module": "doc",
-	"action": "attach_get",
-	"event": "attach_edit",
-	"data": {
-	    "id": json.reply._id + "/text",
-	    "rev": json.reply._rev
-	}
-    }
-    ajax(json, "/enge");
-}
-
-function cbEditAttach(json){
-    log("Attach: " + JSON.stringify(json));
-    openEditor('docEditorText',json.reply);
-}
-
-function cbEditNoAttach(json){
-    openEditor('docEditorText', "");
-}
-
-function openEditor(Id, text){
-	$('docEditorText').innerHTML = text;
-	tinyMCE.get('docEditorText').setContent(text);
-}
-
-function docSave(){
-    try {
-	var text = Base64.encode(tinyMCE.get('docEditorText').getContent())
-    }catch(err){
-        var text = undefined
-    }
-    var json = {
-	"module": "doc",
-	"action": "save",
-	"data": {
-	    "title": $('docTitle').value,
-	    "id": $('docId').value,
-	    "rev": $('docRev').value,
-	    "anno": $('docAnnotation').value,
-            "text": text
-	}
-    }
-    ajax(json, "/enge");
-};
-
-function doSearchDocs(){
-    var json = {
-	"module": "doc",
-	"action": "search"
-    }
-    ajax(json, "/enge");
-};
-
-function doDeleteDocs(){
-    var doclist = map(
-	function(elt){ return({"id": elt.name, "rev": elt.value}) },
-	ifilter(
-	    function(elt){return(elt.checked)},
-	    findChildElements($('docSelect'), ['.docRowCheck'])));
-    log("to delete: " + JSON.stringify(doclist));
-    var json = {
-	"module": "doc",
-	"action": "bulk_delete",
-	"data": doclist
-    }
-    ajax(json, "/enge");
-};
-
 /* Button Handlers end */
 
 function pageLoadFunction(){
 
     // preparations
-    buttonActivate();
+    //buttonActivate(currentDocument());
+    getCompleted = function(){ checkSession(); };
+
+    get('loggedContainer', "/logged.html");
+    get('loginContainer', "/login.html");
+    get('registerContainer', "/register.html");
+    get('docSelector', "/selector.html");
+    get('docView', "/view.html");
+    get('docEditor', "/editor.html");
     
     // on-click handlers
-    // login
-    connect('loginButton', 'onclick', logIn);
-    connect('loginPassword', 'onkeydown', logInFromPassw);
-    connect('openRegister', 'onclick', openRegister);
-    connect('closeRegister', 'onclick', closeRegister);
-    connect('logoutNow', 'onclick', logOut);
-    connect('registerButton', 'onclick', registerAccount);
 
     connect('siteTitle', 'onclick', doTest);
 
-    connect('docSearch', 'onclick', doSearchDocs);
-    connect('docDelete', 'onclick', doDeleteDocs);
-    connect('newDocument', 'onclick', doNewDocument);
     connect('goEditor', 'onclick', doGoEditor);
-    connect('findDocument', 'onclick', doFindDocument);
-    connect('viewToggleAnno', 'onclick', hideViewAnnotation);
-    connect('viewEditDocument', 'onclick', doDocEdit);
-    connect('docToggleAnno', 'onclick', hideDocAnnotation);
-    connect('docSave', 'onclick', docSave);
+    connect('goNavigator', 'onclick', doGoNavigator);
 
     // ajax reply event handlers
     connect(xapi, 'test:test-ok', cbTest);
-    connect(xapi, 'login:login-ok', cbLoggedIn);
-    connect(xapi, 'login:login-fail', cbNotLoggedIn);
-    connect(xapi, 'login:logout-ok', cbLoggedOut);
-    connect(xapi, 'login:check-ok', cbLoggedIn);
-    connect(xapi, 'register:captcha-ok', cbCaptcha);
-    connect(xapi, 'register:account-ok', cbRegistered);
-    connect(xapi, 'register:account-fail', cbNotRegistered);
-    connect(xapi, 'doc:save-ok', cbDocSaved);
-    connect(xapi, 'doc:search-ok', cbSearchResult);
-    connect(xapi, 'doc:bulk_delete-ok', doSearchDocs);
-    connect(xapi, 'edit_doc-ok', cbEditDocument);
-    connect(xapi, 'attach_edit-ok', cbEditAttach);
-    connect(xapi, 'attach_edit-fail', cbEditNoAttach);
-    connect(xapi, 'show_doc-ok', cbShowDocument);
-    connect(xapi, 'attach_show-ok', cbShowAttach);
-    connect(xapi, 'attach_show-fail', cbShowNoAttach);
 
-    checkSession();
-
-    setupTinyMCE('docEditorText');
 }
 
 MochiKit.Signal.connect(window, "onload", pageLoadFunction);
@@ -446,10 +127,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 
     <div id=headLine>
 	<div id=siteTitle>ErlaNGinE</div>
-	<div id=loggedContainer>
-	    <span id=loggedUid></span>
-	    <a id=logoutNow class=hint>(logout)</a>
-	</div>
+	<div id=loggedContainer></div>
     </div>
 
     <!--input id="testButton" type=button value="Test"/-->
@@ -481,41 +159,8 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 		    <p align=right>2008-2009, Дмитрий Черняк</p>
 		</div>
 	    </div>
-	    <!-- HTML START: login -->
-	    <div id=loginContainer>
-		<div><label for=loginName>Login</label></div>
-		<div><input id=loginName type=text /></div>
-		<div><label for=loginPassword>Password</label></div>
-		<div><input id=loginPassword type=password /></div>
-		<div class=centerWrapper>
-		    <a id=loginButton class=gbutton>Login</a>
-		    <a id=openRegister class=button>Register now!</a>
-		</div>
-		<!--a class=button href=# onclick="this.blur();"><span>Register now!</span></a-->
-	    </div>
-	    <!-- HTML END: login -->
-	    <!-- HTML START: register -->
-	    <div id=registerContainer>
-		<div><label for=regName>Full Name</label></div>
-		<div><input id=regName type=text /></div>
-		<div><label for=regLogin>Login</label></div>
-		<div><input id=regLogin type=text /></div>
-		<div><label for=regPassword>Password</label></div>
-		<div><input id=regPassword type=password /></div>
-		<div><label for=regPassword2>Repeat password</label></div>
-		<div><input id=regPassword2 type=password /></div>
-		<div><label for=regMail>E-Mail</label></div>
-		<div><input id=regMail type=text /></div>
-		<div><div id=regCaptchaImg></div></div>
-		<div><label for=regCaptcha>Enter verification code</label></div>
-		<div><input id=regCaptcha type=text /></div>
-		<div><input id=regCaptchaLink type=hidden /></div>
-		<div class=centerWrapper>
-		    <a id=registerButton class=gbutton>Register</a>
-		    <a id=closeRegister class=button>Cancel</a>
-		</div>
-	    </div>
-	    <!-- HTML END: register -->
+	    <div id=loginContainer></div>
+	    <div id=registerContainer></div>
 	    <div class=thirdPart>
 		<div class=welcomeText>
 		    <p align=center>Инструкция</p>
@@ -535,73 +180,18 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 	    </div>
 	</div>
 
-	<div id=mainDesk style="display: none"> <!-- trick for FCKEditor -->
+	<div id=mainDesk>
 	    <div id=activTabs>
-		<a id=findDocument class=tab>Navigator</a>
+		<a id=goNavigator class=tab>Navigator</a>
 		<a id=goEditor class=tab>Document Editor</a>
 	    </div>
+
 	    <div id=docNavigator>
-		<!-- HTML START: navbar -->
-		<div class=toolbar>
-		    <a id="docSearch" class=button>Search</a>
-		    <a id=viewEditDocument class=button>Edit</a>
-		    <a id=newDocument class=button>New</a>
-		    <a id="docDelete" class=gbutton>Delete</a>
-		</div>
-		<!-- HTML END: navbar -->
-		<!-- HTML START: selector -->
-		<div id=docSelector>
-		    <table id="docSelect" cellspacing=1>
-			<thead>
-			    <tr><th>x</th><th>Name</th><th>Date</th></tr>
-			</thead>
-			<tbody id="docSearchResult">
-			</tbody>
-		    </table>
-		</div>
-		<!-- HTML END: selector -->
-		<!-- HTML START: docview -->
-		<div id=docView>
-		    <div id=viewInfo>
-			<div id=viewId></div>
-			<div id=viewRev></div>
-			<!--div class=viewInfoRow><span class=label>Title</span> <span id=viewTitle class=viewField></span></div>
-			<div class=viewInfoRow><span class=label>Annotation <span id=viewToggleAnno class=hint>(hide)</span> </span></div>
-			<div id=viewAnnotation class=viewField></div-->
-			<table>
-			    <tr><td><span class=label>Title</span></td><td><span id=viewTitle class=viewField></span></td></tr>
-			    <tr><td><span class=label>Annotation <span id=viewToggleAnno class=hint>(hide)</span> </span></td>
-			        <td><pre id=viewAnnotation class=viewField></pre></td>
-			    </tr>
-			    <tr><td><span class=label>Document</div></td></tr>
-			</table>
-		    </div>
-		    <div id=docViewText></div>
-		</div>
-		<!-- HTML END: docview -->
+		<div id=docSelector></div>
+		<div id=docView></div>
 	    </div>
 
-	    <!-- HTML START: docedit -->
-	    <div id=docEditor>
-		<div class=toolbar>
-		    <a id=docSave class=gbutton>Save</a>
-		</div>
-		<div id=docInfo>
-		    <input id=docId type=hidden />
-		    <input id=docRev type=hidden />
-		    <label for=docTitle>Document Title</label>
-		    <input id=docTitle type=text />
-		    <div class=label>
-			<label for=docAnnotation>Annotation</label>
-			<span id=docToggleAnno class=hint>(hide)</span>
-		    </div>
-		    <textarea id=docAnnotation></textarea>
-		    <label for=docEditorText>Document</label>
-		</div>
-		<div id=docEditorView></div>
-		<div id=docEditorText></div>
-	    </div>
-	    <!-- HTML END: docedit -->
+	    <div id=docEditor></div>
 	</div>
     </div>
 

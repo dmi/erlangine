@@ -1,0 +1,101 @@
+<div id=docEditor>
+    <div class=toolbar>
+	<a id=docSave class=gbutton>Save</a>
+    </div>
+    <div id=docInfo>
+	<input id=docId type=hidden />
+	<input id=docRev type=hidden />
+	<label for=docTitle>Document Title</label>
+	<input id=docTitle type=text />
+	<div class=label>
+	    <label for=docAnnotation>Annotation</label>
+	    <span id=docToggleAnno class=hint>(hide)</span>
+	</div>
+	<textarea id=docAnnotation></textarea>
+	<label for=docEditorText>Document</label>
+    </div>
+    <div id=docEditorView></div>
+    <div id=docEditorText></div>
+</div>
+
+<script type="text/javascript">
+
+function openEditor(Id, text){
+	$('docEditorText').innerHTML = text;
+	tinyMCE.get('docEditorText').setContent(text);
+}
+
+function docSave(){
+    try {
+	var text = Base64.encode(tinyMCE.get('docEditorText').getContent())
+    }catch(err){
+        var text = undefined
+    }
+    var json = {
+	"module": "doc",
+	"action": "save",
+	"data": {
+	    "title": $('docTitle').value,
+	    "id": $('docId').value,
+	    "rev": $('docRev').value,
+	    "anno": $('docAnnotation').value,
+            "text": text
+	}
+    }
+    ajax(json, "/enge");
+}
+
+function showDocAnnotation(){
+    $('docToggleAnno').innerHTML = "(hide)";
+    disconnectAll('docToggleAnno');
+    connect('docToggleAnno', 'onclick', hideDocAnnotation);
+    showElement('docAnnotation');
+}
+
+function hideDocAnnotation(){
+    $('docToggleAnno').innerHTML = "(show)";
+    disconnectAll('docToggleAnno');
+    connect('docToggleAnno', 'onclick', showDocAnnotation);
+    hideElement('docAnnotation');
+}
+
+function cbEditDocument(json){
+    log("EditDocument: " + json.reply._id + " : " + json.reply._rev);
+    $('docId').value = json.reply._id,
+    $('docRev').value = json.reply._rev,
+    $('docTitle').value = json.reply.title,
+    $('docAnnotation').value = json.reply.anno,
+    hideElement('docNavigator');
+    showElement('docEditor');
+    showDocAnnotation();
+    var json = {
+	"module": "doc",
+	"action": "attach_get",
+	"event": "attach_edit",
+	"data": {
+	    "id": json.reply._id + "/text",
+	    "rev": json.reply._rev
+	}
+    }
+    ajax(json, "/enge");
+}
+
+function cbEditAttach(json){
+    log("Attach: " + JSON.stringify(json));
+    openEditor('docEditorText',json.reply);
+}
+
+function cbEditNoAttach(json){
+    openEditor('docEditorText', "");
+}
+
+connect('docSave', 'onclick', docSave);
+connect('docToggleAnno', 'onclick', hideDocAnnotation);
+
+connect(xapi, 'doc:save-ok', cbDocSaved);
+connect(xapi, 'edit_doc-ok', cbEditDocument);
+connect(xapi, 'attach_edit-ok', cbEditAttach);
+connect(xapi, 'attach_edit-fail', cbEditNoAttach);
+
+setupTinyMCE('docEditorText');
+</script>
