@@ -231,6 +231,7 @@ textarea
 #docSelect
 {
    background: #707070;
+   width: 100%;
 }
 
 #docSelect td, th
