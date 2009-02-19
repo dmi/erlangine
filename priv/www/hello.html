@@ -1,11 +1,14 @@
 <!-- enge get() test file -->
-Hi
-<script>
+<div id=testResult>
+    Hi,
+    <script>
     function testHello(){
-        log("Hello pressed")
+	log("Hello pressed")
     }
-</script>
-Helo
+    </script>
+    Click to this text to see a log message
+</div>
 <script>
-    connect('testResult', 'onclick', testHello);
+connect('testResult', 'onclick', testHello);
+log("test activated");
 </script>

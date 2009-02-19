@@ -35,7 +35,7 @@ function cbError(result){
       get('testResult', '/hello.html');
 
    hello.html may contain plain html, mixed with <script>...</script> elements,
-   which will be sequentally evaluated.
+   which will be sequentally evaluated after inserting thml into page.
 
    calls tuneInterface(DOM), if redefined (default - false)
    calls getCompleted() when no more callbacks expected, if redefined (default - false)
@@ -56,17 +56,19 @@ function cbGetResult(id, XHR){
 	//log("Get Result status: " + XHR.status);
         var parts = XHR.responseText.split('<script>');
 	var html = parts[0];
+	var scripts = [];
 	for(i = 1; i<parts.length; i++){
 	    var script = parts[i].split('</script>',2);
 	    html += script[1];
 	    //log("Get script: " + script[0]);
-	    eval(script[0]);
+	    scripts[i] = script[0];
 	}
 	var elt = document.createElement("div");
 	elt.innerHTML = html.replace(/\n\n/g,'\n');
 	if(tuneInterface)tuneInterface(elt);
 	swapDOM(id, elt);
 	getCount--;
+	for(i in scripts) eval(scripts[i]);
 	if((getCount==0) && getCompleted) getCompleted();
 }
 
