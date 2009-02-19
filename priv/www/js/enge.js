@@ -37,8 +37,17 @@ function cbError(result){
    hello.html may contain plain html, mixed with <script>...</script> elements,
    which will be sequentally evaluated.
 
+   calls tuneInterface(DOM), if redefined (default - false)
+   calls getCompleted() when no more callbacks expected, if redefined (default - false)
+   
 */
+
+var getCount = 0;
+var getCompleted = false;
+var tuneInterface = false;
+
 function get(id, url){
+	getCount++;
 	var d = doXHR( url, {method: 'GET'});
 	d.addCallbacks(function(XHR){cbGetResult(id,XHR)}, cbGetError);
 }
@@ -53,11 +62,18 @@ function cbGetResult(id, XHR){
 	    //log("Get script: " + script[0]);
 	    eval(script[0]);
 	}
-	$(id).innerHTML = html.replace(/\n\n/g,'\n');
+	var elt = document.createElement("div");
+	elt.innerHTML = html.replace(/\n\n/g,'\n');
+	if(tuneInterface)tuneInterface(elt);
+	swapDOM(id, elt);
+	getCount--;
+	if((getCount==0) && getCompleted) getCompleted();
 }
 
 function cbGetError(result){
 	log("Get Error: " + result.number);
+	getCount--;
+	if((getCount==0) && getCompleted) getCompleted();
 }
 
 function rand(upper){
