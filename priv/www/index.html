@@ -78,7 +78,7 @@ function doTest(){
     }
     log("test request: " + JSON.stringify(json));
     ajax(json, "/enge"); */
-    get('testResult', '/hello.html');
+    insert('testResult', '/hello.html');
 }
 
 function doGoNavigator(){
@@ -97,14 +97,14 @@ function pageLoadFunction(){
 
     // preparations
     //buttonActivate(currentDocument());
-    getCompleted = function(){ checkSession(); };
+    insertCompleted = function(){ checkSession(); };
 
-    get('loggedContainer', "/logged.html");
-    get('loginContainer', "/login.html");
-    get('registerContainer', "/register.html");
-    get('docSelector', "/selector.html");
-    get('docView', "/view.html");
-    get('docEditor', "/editor.html");
+    insert('loggedContainer', "/logged.html");
+    insert('loginContainer', "/login.html");
+    insert('registerContainer', "/register.html");
+    insert('docSelector', "/selector.html");
+    insert('docView', "/view.html");
+    insert('docEditor', "/editor.html");
     
     // on-click handlers
 

@@ -31,28 +31,29 @@ function cbError(result){
 
 
 /*
-   Simple get content into id.innerHTML:
-      get('testResult', '/hello.html');
+   Simple insert content into id.innerHTML from url:
+
+     insert('testResult', '/hello.html');
 
    hello.html may contain plain html, mixed with <script>...</script> elements,
-   which will be sequentally evaluated after inserting thml into page.
+   which will be sequentally evaluated after inserting html into page.
 
-   calls tuneInterface(DOM), if redefined (default - false)
-   calls getCompleted() when no more callbacks expected, if redefined (default - false)
+   calls tuneInterface(DOM) to dynamically tune loaded content after inserting, if redefined (default - false)
+   calls insertCompleted() when no more callbacks expected, if redefined (default - false)
    
 */
 
-var getCount = 0;
-var getCompleted = false;
+var insertCount = 0;
+var insertCompleted = false;
 var tuneInterface = false;
 
-function get(id, url){
-	getCount++;
+function insert(id, url){
+	insertCount++;
 	var d = doXHR( url, {method: 'GET'});
-	d.addCallbacks(function(XHR){cbGetResult(id,XHR)}, cbGetError);
+	d.addCallbacks(function(XHR){cbInsertResult(id,XHR)}, cbInsertError);
 }
 
-function cbGetResult(id, XHR){
+function cbInsertResult(id, XHR){
 	//log("Get Result status: " + XHR.status);
         var parts = XHR.responseText.split('<script>');
 	var html = parts[0];
@@ -67,15 +68,15 @@ function cbGetResult(id, XHR){
 	elt.innerHTML = html.replace(/\n\n/g,'\n');
 	if(tuneInterface)tuneInterface(elt);
 	swapDOM(id, elt);
-	getCount--;
+	insertCount--;
 	for(i in scripts) eval(scripts[i]);
-	if((getCount==0) && getCompleted) getCompleted();
+	if((insertCount==0) && insertCompleted) insertCompleted();
 }
 
-function cbGetError(result){
+function cbInsertError(result){
 	log("Get Error: " + result.number);
-	getCount--;
-	if((getCount==0) && getCompleted) getCompleted();
+	insertCount--;
+	if((insertCount==0) && insertCompleted) insertCompleted();
 }
 
 function rand(upper){
