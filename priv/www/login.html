@@ -1,16 +1,14 @@
-<div id=loginContainer>
-    <div><label for=loginName>Login</label></div>
-    <div><input id=loginName type=text /></div>
-    <div><label for=loginPassword>Password</label></div>
-    <div><input id=loginPassword type=password /></div>
-    <div class=centerWrapper>
-	<a id=loginButton class=gbutton>Login</a>
-	<a id=openRegister class=button>Register now!</a>
-    </div>
-    <!--a class=button href=# onclick="this.blur();"><span>Register now!</span></a-->
+<div><label for=loginName>Login</label></div>
+<div><input id=loginName type=text /></div>
+<div><label for=loginPassword>Password</label></div>
+<div><input id=loginPassword type=password /></div>
+<div class=centerWrapper>
+    <a id=loginButton class=gbutton>Login</a>
+    <a id=openRegister class=button>Register now!</a>
 </div>
+<!--a class=button href=# onclick="this.blur();"><span>Register now!</span></a-->
 
-<script type="text/javascript">
+<script>
 function logIn(){
     var json = {
 	    "module": "login",
@@ -37,6 +35,14 @@ function openRegister(){
     }
     ajax(json, "/enge");
 };
+
+function cbLoggedIn(json){
+    $('loginPassword').value = "";
+    $('loggedUid').innerHTML = "<a>" + $('loginName').value + "</a>";
+    showElement('loggedContainer');
+    hideElement('welcomePage');
+    showElement('mainDesk');
+}
 
 function cbNotLoggedIn(json){
     alert(JSON.stringify(json));

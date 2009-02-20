@@ -97,7 +97,10 @@ function pageLoadFunction(){
 
     // preparations
     //buttonActivate(currentDocument());
-    insertCompleted = function(){ checkSession(); };
+    insertCompleted = function(){
+        checkSession();
+        insertCompleted = false;
+    };
 
     insert('loggedContainer', "/logged.html");
     insert('loginContainer', "/login.html");

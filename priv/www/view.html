@@ -1,26 +1,24 @@
-<div id=docView>
-    <div class=toolbar>
-	<a id=viewEditDocument class=button>Edit</a>
-	<a id=newDocument class=button>New</a>
-    </div>
-    <div id=viewInfo>
-	<div id=viewId></div>
-	<div id=viewRev></div>
-	<!--div class=viewInfoRow><span class=label>Title</span> <span id=viewTitle class=viewField></span></div>
-	<div class=viewInfoRow><span class=label>Annotation <span id=viewToggleAnno class=hint>(hide)</span> </span></div>
-	<div id=viewAnnotation class=viewField></div-->
-	<table>
-	    <tr><td><span class=label>Title</span></td><td><span id=viewTitle class=viewField></span></td></tr>
-	    <tr><td><span class=label>Annotation <span id=viewToggleAnno class=hint>(hide)</span> </span></td>
-		<td><pre id=viewAnnotation class=viewField></pre></td>
-	    </tr>
-	    <tr><td><span class=label>Document</div></td></tr>
-	</table>
-    </div>
-    <div id=docViewText></div>
+<div class=toolbar>
+    <a id=viewEditDocument class=button>Edit</a>
+    <a id=newDocument class=button>New</a>
 </div>
+<div id=viewInfo>
+    <div id=viewId></div>
+    <div id=viewRev></div>
+    <!--div class=viewInfoRow><span class=label>Title</span> <span id=viewTitle class=viewField></span></div>
+    <div class=viewInfoRow><span class=label>Annotation <span id=viewToggleAnno class=hint>(hide)</span> </span></div>
+    <div id=viewAnnotation class=viewField></div-->
+    <table>
+	<tr><td><span class=label>Title</span></td><td><span id=viewTitle class=viewField></span></td></tr>
+	<tr><td><span class=label>Annotation <span id=viewToggleAnno class=hint>(hide)</span> </span></td>
+	    <td><pre id=viewAnnotation class=viewField></pre></td>
+	</tr>
+	<tr><td><span class=label>Document</div></td></tr>
+    </table>
+</div>
+<div id=docViewText></div>
 
-<script type="text/javascript">
+<script>
 
 function doNewDocument(){
     $('docId').value="",

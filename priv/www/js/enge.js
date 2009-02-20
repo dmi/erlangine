@@ -40,7 +40,10 @@ function cbError(result){
 
    calls tuneInterface(DOM) to dynamically tune loaded content after inserting, if redefined (default - false)
    calls insertCompleted() when no more callbacks expected, if redefined (default - false)
-   
+
+   in scripts, external functions must be defined as
+     
+     fname = function(){};
 */
 
 var insertCount = 0;
@@ -54,6 +57,7 @@ function insert(id, url){
 }
 
 function cbInsertResult(id, XHR){
+	insertCount--;
 	//log("Get Result status: " + XHR.status);
         var parts = XHR.responseText.split('<script>');
 	var html = parts[0];
@@ -64,18 +68,17 @@ function cbInsertResult(id, XHR){
 	    //log("Get script: " + script[0]);
 	    scripts[i] = script[0];
 	}
-	var elt = document.createElement("div");
+	var elt = document.getElementById(id);
+	//log("Get html: " + html);
 	elt.innerHTML = html.replace(/\n\n/g,'\n');
 	if(tuneInterface)tuneInterface(elt);
-	swapDOM(id, elt);
-	insertCount--;
 	for(i in scripts) eval(scripts[i]);
 	if((insertCount==0) && insertCompleted) insertCompleted();
 }
 
 function cbInsertError(result){
-	log("Get Error: " + result.number);
 	insertCount--;
+	log("Get Error: " + result.number);
 	if((insertCount==0) && insertCompleted) insertCompleted();
 }
 

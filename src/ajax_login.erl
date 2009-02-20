@@ -13,7 +13,7 @@ login(Struct, _Session, _Req) ->
             io:format("cookie is ~p~n", [H]),
 
             session:new_session({auth, SessionId}, ?AUTHKEY_TIMEOUT, #authkey{user = U, realm = Realm}),
-            {{ok, <<"ok">>}, [H]};
+            {{ok, list_to_binary(U)}, [H]};
 
         _ -> {{fail, <<"Bad login">>}, []}
     end.

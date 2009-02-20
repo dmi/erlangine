@@ -1,9 +1,7 @@
-<div id=loggedContainer>
-    <span id=loggedUid></span>
-    <a id=logoutNow class=hint>(logout)</a>
-</div>
+<span id=loggedUid></span>
+<a id=logoutNow class=hint>(logout)</a>
 
-<script type="text/javascript">
+<script>
 
 function logOut(){
     var json = {
@@ -13,9 +11,8 @@ function logOut(){
     ajax(json, "/enge");
 };
 
-function cbLoggedIn(json){
-    $('loginPassword').value = "";
-    $('loggedUid').innerHTML = "<a>" + $('loginName').value + "</a>";
+function cbAlreadyLogged(json){
+    $('loggedUid').innerHTML = "<a href=#>" + json.reply + "</a>";
     showElement('loggedContainer');
     hideElement('welcomePage');
     showElement('mainDesk');
@@ -34,6 +31,6 @@ function loggedOut(){
 
 connect('logoutNow', 'onclick', logOut);
 
-connect(xapi, 'login:check-ok', cbLoggedIn);
+connect(xapi, 'login:check-ok', cbAlreadyLogged);
 connect(xapi, 'login:logout-ok', cbLoggedOut);
 </script>

@@ -1,24 +1,22 @@
-<div id=docEditor>
-    <div class=toolbar>
-	<a id=docSave class=gbutton>Save</a>
-    </div>
-    <div id=docInfo>
-	<input id=docId type=hidden />
-	<input id=docRev type=hidden />
-	<label for=docTitle>Document Title</label>
-	<input id=docTitle type=text />
-	<div class=label>
-	    <label for=docAnnotation>Annotation</label>
-	    <span id=docToggleAnno class=hint>(hide)</span>
-	</div>
-	<textarea id=docAnnotation></textarea>
-	<label for=docEditorText>Document</label>
-    </div>
-    <div id=docEditorView></div>
-    <div id=docEditorText></div>
+<div class=toolbar>
+    <a id=docSave class=gbutton>Save</a>
 </div>
+<div id=docInfo>
+    <input id=docId type=hidden />
+    <input id=docRev type=hidden />
+    <label for=docTitle>Document Title</label>
+    <input id=docTitle type=text />
+    <div class=label>
+	<label for=docAnnotation>Annotation</label>
+	<span id=docToggleAnno class=hint>(hide)</span>
+    </div>
+    <textarea id=docAnnotation></textarea>
+    <label for=docEditorText>Document</label>
+</div>
+<div id=docEditorView></div>
+<div id=docEditorText></div>
 
-<script type="text/javascript">
+<script>
 
 function openEditor(Id, text){
 	$('docEditorText').innerHTML = text;
