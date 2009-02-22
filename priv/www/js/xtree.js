@@ -5,18 +5,23 @@
 // jsona is [json]
 // json is {id, name, anno, childs}
 // childs is [json] | []
-function xtreeCreateStruct(elt, jsona){
+function xtreeCreateStruct(elt, jsona, UserCB){
     elt = $(elt);
     elt.innerHTML = "";
     appendChildNodes(elt, map(xtreeCreateNode, jsona));
-    xtreeActivate(elt);
+    xtreeActivate(elt, UserCB);
 }
 
 // activate xtree structure with callbacks
-function xtreeActivate(Id){
+function xtreeActivate(Id, UserCB){
     map(
 	function(elt){log(elt);connect(elt, 'onclick', xtreeToggle)},
 	findChildElements($(Id), ['.xtreePlus']));
+    if(UserCB != undefined){
+	map(
+	    function(elt){log(elt);connect(elt, 'onclick', UserCB)},
+	    findChildElements($(Id), ['.xtreeItem']));
+    }
 }
 
 // Create one node with subnodes
@@ -24,9 +29,9 @@ function xtreeActivate(Id){
 // json is {id, name, anno, childs}
 // childs is [json] | []
 function xtreeCreateNode(json){
-    return DIV({'id': json.id, 'class': 'xtreeNode'},
+    return DIV({'class': 'xtreeNode'},
 	       IMG({'src': "images/minus.gif", 'class': 'xtreePlus'}),
-	       SPAN({'class': 'xtreeItem', 'title': json.anno}, json.name),
+	       SPAN({'id': json.id, 'class': 'xtreeItem', 'title': json.anno}, json.name),
 	       DIV({'class': 'xtreeChilds'},
 	       map(xtreeCreateNode, json.childs)));
 }
@@ -43,3 +48,35 @@ function xtreeToggle(){
 	setNodeAttribute(this, 'src', "images/plus.gif");
     }
 }
+
+/*
+Example:
+<script>
+var xtreeTestJSON = [
+{"id": "i1",
+ "name": "item 1",
+ "anno": "the item",
+ "childs": [
+    {"id": "i1-1",
+     "name": "item 1-1",
+     "anno": "the item",
+     "childs": [
+	{"id": "i1-1-1",
+	 "name": "item 1-1-1",
+	 "anno": "the item",
+	 "childs": [
+	 ]},
+     ]},
+ ]},
+{"id": "i2",
+ "name": "item 2",
+ "anno": "the item",
+ "childs": [
+ ]},
+];
+
+xtreeCreateStruct('xtreeTest', xtreeTestJSON, function(){log('touched tree leaf: ' + this.id)});
+</script>
+
+<div id=xtreeTest></div>
+*/

@@ -73,7 +73,8 @@ var xtreeTestJSON = [
 
 function pageLoadFunction(){
     // on-click handlers
-    xtreeCreateStruct('xtreeTest', xtreeTestJSON);
+    // XXX add user callback, play with fields
+    xtreeCreateStruct('xtreeTest', xtreeTestJSON, function(){log('touched tree leaf: ' + this.id)});
 
 }
 
