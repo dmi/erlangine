@@ -1,0 +1,28 @@
+<!-- destinations tree select, mark active, show/edit info and access lists -->
+<div id=destinations></div>
+
+<script>
+
+var destTestJSON = [
+{'id': 'nodest',
+ 'name': 'No destination',
+ 'anno': 'Default destination',
+ 'childs': []},
+{'id': 'test_destination',
+ 'name': 'Test destination',
+ 'anno': '',
+ 'childs': []},
+];
+
+function selectDest(){
+    removeElementClass(selDest,'xtreeItemSelected');
+    selDest = this.id;
+    addElementClass(this,'xtreeItemSelected');
+}
+
+xtreeCreateStruct('destinations', destTestJSON, selectDest);
+
+selDest = destTestJSON[0].id;
+addElementClass(selDest, 'xtreeItemSelected');
+
+</script>

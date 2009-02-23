@@ -87,12 +87,20 @@ function doTest(){
 
 function doGoNavigator(){
     hideElement('docEditor');
+    hideElement('destinations');
     showElement('docNavigator');
 }
 
 function doGoEditor(){
     hideElement('docNavigator');
+    hideElement('destinations');
     showElement('docEditor');
+}
+
+function doGoDestinations(){
+    hideElement('docEditor');
+    hideElement('docNavigator');
+    showElement('destinations');
 }
 
 /* Button Handlers end */
@@ -112,6 +120,7 @@ function pageLoadFunction(){
     insert('docSelector', "/selector.html");
     insert('docView', "/view.html");
     insert('docEditor', "/editor.html");
+    insert('destinations', "/destins.html");
     
     // on-click handlers
 
@@ -119,6 +128,7 @@ function pageLoadFunction(){
 
     connect('goEditor', 'onclick', doGoEditor);
     connect('goNavigator', 'onclick', doGoNavigator);
+    connect('goDestinations', 'onclick', doGoDestinations);
 
     // ajax reply event handlers
     connect(xapi, 'test:test-ok', cbTest);
@@ -191,6 +201,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 	    <div id=activTabs>
 		<a id=goNavigator class=tab>Navigator</a>
 		<a id=goEditor class=tab>Document Editor</a>
+		<a id=goDestinations class=tab>Destinations</a>
 	    </div>
 
 	    <div id=docNavigator>
@@ -199,6 +210,8 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 	    </div>
 
 	    <div id=docEditor></div>
+
+	    <div id=destinations></div>
 	</div>
     </div>
 
