@@ -11,3 +11,12 @@
 .xtrePlus
 {
 }
+
+.xtreeItem
+{
+}
+
+.xtreeItemSelected
+{
+   border: dotted 1px #202020;
+}
