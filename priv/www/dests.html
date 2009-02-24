@@ -1,8 +1,43 @@
 <!-- destinations tree select, mark active, show/edit info and access lists -->
 <div class=toolbar>
-    <a id=destNope class=button>Nope</a>
+    <a id=destSave class=gbutton>Save</a>
+    <a id=destDelete class=gbutton>Delete</a>
+    <a id=destCreate class=gbutton>New</a>
+    <div id=destNew title="Destination name to create in current">
+	<label for=destNewName>Name</label>
+	<input id=destNewName type=text />
+    </div>
 </div>
-<div id=destlist></div>
+<div id=destList></div>
+<div id=destEdit>
+    <input id=destId type=hidden />
+    <div><label for=destName>Destination</label>
+    <input id=destName type=text /></div>
+    <div><label for=destAnno>Annotation</label>
+    <input id=destAnno type=text /></div>
+    <div><label for=destSubscribeType>Subscription allowed for:</label>
+    <select id=destSubscrType type=select>
+        <option value=full>Entire posts</option>
+        <option value=anno>Post Annotations</option>
+        <option value=none>None</option>
+    </select></div>
+    <div><label for=destReadApproved title="can read from external">Access approved:</label>
+    <span id=destReadApproved>no data</span></div>
+    <div><label for=destWriteApproved title="can write to external">Write approved:</label>
+    <span id=destWriteApproved>no data</span></div>
+    <div><label for=destSubscrApproved title="subscribed">Subscription approved:</label>
+    <span id=destSubscrApproved>no data</span></div>
+    <div><label for=destSubscribeType>Subscription:</label>
+    <select id=destSubscrType type=select>
+        <option value=none>None</option>
+        <option value=anno>Post Annotations</option>
+        <option value=full>Entire posts</option>
+    </select></div>
+    <div><label for=xxx>Readers:</label></div>
+    <div><label for=xxx>Writers:</label></div>
+    <div><label for=xxx>Subscribers:</label></div>
+    <div><label for=xxx>New requests:</label></div>
+</div>
 
 <script>
 
@@ -23,10 +58,17 @@ function selectDest(){
     addElementClass(this,'xtreeItemSelected');
 }
 
-xtreeCreateStruct('destlist', destTestJSON, selectDest);
+function doDestCreateNode(){
+    var node = xtreeCreateNode({'id': rand(1000), 'name': $('destNewName').value, 'anno': '', 'childs': []});
+    xtreeActivate(node, selectDest);
+    xtreeInsertNode(selDest, node);
+}
+
+xtreeCreateStruct('destList', destTestJSON, selectDest);
 
 selDest = destTestJSON[0].id;
 addElementClass(selDest, 'xtreeItemSelected');
 
-//connect('destNope', 'onclick', destNope);
+connect('destCreate', 'onclick', doDestCreateNode);
+
 </script>

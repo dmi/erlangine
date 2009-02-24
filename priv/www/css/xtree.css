@@ -14,9 +14,11 @@
 
 .xtreeItem
 {
+   margin: 1px;
 }
 
 .xtreeItemSelected
 {
    border: dotted 1px #202020;
+   margin: 0px;
 }

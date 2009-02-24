@@ -38,7 +38,7 @@ textarea
 {
    font-size: 13px;
    padding: 3px;
-   margin: 1px;
+   margin: 2px;
    margin-bottom: 3px;
    background-color: #e7e7e7;
    color: #474747;
@@ -48,7 +48,7 @@ textarea
 {
    border-top: 3px solid #909090;
    border-right: 1px dotted black;
-   margin-right: 0;
+   margin-right: 1px;
    color: black;
 }
 .tabSelected
@@ -302,4 +302,23 @@ textarea
    background-color: #fcfcc0;
    font-size: 1em;
    padding: 2px;
+}
+
+#destList
+{
+   float: left;
+   margin-right: 2em;
+   padding-right: 2em;
+}
+#destEdit
+{
+   float: left;
+}
+#destNewName, #destName
+{
+   width: 200px;
+}
+#destAnno
+{
+   width: 400px;
 }

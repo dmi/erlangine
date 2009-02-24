@@ -36,6 +36,14 @@ function xtreeCreateNode(json){
 	       map(xtreeCreateNode, json.childs)));
 }
 
+// Insert node into structure as child of id
+// possible, node can be an array
+// node must be activated explicitly, see Example below
+function xtreeInsertNode(id, node){
+    var childs = findChildElements($(id).parentNode, ['.xtreeChilds']);
+    appendChildNodes(childs[0], node);
+}
+
 function xtreeToggle(){
     var par = this.parentNode;
     var childs = getFirstElementByTagAndClassName("*", 'xtreeChilds', par);
@@ -75,7 +83,16 @@ var xtreeTestJSON = [
  ]},
 ];
 
-xtreeCreateStruct('xtreeTest', xtreeTestJSON, function(){log('touched tree leaf: ' + this.id)});
+function cbTree(){
+    log('touched tree leaf: ' + this.id)
+}
+
+xtreeCreateStruct('xtreeTest', xtreeTestJSON, cbTree);
+
+var node = xtreeCreateNode({'id': "i2-1", 'name': "item 2-1", 'anno': "the item", 'childs': []});
+xtreeActivate(node, cbTree);
+xtreeInsertNode('i2', node);
+
 </script>
 
 <div id=xtreeTest></div>
