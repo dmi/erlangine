@@ -48,6 +48,7 @@ textarea
 {
    border-top: 3px solid #909090;
    border-right: 1px dotted black;
+   margin-right: 0;
    color: black;
 }
 .tabSelected
