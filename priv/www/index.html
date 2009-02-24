@@ -27,18 +27,9 @@ function tuneInterface(par){
 
 /* Signal Handlers start */
 
-function cbDocSaved(json){
-    log("document saved: " + JSON.stringify(json))
-    $('testResult').innerHTML = json.reply.action;
-    $('docId').value = json.reply.id;
-    $('docRev').value = json.reply.rev;
-    Highlight('testResult');
-}
-
 function cbTest(json){
     log("cbTest: " + JSON.stringify(json));
     $('testResult').innerHTML = json.reply;
-    Highlight('testResult');
 }
 
 /* Signal Handlers end */
@@ -110,7 +101,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 
     <!--input id="testButton" type=button value="Test"/-->
     <div id="testRequest"></div>
-    <div id="testResult"></div>
+    <div id="testResult"></div> <!-- caution:: using Highlight('testResult') in includes _may_ cause compilation errors -->
 
     <div id=pageContent>
 	<div id=welcomePage>

@@ -63,8 +63,7 @@ function cbEditDocument(json){
     $('docRev').value = json.reply._rev,
     $('docTitle').value = json.reply.title,
     $('docAnnotation').value = json.reply.anno,
-    hideElement('docNavigator');
-    showElement('docEditor');
+    signal('docEditor_tab', 'onclick');
     showDocAnnotation();
     var json = {
 	"module": "doc",
@@ -85,6 +84,14 @@ function cbEditAttach(json){
 
 function cbEditNoAttach(json){
     openEditor('docEditorText', "");
+}
+
+function cbDocSaved(json){
+    log("document saved: " + JSON.stringify(json))
+    $('testResult').innerHTML = json.reply.action;
+    Highlight('testResult');
+    $('docId').value = json.reply.id;
+    $('docRev').value = json.reply.rev;
 }
 
 connect('docSave', 'onclick', docSave);
