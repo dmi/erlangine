@@ -2,8 +2,8 @@
 <div class=toolbar>
     <a id=destSave class=gbutton>Save</a>
     <a id=destDelete class=gbutton>Delete</a>
-    <a id=destCreate class=gbutton>New</a>
     <div id=destNew title="Destination name to create in current">
+	<a id=destCreate class=gbutton>New destination</a>
 	<label for=destNewName>Name</label>
 	<input id=destNewName type=text />
     </div>
@@ -11,32 +11,34 @@
 <div id=destList></div>
 <div id=destEdit>
     <input id=destId type=hidden />
-    <div><label for=destName>Destination</label>
-    <input id=destName type=text /></div>
-    <div><label for=destAnno>Annotation</label>
-    <input id=destAnno type=text /></div>
-    <div><label for=destSubscribeType>Subscription allowed for:</label>
-    <select id=destSubscrType type=select>
-        <option value=full>Entire posts</option>
-        <option value=anno>Post Annotations</option>
-        <option value=none>None</option>
-    </select></div>
-    <div><label for=destReadApproved title="can read from external">Access approved:</label>
-    <span id=destReadApproved>no data</span></div>
-    <div><label for=destPostApproved title="can post to external">Post approved:</label>
-    <span id=destPostApproved>no data</span></div>
-    <div><label for=destSubscrApproved title="subscribed">Subscription approved:</label>
-    <span id=destSubscrApproved>no data</span></div>
-    <div><label for=destSubscribeType>Subscription:</label>
-    <select id=destSubscrType type=select>
-        <option value=none>None</option>
-        <option value=anno>Post Annotations</option>
-        <option value=full>Entire posts</option>
-    </select></div>
-    <div><label for=xxx>Readers:</label></div>
-    <div><label for=xxx>Writers:</label></div>
-    <div><label for=xxx>Subscribers:</label></div>
-    <div><label for=xxx>New requests:</label></div>
+    <table>
+	<tr><td><label for=destName>Destination</label>
+	</td><td><input id=destName type=text /></td></tr>
+	<tr><td><label for=destAnno>Annotation</label>
+	</td><td><input id=destAnno type=text /></td></tr>
+	<tr><td><label for=destSubscribeType>Subscription allowed for:</label>
+	</td><td><select id=destSubscrType type=select>
+	    <option value=full>Entire posts</option>
+	    <option value=anno>Post Annotations</option>
+	    <option value=none>None</option>
+	</select></td></tr>
+	<tr><td><label for=destReadApproved title="can read from external">Access approved:</label>
+	</td><td><span id=destReadApproved>no data</span></td></tr>
+	<tr><td><label for=destPostApproved title="can post to external">Post approved:</label>
+	</td><td><span id=destPostApproved>no data</span></td></tr>
+	<tr><td><label for=destSubscrApproved title="subscribed">Subscription approved:</label>
+	</td><td><span id=destSubscrApproved>no data</span></td></tr>
+	<tr><td><label for=destSubscribeType>Subscription:</label>
+	</td><td><select id=destSubscrType type=select>
+	    <option value=none>None</option>
+	    <option value=anno>Post Annotations</option>
+	    <option value=full>Entire posts</option>
+	</select></td></tr>
+	<tr><td><label for=xxx>Readers:</label></td></tr>
+	<tr><td><label for=xxx>Writers:</label></td></tr>
+	<tr><td><label for=xxx>Subscribers:</label></td></tr>
+	<tr><td><label for=xxx>New requests:</label></td></tr>
+    </table>
 </div>
 
 <script>

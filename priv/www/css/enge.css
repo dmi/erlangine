@@ -318,6 +318,14 @@ textarea
 {
    width: 200px;
 }
+#destNew
+{
+   float: right;
+}
+#destNewName
+{
+   font-size: 0.9em;
+}
 #destAnno
 {
    width: 400px;
