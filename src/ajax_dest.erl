@@ -22,10 +22,10 @@ remove_dest(Struct, Session, _Req) ->
     end.
 
 save_dest(Struct, Session, _Req) ->
-    Keys = ["id", "name", "annotation", "subscribe_type", "read_approved", "post_approved", "subscr_approved", "subscr_type"],
-    [Id, Title, Anno, SubscrType, ReadApproved, PostApproved, SubscrApproved, SubscrType] = obj:get_values(Keys, Struct),
+    Keys = ["id", "parent", "name", "annotation", "sub_allow", "read_apvd", "post_apvd", "sub_apvd", "sub_type"],
+    [Id, Parent, Title, Anno, SubAllow, ReadApproved, PostApproved, SubApproved, SubType] = obj:get_values(Keys, Struct),
     #session{opaque = #authkey{user = U}} = Session,
-    case destination:save_dest(U, Id, Title, Anno, SubscrType, ReadApproved, PostApproved, SubscrApproved, SubscrType) of
+    case destination:save_dest(U, Id, Parent, Title, Anno, SubAllow, ReadApproved, PostApproved, SubApproved, SubType) of
         ok -> {{ok, []}, []};
         {error, Reason} -> {{fail, list_to_binary(Reason)}, []}
     end.
