@@ -13,7 +13,7 @@ login(Struct, _Session, _Req) ->
             io:format("cookie is ~p~n", [H]),
 
             session:new_session({auth, SessionId}, ?AUTHKEY_TIMEOUT, #authkey{user = U, realm = Realm}),
-            {{ok, list_to_binary(U)}, [H]};
+            {{ok, []}, [H]};
 
         _ -> {{fail, <<"Bad login">>}, []}
     end.
@@ -31,6 +31,6 @@ check(_Struct, Session, _Req) ->
     case Session of
         {error, _} -> 
             {{fail, <<"Not logged in">>}, []};
-        #session{} ->
-            {{ok, []}, []}
+        #session{opaque = #authkey{user = U}} ->
+            {{ok, list_to_binary(U)}, []}
     end.
