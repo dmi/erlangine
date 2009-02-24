@@ -1,0 +1,31 @@
+<!--a id=docNavigator_tab class=tab>Navigator</a>
+<a id=docEditor_tab class=tab>Document Editor</a>
+<a id=destinations_tab class=tab>Destinations</a-->
+<div id=tabs></div>
+<div class=tabBreak></div>
+
+<script>
+
+selTab = '';
+
+function selectTab(){
+    if(selTab != ''){
+        removeElementClass(selTab,'tabSelected');
+        hideElement(selTab.split('_',1)[0]);
+    }
+    selTab = this.id;
+    addElementClass(selTab,'tabSelected');
+    showElement(selTab.split('_',1)[0]);
+}
+
+function createTab(json){
+    return A({'id': json.id + '_tab', 'class': 'tab'},
+	     json.name)
+}
+
+appendChildNodes('tabs', map(createTab, TabsList));
+
+for(i in TabsList){
+    connect(TabsList[i].id + '_tab', 'onclick', selectTab);
+}
+</script>

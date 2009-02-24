@@ -39,6 +39,7 @@ textarea
    font-size: 13px;
    padding: 3px;
    margin: 1px;
+   margin-bottom: 3px;
    background-color: #e7e7e7;
    color: #474747;
    border-top: 3px solid white;
@@ -49,11 +50,23 @@ textarea
    border-right: 1px dotted black;
    color: black;
 }
+.tabSelected
+{
+   border-bottom: 2px solid #e7e7e7;
+   margin-bottom: 0;
+}
+.tabBreak
+{
+   margin-top: 5px;
+   width: 100%;
+   height: 1em;
+   background: #d0d0d0;
+}
 .toolbar
 {
-   border-top: 1em solid #d0d0d0;
+   padding-top: 3px;
    border-bottom: 1em solid #e4f4e4;
-   height: 3em;
+   height: 28px;
 }
 .hint
 {
@@ -204,12 +217,6 @@ textarea
 }
 #docNavigator, #docEditor
 {
-   margin-top: 0.5em;
-}
-
-#docNavigator .button, #docNavigator .gbutton, #docEditor .button, #docEditor .gbutton
-{
-   margin-top: 3px;
 }
 
 #docSelector
@@ -252,7 +259,7 @@ textarea
    float: left;
 }
 
-.docSearchResultRow:hover, .button:hover, .gbutton:hover, .tab:hover, .hint:hover
+.docSearchResultRow:hover, .tab:hover, .hint:hover
 {
    cursor: pointer;
 }
@@ -269,74 +276,6 @@ textarea
 {
    border-top: 2px solid #606060;
 }
-
-.clear { /* generic container (i.e. div) for floating buttons */
-    overflow: hidden;
-    width: 100%;
-}
-
-
-/* Button stuff */
-
-a.button {
-    background: transparent url('/images/bg_button_a.gif') no-repeat scroll top right;
-    color: #444;
-    display: block;
-    float: left;
-    font: normal 12px arial, sans-serif;
-    height: 24px;
-    margin-right: 6px;
-    padding-right: 18px; /* sliding doors padding */
-    text-decoration: none;
-}
-
-a.button span {
-    background: transparent url('/images/bg_button_span.gif') no-repeat;
-    display: block;
-    line-height: 14px;
-    padding: 5px 0 5px 18px;
-} 
-
-a.button:active {
-    background-position: bottom right;
-    color: #000;
-    outline: none; /* hide dotted outline in Firefox */
-}
-
-a.button:active span {
-    background-position: bottom left;
-    padding: 6px 0 4px 18px; /* push text down 1px */
-} 
-
-a.gbutton {
-    background: transparent url('/images/bg_gbutton_a.gif') no-repeat scroll top right;
-    color: #444;
-    display: block;
-    float: left;
-    font: normal 12px arial, sans-serif;
-    height: 24px;
-    margin-right: 6px;
-    padding-right: 18px; /* sliding doors padding */
-    text-decoration: none;
-}
-
-a.gbutton span {
-    background: transparent url('/images/bg_gbutton_span.gif') no-repeat;
-    display: block;
-    line-height: 14px;
-    padding: 5px 0 5px 18px;
-} 
-
-a.gbutton:active {
-    background-position: bottom right;
-    color: #000;
-    outline: none; /* hide dotted outline in Firefox */
-}
-
-a.gbutton:active span {
-    background-position: bottom left;
-    padding: 6px 0 4px 18px; /* push text down 1px */
-} 
 
 #viewInfo
 {

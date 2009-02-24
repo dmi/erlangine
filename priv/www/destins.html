@@ -1,5 +1,8 @@
 <!-- destinations tree select, mark active, show/edit info and access lists -->
-<div id=destinations></div>
+<div class=toolbar>
+    <a id=destNope class=button>Nope</a>
+</div>
+<div id=destlist></div>
 
 <script>
 
@@ -20,9 +23,10 @@ function selectDest(){
     addElementClass(this,'xtreeItemSelected');
 }
 
-xtreeCreateStruct('destinations', destTestJSON, selectDest);
+xtreeCreateStruct('destlist', destTestJSON, selectDest);
 
 selDest = destTestJSON[0].id;
 addElementClass(selDest, 'xtreeItemSelected');
 
+//connect('destNope', 'onclick', destNope);
 </script>

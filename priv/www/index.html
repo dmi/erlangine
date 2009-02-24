@@ -5,6 +5,8 @@
 
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 
+    <link href="css/buttons.css" rel="stylesheet" type="text/css"/>
+
     <link href="css/xtree.css" rel="stylesheet" type="text/css"/>
 
     <link href="css/enge.css" rel="stylesheet" type="text/css"/>
@@ -19,6 +21,8 @@
 
     <script type="text/javascript" src="js/base64.js"></script>
 
+    <script type="text/javascript" src="js/buttons.js"></script>
+
     <script type="text/javascript" src="js/xtree.js"></script>
 
     <script type="text/javascript" src="js/enge.js"></script>
@@ -28,23 +32,6 @@
 
 function tuneInterface(par){
     buttonActivate(par);
-}
-
-function buttonActivate(par){
-	map(
-		function(elt){
-		    elt.innerHTML="<span>" + elt.innerHTML + "</span>";
-		    elt.href="#";
-		    connect(elt, 'onclick', function(){elt.blur()});
-		},
-		findChildElements(par, ['.gbutton']))
-	map(
-		function(elt){
-		    elt.innerHTML="<span>" + elt.innerHTML + "</span>";
-		    elt.href="#";
-		    connect(elt, 'onclick', function(){elt.blur()});
-		},
-		findChildElements(par, ['.button']))
 }
 
 /* Signal Handlers start */
@@ -85,25 +72,11 @@ function doTest(){
     insert('testResult', '/hello.html');
 }
 
-function doGoNavigator(){
-    hideElement('docEditor');
-    hideElement('destinations');
-    showElement('docNavigator');
-}
-
-function doGoEditor(){
-    hideElement('docNavigator');
-    hideElement('destinations');
-    showElement('docEditor');
-}
-
-function doGoDestinations(){
-    hideElement('docEditor');
-    hideElement('docNavigator');
-    showElement('destinations');
-}
-
 /* Button Handlers end */
+
+TabsList = [{'id': "docNavigator", 'name': "Navigator"},
+            {'id': "docEditor", 'name': "Document Editor"},
+	    {'id': "destinations", 'name': "Destinations"}];
 
 function pageLoadFunction(){
 
@@ -117,6 +90,7 @@ function pageLoadFunction(){
     insert('loggedContainer', "/logged.html");
     insert('loginContainer', "/login.html");
     insert('registerContainer', "/register.html");
+    insert('activTabs', "/tabs.html");
     insert('docSelector', "/selector.html");
     insert('docView', "/view.html");
     insert('docEditor', "/editor.html");
@@ -125,10 +99,6 @@ function pageLoadFunction(){
     // on-click handlers
 
     connect('siteTitle', 'onclick', doTest);
-
-    connect('goEditor', 'onclick', doGoEditor);
-    connect('goNavigator', 'onclick', doGoNavigator);
-    connect('goDestinations', 'onclick', doGoDestinations);
 
     // ajax reply event handlers
     connect(xapi, 'test:test-ok', cbTest);
@@ -198,11 +168,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 	</div>
 
 	<div id=mainDesk>
-	    <div id=activTabs>
-		<a id=goNavigator class=tab>Navigator</a>
-		<a id=goEditor class=tab>Document Editor</a>
-		<a id=goDestinations class=tab>Destinations</a>
-	    </div>
+	    <div id=activTabs></div>
 
 	    <div id=docNavigator>
 		<div id=docSelector></div>
