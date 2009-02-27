@@ -1,2 +1,2 @@
--record(dest, {uid, id, parent, title, anno, sub_allow, read_apvd, post_apvd, sub_apvd, sub_type}).
-
+-record(destination, {id, parent, title, anno, props}).
+-record(destprops, {sub_allow, read_apvd, post_apvd, sub_apvd, sub_type}).
