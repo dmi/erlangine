@@ -50,15 +50,17 @@ init([]) ->
     A = ok,
     {ok, {}}.
 
-handle_call({new, {Uid, Id, Title, Anno, Props}}, _From, State) ->
-    Row = #destination{id = {Uid, Id}, title = Title, anno = Anno, props = Props},
+handle_call({new, {Uid, Parent, Title, Anno, Props}}, _From, State) ->
+    Id = session:guid();
+    Row = #destination{id = {Uid, Id}, parent = Parent, title = Title, anno = Anno, props = Props},
     F = fun() ->
-                case mnesia:wread({destination, Uid}) of
-                    [] -> mnesia:write(Row);
-                    [A] when is_record(A, authdb) -> exists;
-                    Other -> % XXX is it needed?
-                        io:format("authdb error:  ~p~n", [Other]),
-                        {error, Other}
+                case mnesia:wread({destination, {Uid, Parent}}) of  % lock parent record
+                    [] -> mnesia:abort(noparent);
+                    [P] when is_record(P, destination) ->
+                        case mnesia:read({destination, {Uid, _}, Parent Title) % check title collision
+                            [] -> ok;
+                            Other -> mnesia:abort(duptitle)
+                        end
                 end
         end,
     Reply = tr(F),
