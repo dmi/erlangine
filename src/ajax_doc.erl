@@ -1,7 +1,7 @@
 -module(ajax_doc).
 -compile(export_all).
 -include("session.hrl").
--include("authdb.hrl").
+-include("authkey.hrl").
 
 % XXX restrict export
 compose_attachment(Attachments) ->

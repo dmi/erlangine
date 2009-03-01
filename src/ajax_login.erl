@@ -1,7 +1,7 @@
 -module(ajax_login).
 -compile(export_all).
 -include("session.hrl").
--include("authdb.hrl").
+-include("authkey.hrl").
 
 login(Struct, _Session, _Req) ->
     U = binary_to_list(obj:get_value(<<"uid">>, Struct)),

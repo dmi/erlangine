@@ -23,7 +23,7 @@
 -compile(export_all).
 
 -include("session.hrl").
--include("authdb.hrl").
+-include("authkey.hrl").
 
 compose_reply({Type, Result}, Event) ->
     {obj, [{"event", iolist_to_binary([Event, "-",  atom_to_list(Type)])},

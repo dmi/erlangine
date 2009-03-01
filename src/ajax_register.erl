@@ -1,7 +1,7 @@
 -module(ajax_register).
 -compile(export_all).
 -include("session.hrl").
--include("authdb.hrl").
+-include("authkey.hrl").
 
 % XXX no username check because no unicode here.
 % whole method is ugly but quick. Welcome to improve ;-)
