@@ -1,6 +1,6 @@
 -module(destination).
 
--behaviour(gen_server).
+-behavior(gen_server).
 -import(lists, [foreach/2]).
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -13,6 +13,8 @@
 -include_lib("stdlib/include/qlc.hrl").
 
 -include("destination.hrl").
+
+-include("eunit.hrl").
 
 %
 % interface
@@ -34,7 +36,17 @@ reset() ->
     mnesia:add_table_index(destination, uid).
 
 % return id()
-new(Uid, ParentId, Title, Anno, Props) -> gen_server:call(?MODULE, {new, {Uid, ParentId, Title, Anno, Props}}).
+new(Uid, ParentId, Title, Anno, Props) ->
+    Id = session:guid(),
+    Row = #destination{id = {Uid, Id}, parent = {Uid, ParentId}, uid= Uid, title = Title, anno = Anno, props = Props},
+    F = fun() ->
+        check_parent_and_title(Uid, ParentId, Title),
+        mnesia:write(Row)
+    end,
+    case tr(F) of
+        {atomic, ok} -> Id;
+        Err -> Err
+    end.
 
 % check parent and title
 % abort, noparent; abort, duptitle; ok
@@ -105,19 +117,6 @@ init([]) ->
     io:format("Module ~p: ~p~n",[?MODULE, A]),
     A = ok,
     {ok, {}}.
-
-handle_call({new, {Uid, ParentId, Title, Anno, Props}}, _From, State) ->
-    Id = session:guid(),
-    Row = #destination{id = {Uid, Id}, parent = {Uid, ParentId}, uid= Uid, title = Title, anno = Anno, props = Props},
-    F = fun() ->
-        check_parent_and_title(Uid, ParentId, Title),
-        mnesia:write(Row)
-    end,
-    Reply = case tr(F) of
-        {atomic, ok} -> Id;
-        Err -> Err
-    end,
-    {reply, Reply, State};
 
 handle_call(Other, _From, State) ->
     io:format("Unknown ~p request: ~p~n", [?MODULE, Other]),
@@ -193,3 +192,5 @@ test_engine() ->
     All2 = destination:destinations("uid2"),
     io:format("uid1:~n~p~nuid2:~n~p~n",[All1, All2]),
     io:format("all complete~n").
+
+reverse_test() -> lists:reverse([1,2,3]).
