@@ -14,8 +14,6 @@
 
 -include("destination.hrl").
 
--include("eunit.hrl").
-
 %
 % interface
 %
@@ -30,10 +28,11 @@ stop() -> gen_server:call(?MODULE, stop).
 
 reset() ->
     mnesia:delete_table(destination),
-    mnesia:create_table(destination, [{attributes, record_info(fields, destination)},
+    {atomic, ok} = mnesia:create_table(destination, [{attributes, record_info(fields, destination)},
                                       {disc_copies, [node()]}]),
-    mnesia:add_table_index(destination, parent),
-    mnesia:add_table_index(destination, uid).
+    {atomic, ok} = mnesia:add_table_index(destination, parent),
+    {atomic, ok} = mnesia:add_table_index(destination, uid),
+    ok.
 
 % return id()
 new(Uid, ParentId, Title, Anno, Props) ->
@@ -118,6 +117,9 @@ init([]) ->
     A = ok,
     {ok, {}}.
 
+handle_call(stop, _From, State) ->
+    {stop, stopped, State};
+
 handle_call(Other, _From, State) ->
     io:format("Unknown ~p request: ~p~n", [?MODULE, Other]),
     {reply, unknown, State}.
@@ -138,7 +140,7 @@ tr(F) ->
 %  tests
 %
 
-test_engine_data() ->
+test_data() ->
     [{"uid1", 0, "dest-1", "from uid1"},
      {"uid1", 0, "dest-2", "from uid1"},
      {"uid2", 0, "dest-1", "from uid2"},
@@ -152,13 +154,13 @@ test_engine() ->
     io:format("start server~n"),
     destination:start(),
     io:format("load test data:~n"),
-    _Ids = [Id1, Id2 | _T] = lists:map(fun({Uid, ParentId, Title, Anno}) ->
+    [Id1, Id2 | _T] = lists:map(fun({Uid, ParentId, Title, Anno}) ->
                                     io:format("new level 1 destination: "),
                                     Id = destination:new(Uid, ParentId, Title, Anno, {}),
                                     io:format("~p~n",[Id]),
                                     Id
                                 end,
-                                test_engine_data()),
+                                test_data()),
     io:format("new level 2 destination: "),
     Id1_1 = destination:new("uid1", Id1, "dest1-1", "from uid1 level 2", {}),
     io:format("~p~n",[Id1]),
@@ -192,5 +194,3 @@ test_engine() ->
     All2 = destination:destinations("uid2"),
     io:format("uid1:~n~p~nuid2:~n~p~n",[All1, All2]),
     io:format("all complete~n").
-
-reverse_test() -> lists:reverse([1,2,3]).
