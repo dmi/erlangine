@@ -359,9 +359,9 @@ tokenize_string(B, S=#decoder{offset=O}, Acc) ->
         <<_:O/binary, ?Q, _/binary>> ->
             {{const, iolist_to_binary(lists:reverse(Acc))}, ?INC_COL(S)};
         <<_:O/binary, "\\\"", _/binary>> ->
-            tokenize_string(B, ?ADV_COL(S, 2), [$\" | Acc]);
+            tokenize_string(B, ?ADV_COL(S, 2), [$\" | Acc]); % "
         <<_:O/binary, "\\\\", _/binary>> ->
-            tokenize_string(B, ?ADV_COL(S, 2), [$\\ | Acc]);
+            tokenize_string(B, ?ADV_COL(S, 2), [$\\ | Acc]); % "
         <<_:O/binary, "\\/", _/binary>> ->
             tokenize_string(B, ?ADV_COL(S, 2), [$/ | Acc]);
         <<_:O/binary, "\\b", _/binary>> ->
