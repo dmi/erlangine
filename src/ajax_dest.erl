@@ -5,10 +5,14 @@
 -include("destination.hrl").
 
 new(Struct, Session, _Req) ->
-    [Parent, Title, Anno] = obj:get_values(["parent", "title", "annotation"], Struct),
+    [Parent, Title, Anno] = obj:get_values(["parent", "title", "anno"], Struct),
+    io:format("ajax_dest:new: ~p, ~p, ~p~n", [Parent, Title, Anno]),
     #session{opaque = #authkey{user = U}} = Session,
     case destination:new(U, Parent, Title, Anno, #destprops{}) of
-        {ok, Id} -> {{ok, Id}, []};
+        {ok, Id} -> {{ok, {obj, [{"id", Id},
+                                 {"parent", Parent},
+                                 {"title", Title},
+                                 {"anno", Anno}]}}, []};
         {error, Reason} -> {{fail, list_to_binary(Reason)}, []}
     end.
 

@@ -36,14 +36,14 @@ reset() ->
 
 % return id()
 new(Uid, ParentId, Title, Anno, Props) ->
-    Id = session:guid(),
-    Row = #destination{id = {Uid, Id}, parent = {Uid, ParentId}, uid= Uid, title = Title, anno = Anno, props = Props},
+    Id = list_to_binary(session:guid()),
+    Row = #destination{id = {Uid, Id}, parent = {Uid, ParentId}, uid = Uid, title = Title, anno = Anno, props = Props},
     F = fun() ->
         check_parent_and_title(Uid, ParentId, Title),
         mnesia:write(Row)
     end,
     case tr(F) of
-        {atomic, ok} -> Id;
+        {atomic, ok} -> {ok, Id};
         Err -> Err
     end.
 
@@ -51,7 +51,7 @@ new(Uid, ParentId, Title, Anno, Props) ->
 % abort, noparent; abort, duptitle; ok
 check_parent_and_title(Uid, ParentId, Title) ->
     Parent = {Uid, ParentId},
-    if ParentId =/= 0 ->
+    if ParentId =/= <<"owndest">> ->
         case mnesia:wread({destination, Parent}) of  % check parent and lock it
             [] -> mnesia:abort(noparent);
             [P] when is_record(P, destination) -> ok
@@ -141,11 +141,16 @@ tr(F) ->
 %
 
 test_data() ->
-    [{"uid1", 0, "dest-1", "from uid1"},
-     {"uid1", 0, "dest-2", "from uid1"},
-     {"uid2", 0, "dest-1", "from uid2"},
-     {"uid2", 0, "dest-2", "from uid2"}].
+    [{"uid1", <<"owndest">>, "dest-1", "from uid1"},
+     {"uid1", <<"owndest">>, "dest-2", "from uid1"},
+     {"uid2", <<"owndest">>, "dest-1", "from uid2"},
+     {"uid2", <<"owndest">>, "dest-2", "from uid2"}].
 
+% XXX future idea - to have something like this:
+% ?DESC("load test data"),         % simple io:format w/o arg
+% R1 = ?TEST(lists:map(fun ....),  % catch exceptions, save last result to separate process state
+% [Id1, Id2 | T ] = R1, % if exception raised, print last ?TEST result
+% ...
 test_engine() ->
     mnesia:start(),
     crypto:start(),
@@ -171,7 +176,7 @@ test_engine() ->
     {aborted, notempty} = destination:remove("uid1", Id1),
     io:format("ok~n"),
     io:format("update nonexisting destination: "),
-    {aborted, norecord} = destination:update("uid1", "123", 0, "test", "test", {}),
+    {aborted, norecord} = destination:update("uid1", "123", <<"owndest">>, "test", "test", {}),
     io:format("ok~n"),
     io:format("update existing destination: "),
     {atomic, ok} = destination:update("uid1", Id1_1, Id1, "dest1-1 updated", "updated from uid1 level2", {}),

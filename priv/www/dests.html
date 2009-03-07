@@ -44,13 +44,9 @@
 <script>
 
 var destTestJSON = [
-{'id': 'nodest',
- 'name': 'No destination',
- 'anno': 'Default destination',
- 'childs': []},
-{'id': 'test_destination',
- 'name': 'Test destination',
- 'anno': '',
+{'id': 'owndest',
+ 'name': 'Own destination',
+ 'anno': 'Top level account destinations',
  'childs': []},
 ];
 
@@ -61,9 +57,25 @@ function selectDest(){
 }
 
 function doDestCreateNode(){
-    var node = xtreeCreateNode({'id': rand(1000), 'name': $('destNewName').value, 'anno': '', 'childs': []});
+    var json = {
+	"module": "dest",
+	"action": "new",
+	"data": {
+	    "parent": selDest,
+	    "title": $('destNewName').value,
+	    "anno": ""
+	}
+    }
+    ajax(json, "/enge");
+}
+
+function cbDestCreateNode(json){
+    var node = xtreeCreateNode({'id': json.reply.id, 'name': json.reply.title, 'anno': json.reply.anno, 'childs': []});
     xtreeActivate(node, selectDest);
-    xtreeInsertNode(selDest, node);
+    if(json.reply.parent == 'owndest')
+	xtreeInsertNode('destList', node);
+    else
+	xtreeInsertNode(json.reply.parent, node);
 }
 
 xtreeCreateStruct('destList', destTestJSON, selectDest);
@@ -72,5 +84,6 @@ selDest = destTestJSON[0].id;
 addElementClass(selDest, 'xtreeItemSelected');
 
 connect('destCreate', 'onclick', doDestCreateNode);
+connect(xapi, 'dest:new-ok', cbDestCreateNode);
 
 </script>
