@@ -41,4 +41,5 @@ prepare_db() ->
     mnesia:create_schema([node()]),
     mnesia:start(),
     authdb:reset(),
-    realmdb:reset().
+    realmdb:reset(),
+    destination:reset().
