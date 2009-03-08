@@ -51,7 +51,8 @@ new(Uid, ParentId, Title, Anno, Props) ->
 % abort, noparent; abort, duptitle; ok
 check_parent_and_title(Uid, ParentId, Title) ->
     Parent = {Uid, ParentId},
-    if ParentId =/= <<"owndest">> ->
+    % ParentId =:= Uid means top-level destination
+    if ParentId =/= Uid ->
         case mnesia:wread({destination, Parent}) of  % check parent and lock it
             [] -> mnesia:abort(noparent);
             [P] when is_record(P, destination) -> ok
@@ -141,10 +142,10 @@ tr(F) ->
 %
 
 test_data() ->
-    [{"uid1", <<"owndest">>, "dest-1", "from uid1"},
-     {"uid1", <<"owndest">>, "dest-2", "from uid1"},
-     {"uid2", <<"owndest">>, "dest-1", "from uid2"},
-     {"uid2", <<"owndest">>, "dest-2", "from uid2"}].
+    [{"uid1", "uid1", "dest-1", "from uid1"},
+     {"uid1", "uid1", "dest-2", "from uid1"},
+     {"uid2", "uid2", "dest-1", "from uid2"},
+     {"uid2", "uid2", "dest-2", "from uid2"}].
 
 % XXX future idea - to have something like this:
 % ?DESC("load test data"),         % simple io:format w/o arg
@@ -152,6 +153,7 @@ test_data() ->
 % [Id1, Id2 | T ] = R1, % if exception raised, print last ?TEST result
 % ...
 test_engine() ->
+    mnesia:create_schema([node()]),
     mnesia:start(),
     crypto:start(),
     io:format("reset db~n"),
@@ -161,22 +163,22 @@ test_engine() ->
     io:format("load test data:~n"),
     [Id1, Id2 | _T] = lists:map(fun({Uid, ParentId, Title, Anno}) ->
                                     io:format("new level 1 destination: "),
-                                    Id = destination:new(Uid, ParentId, Title, Anno, {}),
+                                    {ok, Id} = destination:new(Uid, ParentId, Title, Anno, {}),
                                     io:format("~p~n",[Id]),
                                     Id
                                 end,
                                 test_data()),
-    io:format("new level 2 destination: "),
-    Id1_1 = destination:new("uid1", Id1, "dest1-1", "from uid1 level 2", {}),
+    io:format("new level 2 destination 2 ~p: ", [Id1]),
+    {ok, Id1_1} = destination:new("uid1", Id1, "dest1-1", "from uid1 level 2", {}),
     io:format("~p~n",[Id1_1]),
-    io:format("new level 2 destination: "),
-    Id2_1 = destination:new("uid1", Id2, "dest2-1", "from uid2 level 2", {}),
+    io:format("new level 2 destination 2 ~p: ", [Id1]),
+    {ok, Id2_1} = destination:new("uid1", Id2, "dest2-1", "from uid2 level 2", {}),
     io:format("~p~n",[Id2_1]),
     io:format("remove non-empty destination 1: "),
     {aborted, notempty} = destination:remove("uid1", Id1),
     io:format("ok~n"),
     io:format("update nonexisting destination: "),
-    {aborted, norecord} = destination:update("uid1", "123", <<"owndest">>, "test", "test", {}),
+    {aborted, norecord} = destination:update("uid1", "123", "uid1", "test", "test", {}),
     io:format("ok~n"),
     io:format("update existing destination: "),
     {atomic, ok} = destination:update("uid1", Id1_1, Id1, "dest1-1 updated", "updated from uid1 level2", {}),
