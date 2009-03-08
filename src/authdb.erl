@@ -37,8 +37,8 @@ accounts() -> gen_server:call(?MODULE, accounts).
 
 initial_tables() ->
     [%% The authdb table
-     {authdb, "admin", "admin", admin, "System Administrartor", "losthost@narod.ru"},
-     {authdb, "user", "user", user, "Site User", "losthost@narod.ru"}
+     {authdb, "admin", "", admin, "System Administrartor", "admin@localhost"},
+     {authdb, "user", "", user, "Site User", "user@localhost"}
      ].
 
 reset() ->
@@ -74,7 +74,7 @@ handle_call({new, {Uid, Passw, Realm, Name, EMail}}, _From, State) ->
     Reply = tr(F),
     {reply, Reply, State};
 
-handle_call({auth, {Uid, Passw}}, _From, State) ->
+handle_call({auth, {Uid, Passw}}, _From, State) when Passw =/= <<>> ->
     U = do(qlc:q([X#authdb.realm || X <- mnesia:table(authdb),
                                    X#authdb.uid =:= Uid,
 				   X#authdb.passw =:= Passw
@@ -84,6 +84,9 @@ handle_call({auth, {Uid, Passw}}, _From, State) ->
 		[] -> {error, notfound}
             end,
     {reply, Reply, State};
+
+handle_call({auth, {_Uid, Passw}}, _From, State) when Passw =:= <<>> ->
+    {reply, {error, notfound}, State};
 
 handle_call({remove, {Uid, Passw}}, _From, State) ->
     Oid = {authdb, Uid},
