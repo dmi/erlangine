@@ -8,7 +8,7 @@
 
 -export([start/1, stop/0, loop/2]).
 
--include("authdb.hrl").
+-include("authkey.hrl").
 
 %% External API
 
