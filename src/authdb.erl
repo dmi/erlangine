@@ -8,7 +8,7 @@
 
 -export([start/0, stop/0,
          new/5, auth/2, remove/2, accounts/0,
-	 reset/0]).
+     reset/0]).
 
 -include_lib("stdlib/include/qlc.hrl").
 
@@ -35,20 +35,10 @@ accounts() -> gen_server:call(?MODULE, accounts).
 % run once
 %
 
-initial_tables() ->
-    [%% The authdb table
-     {authdb, "admin", "", admin, "System Administrartor", "admin@localhost"},
-     {authdb, "user", "", user, "Site User", "user@localhost"}
-     ].
-
 reset() ->
     mnesia:delete_table(authdb),
     mnesia:create_table(authdb, [{attributes, record_info(fields, authdb)},
-								  {disc_copies, [node()]}]),
-    F = fun() ->
-			foreach(fun mnesia:write/1, initial_tables())
-        end,
-    tr(F).
+                                 {disc_copies, [node()]}]).
 
 %
 % gen_server
@@ -63,26 +53,26 @@ init([]) ->
 handle_call({new, {Uid, Passw, Realm, Name, EMail}}, _From, State) ->
     Row = #authdb{uid=Uid, passw=Passw, realm=Realm, name=Name, email=EMail},
     F = fun() ->
-                case mnesia:read({authdb,Uid}) of
-		    [] -> mnesia:write(Row);
-		    [A] when is_record(A, authdb) -> exists;
-		    Other -> % XXX is it needed?
-			io:format("authdb error:  ~p~n", [Other]),
-		        {error, Other}
-		end
-        end,
+        case mnesia:read({authdb,Uid}) of
+            [] -> mnesia:write(Row);
+            [A] when is_record(A, authdb) -> exists;
+            Other -> % XXX is it needed?
+                io:format("authdb error:  ~p~n", [Other]),
+                {error, Other}
+        end
+    end,
     Reply = tr(F),
     {reply, Reply, State};
 
 handle_call({auth, {Uid, Passw}}, _From, State) when Passw =/= <<>> ->
     U = do(qlc:q([X#authdb.realm || X <- mnesia:table(authdb),
-                                   X#authdb.uid =:= Uid,
-				   X#authdb.passw =:= Passw
-                          ])),
+                                    X#authdb.uid =:= Uid,
+                                    X#authdb.passw =:= Passw
+                 ])),
     Reply = case U of
-                [Realm] -> {ok, Realm};
-		[] -> {error, notfound}
-            end,
+        [Realm] -> {ok, Realm};
+        [] -> {error, notfound}
+    end,
     {reply, Reply, State};
 
 handle_call({auth, {_Uid, Passw}}, _From, State) when Passw =:= <<>> ->
@@ -91,10 +81,10 @@ handle_call({auth, {_Uid, Passw}}, _From, State) when Passw =:= <<>> ->
 handle_call({remove, {Uid, Passw}}, _From, State) ->
     Oid = {authdb, Uid},
     F = fun() ->
-                [A] = mnesia:read(Oid),
-		Passw = A#authdb.passw,
-                mnesia:delete(Oid)
-        end,
+        [A] = mnesia:read(Oid),
+        Passw = A#authdb.passw,
+        mnesia:delete(Oid)
+    end,
     Reply = tr(F),
     {reply, Reply, State};
 
@@ -116,8 +106,7 @@ code_change(_OldVsn, State, _Extra) -> {ok, State}.
 %
 
 do(Q) ->
-    F = fun() ->
-                qlc:e(Q) end,
+    F = fun() -> qlc:e(Q) end,
     {atomic, Val} = mnesia:transaction(F),
     Val.
 
