@@ -27,6 +27,7 @@ function loggedOut(){
     showElement('loginContainer');
     hideElement('mainDesk');
     showElement('welcomePage');
+    // XXX reload page to hide old user's data in hidden divs
 }
 
 connect('logoutNow', 'onclick', logOut);
