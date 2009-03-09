@@ -2,17 +2,17 @@
 -compile(export_all).
 -include("session.hrl").
 -include("authkey.hrl").
+-include("authop.hrl").
 
 login(Struct, _Session, _Req) ->
-    U = binary_to_list(obj:get_value(<<"uid">>, Struct)),
-    P = binary_to_list(obj:get_value(<<"password">>, Struct)),
-    case authdb:auth(U, P) of
-        {ok, Realm} ->
+    [U, D, P] = obj:get_values(["uid", "domain", "password"], Struct),
+    case authdb:auth({U, D}, {passw, P}) of
+        {ok, #authop{realm = Realm}} ->
             SessionId = session:guid(),
             H = mochiweb_cookies:cookie("enge2-sid", SessionId, [{path, "/"}]), 
             io:format("cookie is ~p~n", [H]),
 
-            session:new_session({auth, SessionId}, ?AUTHKEY_TIMEOUT, #authkey{user = U, realm = Realm}),
+            session:new_session({auth, SessionId}, ?AUTHKEY_TIMEOUT, #authkey{user = {U, D}, realm = Realm}),
             {{ok, []}, [H]};
 
         _ -> {{fail, <<"Bad login">>}, []}
@@ -31,6 +31,9 @@ check(_Struct, Session, _Req) ->
     case Session of
         {error, _} -> 
             {{fail, <<"Not logged in">>}, []};
-        #session{opaque = #authkey{user = U}} ->
-            {{ok, list_to_binary(U)}, []}
+        #session{opaque = #authkey{user = {U, D}}} ->
+            {{ok, list_to_binary([U, <<"@">>, D])}, []}
     end.
+
+domains(_Struct, _Session, _Req) ->
+    {{ok, [<<"localhost">>]}, []}.

@@ -47,9 +47,9 @@ new(Uid, Tokens, Opaque) ->
     end,
     tr(F).
 
-%% @spec update(uid(), tokens(), opaque()) -> ok | {error, nonexists}
+%% @spec update(uid(), tokens(), opaque()) -> ok | {error, nonexists} | {error, baddtokens}
 %% @doc Update account. This function doesn't alter uid().
-update(Uid, Tokens, Opaque) ->
+update(Uid, Tokens, Opaque) when is_list(Tokens) ->
     Row = #authdb{uid=Uid, tokens=Tokens, opaque=Opaque},
     F = fun() ->
         case mnesia:read({authdb, Uid}) of
@@ -57,7 +57,9 @@ update(Uid, Tokens, Opaque) ->
             [A] when is_record(A, authdb) -> mnesia:write(Row)
         end
     end,
-    tr(F).
+    tr(F);
+
+update(_Uid, _Tokens, _Opaque) -> {error, badtokens}.
 
 %% @spec remove(uid()) -> {atomic, ok}
 %% @doc Remove account.

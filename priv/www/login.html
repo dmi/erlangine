@@ -1,5 +1,7 @@
 <div><label for=loginName>Login</label></div>
 <div><input id=loginName type=text /></div>
+<div><label for=domainName>Domain</label></div>
+<div><input id=domainName type=text /></div>
 <div><label for=loginPassword>Password</label></div>
 <div><input id=loginPassword type=password /></div>
 <div class=centerWrapper>
@@ -15,6 +17,7 @@ function logIn(){
 	    "action": "login",
 	    "data": {
 		"uid": $('loginName').value,
+		"domain": $('domainName').value,
 		"password": $('loginPassword').value
 	    }
     }

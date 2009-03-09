@@ -2,6 +2,8 @@
 <div><input id=regName type=text /></div>
 <div><label for=regLogin>Login</label></div>
 <div><input id=regLogin type=text /></div>
+<div><label for=regDomain>Domain</label></div>
+<div><input id=regDomain type=text /></div>
 <div><label for=regPassword>Password</label></div>
 <div><input id=regPassword type=password /></div>
 <div><label for=regPassword2>Repeat password</label></div>
@@ -26,6 +28,7 @@ function registerAccount(){
 	    "data": {
 		"name": $('regName').value,
 		"uid": $('regLogin').value,
+		"domain": $('regDomain').value,
 		"password": $('regPassword').value,
 		"repeat": $('regPassword2').value,
 		"email": $('regMail').value,
@@ -46,6 +49,7 @@ function cbRegistered(json){
     $('regPassword').value = "";
     $('regPassword2').value = "";
     $('loginName').value = $('regLogin').value;
+    $('domainName').value = $('regDomain').value;
     closeRegister();
 }
 
