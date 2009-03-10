@@ -18,12 +18,12 @@ compose_attachment([{Name, CType, Data} | T], Acc) ->
 save(Struct, Session, _Req) ->
     Keys = ["title", "anno", "text", "id", "rev"],
     [Title, Anno, Text, Id_old, Rev_old] = obj:get_values(Keys, Struct),
-    #session{opaque = #authkey{user = U = Db}} = Session,
+    #session{opaque = #authkey{user = {U, D} = Db}} = Session,
     {Y, M, D} = date(),
 
     AttrList = [{"type", <<"writing">>},
                 {"date", {obj, [{"Y", Y}, {"M", M}, {"D", D}]}},
-                {"author", list_to_binary(U)},
+                {"author", list_to_binary([U, "@", D])},
                 {"title", Title},
                 {"anno", Anno}],
 
