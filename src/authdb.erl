@@ -133,7 +133,7 @@ upgrade() ->
     ResC = mnesia:transaction(Fc),
     io:format("convert table: ~p~n", [ResC]),
         
-    %reset(),
+    reset(),
 
     Fw = fun() ->
         mnesia:foldl(
@@ -142,8 +142,8 @@ upgrade() ->
             end,
             [],
             authdb)
-    end.
-    %tr(Fw).
+    end,
+    tr(Fw).
     
 %
 % gen_server
