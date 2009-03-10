@@ -41,7 +41,7 @@ function openRegister(){
 
 function cbLoggedIn(json){
     $('loginPassword').value = "";
-    $('loggedUid').innerHTML = "<a>" + $('loginName').value + "</a>";
+    $('loggedUid').innerHTML = "<a href=#>" + json.reply.uid + "@" + json.reply.domain + "</a>";
     showElement('loggedContainer');
     hideElement('welcomePage');
     showElement('mainDesk');

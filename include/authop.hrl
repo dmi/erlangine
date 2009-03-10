@@ -1,4 +1,4 @@
-%% @type authop() = {authdb, uid(), tokens(), realm(), name(), recovery(), roles()}
+%% @type authop() = {authop, realm(), name(), recovery(), roles()}
 %% @type realm() = term(). Security realm for realmdb.erl
 %% @type name() = term(). User Name of any form.
 %% @type recovery() = {recotype(), term()}. Fallback type.

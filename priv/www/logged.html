@@ -12,7 +12,7 @@ function logOut(){
 };
 
 function cbAlreadyLogged(json){
-    $('loggedUid').innerHTML = "<a href=#>" + json.reply + "</a>";
+    $('loggedUid').innerHTML = "<a href=#>" + json.reply.uid + "@" + json.reply.domain + "</a>";
     showElement('loggedContainer');
     hideElement('welcomePage');
     showElement('mainDesk');

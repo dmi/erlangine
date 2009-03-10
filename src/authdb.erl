@@ -5,11 +5,12 @@
 %%
 %% Uses Mnesia storage.
 
-%% @type authdb() = {authdb, uid(), tokens(), realm(), name(), recovery(), roles()}. Account database record.
+%% @type authdb() = {authdb, uid(), tokens(), opaque()}. Account database record.
 %% @type uid() = term(). User Id of any form.
 %% @type tokens() = [token()].
 %% @type token() = {tokentype(), authdata()}.
 %% @type tokentype() = passw. Password authentication token. Can be improved.
+%% @type opaque() = term(). Supplement data structure, returned from authdb:auth/2.
 
 -module(authdb).
 
@@ -21,11 +22,14 @@
 
 -export([start/0, stop/0,
          new/3, update/3, remove/1, auth/2, accounts/0,
-         reset/0]).
+         reset/0, upgrade/0]).
 
 -include_lib("stdlib/include/qlc.hrl").
 
 -record(authdb, {uid, tokens, opaque}).
+
+% this only for upgrade in ErlaNGinE
+-include_lib("authop.hrl").
 
 %
 % interface
@@ -103,6 +107,42 @@ reset() ->
     mnesia:create_table(authdb, [{attributes, record_info(fields, authdb)},
                                  {disc_copies, [node()]}]).
 
+upgrade() ->
+    mnesia:delete_table(authdb_conv),
+    mnesia:create_table(authdb_conv, [{attributes, record_info(fields, authdb)},
+                                      {disc_copies, [node()]}]),
+
+    Fc = fun() ->
+        mnesia:foldl(
+            fun({authdb, Uid, Passw, Realm, Name, EMail}, []) ->
+                Row = #authdb{uid = {list_to_binary(Uid), <<"localhost">>},
+                        tokens = [{passw, list_to_binary(Passw)}],
+                        opaque = #authop{realm = Realm,
+                                         name = Name,
+                                         recovery = {email, EMail},
+                                         roles = []}},
+                io:format("tr: ~p~n", [Row]),
+                Res = mnesia:write(authdb_conv, Row, write),
+                io:format("tr res: ~p~n", [Res])
+            end,
+            [],
+            authdb)
+    end,
+    ResC = mnesia:transaction(Fc),
+    io:format("convert table: ~p~n", [ResC]),
+        
+    %reset(),
+
+    Fw = fun() ->
+        mnesia:foldl(
+            fun(Row, []) ->
+                mnesia:write(authdb, Row, write)
+            end,
+            [],
+            authdb)
+    end.
+    %tr(Fw).
+    
 %
 % gen_server
 %

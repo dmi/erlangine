@@ -25,5 +25,6 @@ make_href(User, Password, Width) ->
     Link = ["http://image.captchas.net/?client=", User, "&random=", Random, "&width=", io_lib:format("~p", [Width])],
     {list_to_binary(Link), list_to_binary(Pw)}.
 
-test_captchas() ->
-    make_href("demo", "secret", 200).
+%% example
+%% test_captchas() ->
+%%    make_href("demo", "secret", 200).
