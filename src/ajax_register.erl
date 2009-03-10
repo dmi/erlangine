@@ -73,10 +73,7 @@ account(Struct, _Session, _Req) ->
             {{fail, list_to_binary(Error)}, []}
     end.
 
-captcha(_Struct, _Session, _Req) ->
+prepare(_Struct, _Session, _Req) ->
     {Link, Code} = captchas:make_href("demo", "secret", 200), % possible to retrieve size from request
     session:new_session({captcha, Link}, ?CAPTCHA_TIMEOUT, Code),
-    {{ok, Link}, []}.
-
-domains(_Struct, _Session, _Req) ->
-    {{ok, [<<"localhost">>]}, []}.
+    {{ok, {obj, [{"captcha", Link}, {"domains", [<<"localhost">>]}]}}, []}.

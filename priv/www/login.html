@@ -42,7 +42,7 @@ function openRegister(){
     showElement('registerContainer');
     var json = {
 	"module": "register",
-	"action": "captcha"
+	"action": "prepare"
     }
     ajax(json, "/enge");
 };
@@ -60,11 +60,8 @@ function cbNotLoggedIn(json){
 }
 
 function cbSetDomains(json){
-    log('ckp');
-    //appendChildNodes('domainName', OPTION({'value': "local"}, "local"))
-    appendChildNodes('domainName', map(function(Name){OPTION({'value': Name}, Name)},
+    appendChildNodes('domainName', map(function(Name){return OPTION({'value': Name}, Name)},
                                        json.reply));
-    log(map(function(Name){OPTION({'value': Name}, Name)}, json.reply))
 }
 
 connect('loginButton', 'onclick', logIn);

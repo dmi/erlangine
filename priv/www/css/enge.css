@@ -15,18 +15,18 @@ label
 {
    color:#707070;
 }     
-input[type=text], input[type=password]
+input[type=text], input[type=password], select
 {
    font-size: 1.2em;
    border: solid 1px #202020;
-   width: 75px;
+   width: 150px;
    background-color: #fcfcc0;
 }
 textarea
 {
    font-size: 1.2em;
    border: solid 1px #202020;
-   width: 75px;
+   width: 150px;
    background-color: #fcfcc0;
 }
 .label
@@ -126,12 +126,11 @@ textarea
    margin: 0.5em;
    float: right;
 }
-#loginContainer input[type=text], #loginContainer input[type=password]
+#loginContainer input[type=text], #loginContainer input[type=password], select
 {
    border: solid 1px #202020;
    width: 200px;
    text-align: center;
-   font-weight: bold;
 }
 
 .centerWrapper {
@@ -150,7 +149,7 @@ textarea
    float: left;
    display: none;
 }
-#registerContainer input[type=text], #registerContainer input[type=password]
+#registerContainer input[type=text], #registerContainer input[type=password], select
 {
    border: solid 1px #202020;
    width: 200px;

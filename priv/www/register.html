@@ -3,7 +3,7 @@
 <div><label for=regLogin>Login</label></div>
 <div><input id=regLogin type=text /></div>
 <div><label for=regDomain>Domain</label></div>
-<div><input id=regDomain type=text /></div>
+<div><select id=regDomain></select></div>
 <div><label for=regPassword>Password</label></div>
 <div><input id=regPassword type=password /></div>
 <div><label for=regPassword2>Repeat password</label></div>
@@ -57,17 +57,19 @@ function cbNotRegistered(json){
     alert(JSON.stringify(json));
 }
 
-function cbCaptcha(json){
-    log("cbCaptcha: " + json.reply);
-    $('regCaptchaImg').innerHTML = '<img src="'+ json.reply + '"/>';
+function cbPrepare(json){
+    log("cbCaptcha: " + json.reply.captcha);
+    $('regCaptchaImg').innerHTML = '<img src="'+ json.reply.captcha + '"/>';
     $('regCaptcha').value = "";
-    $('regCaptchaLink').value = json.reply;
+    $('regCaptchaLink').value = json.reply.captcha;
+    appendChildNodes('regDomain', map(function(Name){return OPTION({'value': Name}, Name)},
+                                       json.reply.domains));
 }
 
 connect('closeRegister', 'onclick', closeRegister);
 connect('registerButton', 'onclick', registerAccount);
 
-connect(xapi, 'register:captcha-ok', cbCaptcha);
+connect(xapi, 'register:prepare-ok', cbPrepare);
 connect(xapi, 'register:account-ok', cbRegistered);
 connect(xapi, 'register:account-fail', cbNotRegistered);
 </script>
