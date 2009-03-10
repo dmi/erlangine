@@ -18,12 +18,12 @@ compose_attachment([{Name, CType, Data} | T], Acc) ->
 save(Struct, Session, _Req) ->
     Keys = ["title", "anno", "text", "id", "rev"],
     [Title, Anno, Text, Id_old, Rev_old] = obj:get_values(Keys, Struct),
-    #session{opaque = #authkey{user = {U, D} = Db}} = Session,
+    #session{opaque = #authkey{user = {U, Dom} = Db}} = Session,
     {Y, M, D} = date(),
 
     AttrList = [{"type", <<"writing">>},
                 {"date", {obj, [{"Y", Y}, {"M", M}, {"D", D}]}},
-                {"author", list_to_binary([U, "@", D])},
+                {"author", list_to_binary([U, "@", Dom])},
                 {"title", Title},
                 {"anno", Anno}],
 
@@ -41,7 +41,7 @@ save(Struct, Session, _Req) ->
 
     Obj = {obj, AttrList2},
 
-    io:format("Save doc: ~p: ~p~nObj: ~p~n", [U, Title, Obj]),
+    io:format("Save doc: ~p@~p: ~p~nObj: ~p~n", [U, Dom, Title, Obj]),
 
     %{obj,[{"ok",true},
     %      {"id",<<"8d80981151b8cecd024b804c0c51c97b">>},
