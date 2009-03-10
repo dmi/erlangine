@@ -110,6 +110,7 @@ reset() ->
 upgrade() ->
     mnesia:delete_table(authdb_conv),
     mnesia:create_table(authdb_conv, [{attributes, record_info(fields, authdb)},
+                                      {record_name, authdb},
                                       {disc_copies, [node()]}]),
 
     Fc = fun() ->
