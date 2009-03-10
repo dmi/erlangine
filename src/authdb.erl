@@ -124,7 +124,8 @@ upgrade() ->
                                          roles = []}},
                 io:format("tr: ~p~n", [Row]),
                 Res = mnesia:write(authdb_conv, Row, write),
-                io:format("tr res: ~p~n", [Res])
+                io:format("tr res: ~p~n", [Res]),
+                []
             end,
             [],
             authdb)
