@@ -1,8 +1,8 @@
 -module(docs).
 -compile(export_all).
 
-userdb(Db) ->
-    "user_" ++ Db.
+userdb({U, D}) ->
+    list_to_binary(["user_", U, "_", D]).
 
 db_create(Db) ->
     Udb = userdb(Db),
