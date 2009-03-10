@@ -1,7 +1,7 @@
 <div><label for=loginName>Login</label></div>
 <div><input id=loginName type=text /></div>
 <div><label for=domainName>Domain</label></div>
-<div><input id=domainName type=text /></div>
+<div><select id=domainName></select></div>
 <div><label for=loginPassword>Password</label></div>
 <div><input id=loginPassword type=password /></div>
 <div class=centerWrapper>
@@ -11,6 +11,14 @@
 <!--a class=button href=# onclick="this.blur();"><span>Register now!</span></a-->
 
 <script>
+function requestDomains(){
+    var json = {
+	"module": "login",
+	"action": "domains"
+    }
+    ajax(json, "/enge");
+}
+
 function logIn(){
     var json = {
 	    "module": "login",
@@ -51,10 +59,21 @@ function cbNotLoggedIn(json){
     alert(JSON.stringify(json));
 }
 
+function cbSetDomains(json){
+    log('ckp');
+    //appendChildNodes('domainName', OPTION({'value': "local"}, "local"))
+    appendChildNodes('domainName', map(function(Name){OPTION({'value': Name}, Name)},
+                                       json.reply));
+    log(map(function(Name){OPTION({'value': Name}, Name)}, json.reply))
+}
+
 connect('loginButton', 'onclick', logIn);
 connect('loginPassword', 'onkeydown', logInFromPassw);
 connect('openRegister', 'onclick', openRegister);
 
 connect(xapi, 'login:login-ok', cbLoggedIn);
 connect(xapi, 'login:login-fail', cbNotLoggedIn);
+connect(xapi, 'login:domains-ok', cbSetDomains);
+
+requestDomains();
 </script>

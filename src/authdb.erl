@@ -107,6 +107,7 @@ reset() ->
     mnesia:create_table(authdb, [{attributes, record_info(fields, authdb)},
                                  {disc_copies, [node()]}]).
 
+% very dirty and dangerous one. leaved for reference only
 upgrade() ->
     mnesia:delete_table(authdb_conv),
     mnesia:create_table(authdb_conv, [{attributes, record_info(fields, authdb)},
@@ -138,7 +139,8 @@ upgrade() ->
     Fw = fun() ->
         mnesia:foldl(
             fun(Row, []) ->
-                mnesia:write(authdb, Row, write)
+                mnesia:write(authdb, Row, write),
+                []
             end,
             [],
             authdb)
