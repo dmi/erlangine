@@ -18,6 +18,16 @@
 
 <script>
 
+function fnActivateEditor(){
+    $('docId').value="",
+    $('docRev').value="",
+    $('docTitle').value="",
+    $('docAnnotation').value="",
+    signal($('docEditor_tab'), 'onclick');
+    openEditor('docEditorText','');
+    showDocAnnotation();
+}
+
 function openEditor(Id, text){
 	$('docEditorText').innerHTML = text;
 	tinyMCE.get('docEditorText').setContent(text);
@@ -101,6 +111,7 @@ connect(xapi, 'doc:save-ok', cbDocSaved);
 connect(xapi, 'edit_doc-ok', cbEditDocument);
 connect(xapi, 'attach_edit-ok', cbEditAttach);
 connect(xapi, 'attach_edit-fail', cbEditNoAttach);
+connect(xapi, 'activateEditor', fnActivateEditor);
 
 setupTinyMCE('docEditorText');
 </script>

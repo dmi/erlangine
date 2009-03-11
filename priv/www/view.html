@@ -18,14 +18,7 @@
 <script>
 
 function doNewDocument(){
-    $('docId').value="",
-    $('docRev').value="",
-    $('docTitle').value="",
-    $('docAnnotation').value="",
-    openEditor('docEditorText','');
-    hideElement('docNavigator');
-    showElement('docEditor');
-    showDocAnnotation();
+    signal(xapi, 'activateEditor');
 }
 
 function doDocEdit(what){
