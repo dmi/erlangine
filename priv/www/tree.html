@@ -71,9 +71,15 @@ var xtreeTestJSON = [
  ]}
 ];
 
+function selectDest(){
+    removeElementClass(selDest,'xtreeItemSelected');
+    selDest = this.id;
+    addElementClass(this,'xtreeItemSelected');
+}
+
 function pageLoadFunction(){
     // on-click handlers
-    xtreeCreateStruct('xtreeTest', xtreeTestJSON, function(){log('touched tree leaf: ' + this.id)});
+    xtreeCreateStruct('xtreeTest', xtreeTestJSON, selectDest);
 
 }
 

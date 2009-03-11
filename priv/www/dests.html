@@ -13,12 +13,12 @@
 <div id=destEdit>
     <input id=destId type=hidden />
     <table>
-	<tr><td><label for=destName>Destination</label>
-	</td><td><input id=destName type=text /></td></tr>
+	<tr><td><label for=destTitle>Destination</label>
+	</td><td><input id=destTitle type=text /></td></tr>
 	<tr><td><label for=destAnno>Annotation</label>
 	</td><td><input id=destAnno type=text /></td></tr>
-	<tr><td><label for=destSubscribeType>Subscription allowed for:</label>
-	</td><td><select id=destSubscrType type=select>
+	<tr><td><label for=destSubscrAllow>Subscription allowed for:</label>
+	</td><td><select id=destSubscrAllow type=select>
 	    <option value=full>Entire posts</option>
 	    <option value=anno>Post Annotations</option>
 	    <option value=none>None</option>
@@ -29,7 +29,7 @@
 	</td><td><span id=destPostApproved>no data</span></td></tr>
 	<tr><td><label for=destSubscrApproved title="subscribed">Subscription approved:</label>
 	</td><td><span id=destSubscrApproved>no data</span></td></tr>
-	<tr><td><label for=destSubscribeType>Subscription:</label>
+	<tr><td><label for=destSubscrType>Subscription:</label>
 	</td><td><select id=destSubscrType type=select>
 	    <option value=none>None</option>
 	    <option value=anno>Post Annotations</option>
@@ -54,7 +54,34 @@ var destTestJSON = [
 function selectDest(){
     removeElementClass(selDest,'xtreeItemSelected');
     selDest = this.id;
-    addElementClass(this,'xtreeItemSelected');
+    addElementClass(selDest, 'xtreeItemSelected');
+    // XXX check for top-level account stub
+    $('destTitle').value = '...';
+    $('destAnno').value = '...';
+    $('destSubscrAllow').value = '...';
+    $('destReadApproved').value = '...';
+    $('destPostApproved').value = '...';
+    $('destSubscrApproved').value = '...';
+    $('destSubscrType').value = '...';
+    var json = {
+		"module": "dest",
+		"action": "destination",
+		"data": {"id": strip_dest(this.id) }
+    }
+    ajax(json, "/enge");
+}
+
+function cbSelectDest(json){
+    removeElementClass(selDest,'xtreeItemSelected');
+    selDest = "dest_" + json.reply.id;
+    addElementClass(selDest, 'xtreeItemSelected');
+    $('destTitle').value = json.reply.title;
+    $('destAnno').value = json.reply.anno;
+    $('destSubscrAllow').value = json.reply.sub_allow;
+    $('destReadApproved').value = json.reply.read_apvd;
+    $('destPostApproved').value = json.reply.post_apvd;
+    $('destSubscrApproved').value = json.reply.sub_apvd;
+    $('destSubscrType').value = json.reply.sub_type;
 }
 
 function doDestSearch(){
@@ -62,8 +89,7 @@ function doDestSearch(){
     var json = {
 	"module": "dest",
 	"action": "destinations",
-	"data": {
-	}
+	"data": { }
     }
     ajax(json, "/enge");
 }
@@ -103,6 +129,12 @@ function cbDestCreateNode(json){
     xtreeInsertNode("dest_" + json.reply.parent, node);
 }
 
+function cbDestDeleteNode(json){
+    selDest = "dest_" + $('loggedUid').value;
+    removeElement($("dest_" + json.reply).parentNode);
+    signal("dest_" + $('loggedUid').value, 'onclick')
+}
+
 function cbDestList(json){
     for(i in json.reply){
         var node = xtreeCreateNode({'id': "dest_" + json.reply[i].id, 'title': json.reply[i].title, 'anno': json.reply[i].anno, 'childs': []});
@@ -131,6 +163,8 @@ connect('destSearch', 'onclick', doDestSearch);
 connect('destCreate', 'onclick', doDestCreateNode);
 connect('destDelete', 'onclick', doDestDeleteNode);
 connect(xapi, 'dest:new-ok', cbDestCreateNode);
+connect(xapi, 'dest:remove-ok', cbDestDeleteNode);
 connect(xapi, 'dest:destinations-ok', cbDestList);
+connect(xapi, 'dest:destination-ok', cbSelectDest);
 
 </script>

@@ -59,7 +59,7 @@ function insert(id, url){
 function cbInsertResult(id, XHR){
 	insertCount--;
 	//log("Get Result status: " + XHR.status);
-        var parts = XHR.responseText.split('<script>');
+    var parts = XHR.responseText.split('<script>');
 	var html = parts[0];
 	var scripts = [];
 	for(i = 1; i<parts.length; i++){
@@ -72,7 +72,9 @@ function cbInsertResult(id, XHR){
 	//log("Get html: " + html);
 	elt.innerHTML = html.replace(/\n\n/g,'\n');
 	if(tuneInterface)tuneInterface(elt);
-	for(i in scripts) eval(scripts[i]);
+	for(i in scripts)
+        try{ eval(scripts[i]) }
+        catch(E){ log("insert script error: " + E) };
 	if((insertCount==0) && insertCompleted) insertCompleted();
 }
 

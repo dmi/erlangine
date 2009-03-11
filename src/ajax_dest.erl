@@ -48,10 +48,33 @@ update(Struct, Session, _Req) ->
 remove(Struct, Session, _Req) ->
     Id = obj:get_value(<<"id">>, Struct),
     #session{opaque = #authkey{user = U}} = Session,
-    case destination:remove(U, Id) of
-        ok -> {{ok, []}, []};
-        {error, Reason} -> {{fail, list_to_binary(Reason)}, []}
-    end.
+    destination:remove(U, Id),
+    {{ok, Id}, []}.
+
+destination(Struct, Session, _Req) ->
+    Id = obj:get_value(<<"id">>, Struct),
+    #session{opaque = #authkey{user = U}} = Session,
+    R = destination:destination(U, Id),
+    io:format("destination: ~p~n", [R]),
+    [#destination{id = {U, Id},
+                  parent = {U, ParentId},
+                  uid = U,
+                  title = Title,
+                  anno = Anno,
+                  props = #destprops{sub_allow = SubAllow,
+                                     read_apvd = ReadApproved,
+                                     post_apvd = PostApproved,
+                                     sub_apvd = SubApproved,
+                                     sub_type = SubType}}]
+        = R,
+    {{ok, {obj, [{"id", Id}, {"title", Title}, {"anno", Anno},
+                 {"sub_allow", SubAllow},
+                 {"read_apvd", ReadApproved},
+                 {"post_apvd", PostApproved},
+                 {"sub_apvd", SubApproved},
+                 {"sub_type", SubType}
+                ]}},
+     []}.
 
 % options: by owner, by name
 destinations(_Struct, Session, _Req) ->
