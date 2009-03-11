@@ -1,5 +1,6 @@
 <!-- destinations tree select, mark active, show/edit info and access lists -->
 <div class=toolbar>
+    <a id="destSearch" class=button>Search</a>
     <a id=destSave class=gbutton>Save</a>
     <a id=destDelete class=gbutton>Delete</a>
     <div id=destNew title="Destination name to create in current">
@@ -56,12 +57,28 @@ function selectDest(){
     addElementClass(this,'xtreeItemSelected');
 }
 
+function doDestSearch(){
+    initRootDests();
+    var json = {
+	"module": "dest",
+	"action": "destinations",
+	"data": {
+	}
+    }
+    ajax(json, "/enge");
+}
+
+function parse_dest(dest){
+    var d = dest.split("dest_", 2);
+    return d[1]
+}
+
 function doDestCreateNode(){
     var json = {
 	"module": "dest",
 	"action": "new",
 	"data": {
-	    "parent": selDest,
+	    "parent": parse_dest(selDest),
 	    "title": $('destNewName').value,
 	    "anno": ""
 	}
@@ -69,21 +86,42 @@ function doDestCreateNode(){
     ajax(json, "/enge");
 }
 
-function cbDestCreateNode(json){
-    var node = xtreeCreateNode({'id': json.reply.id, 'name': json.reply.title, 'anno': json.reply.anno, 'childs': []});
-    xtreeActivate(node, selectDest);
-    if(json.reply.parent == 'owndest')
-	xtreeInsertNode('destList', node);
-    else
-	xtreeInsertNode(json.reply.parent, node);
+function doDestDeleteNode(){
+    var json = {
+	"module": "dest",
+	"action": "remove",
+	"data": {
+	    "id": selDest
+	}
+    }
+    ajax(json, "/enge");
 }
 
-xtreeCreateStruct('destList', destTestJSON, selectDest);
+function cbDestCreateNode(json){
+    var node = xtreeCreateNode({'id': "dest_" + json.reply.id, 'name': json.reply.title, 'anno': json.reply.anno, 'childs': []});
+    xtreeActivate(node, selectDest);
+    xtreeInsertNode("dest_" + json.reply.parent, node);
+}
 
-selDest = destTestJSON[0].id;
-addElementClass(selDest, 'xtreeItemSelected');
+function initRootDests(){
+    var L = map(function(opt){
+		    log("root: " + opt.value);
+		    return {'id': "dest_" + opt.value,
+			    'name': opt.value,
+			    'anno': 'Your account',
+			    'childs': []
+			   }
+		},
+	    findChildElements($('loggedUid'), ['option']));
+    xtreeCreateStruct('destList', L, selectDest);
 
+    selDest = "dest_" + $('loggedUid').value;
+    addElementClass(selDest, 'xtreeItemSelected');
+}
+
+connect('destSearch', 'onclick', doDestSearch);
 connect('destCreate', 'onclick', doDestCreateNode);
+connect('destDelete', 'onclick', doDestDeleteNode);
 connect(xapi, 'dest:new-ok', cbDestCreateNode);
 
 </script>

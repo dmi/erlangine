@@ -42,10 +42,8 @@ new(Uid, ParentId, Title, Anno, Props) ->
         check_parent_and_title(Uid, ParentId, Title),
         mnesia:write(Row)
     end,
-    case tr(F) of
-        {atomic, ok} -> {ok, Id};
-        Err -> Err
-    end.
+    ok = tr(F),
+    {ok, Id}.
 
 % check parent and title
 % abort, noparent; abort, duptitle; ok
@@ -135,7 +133,8 @@ code_change(_OldVsn, State, _Extra) -> {ok, State}.
 %
 
 tr(F) ->
-    mnesia:transaction(F).
+    {atomic, Result} = mnesia:transaction(F),
+    Result.
 
 %
 %  tests

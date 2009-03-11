@@ -49,7 +49,11 @@ function openRegister(){
 
 function cbLoggedIn(json){
     $('loginPassword').value = "";
-    $('loggedUid').innerHTML = "<a href=#>" + json.reply.uid + "@" + json.reply.domain + "</a>";
+    appendChildNodes('loggedUid', map(function(Uid){
+                                          var Name = Uid.uid + "@" + Uid.domain;
+					  return OPTION({'value': Name}, Name)
+				      },
+                                      json.reply));
     showElement('loggedContainer');
     hideElement('welcomePage');
     showElement('mainDesk');

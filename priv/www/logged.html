@@ -1,4 +1,4 @@
-<span id=loggedUid></span>
+<select id=loggedUid></select>
 <a id=logoutNow class=hint>(logout)</a>
 
 <script>
@@ -12,7 +12,12 @@ function logOut(){
 };
 
 function cbAlreadyLogged(json){
-    $('loggedUid').innerHTML = "<a href=#>" + json.reply.uid + "@" + json.reply.domain + "</a>";
+    // copypasted from login.html
+    appendChildNodes('loggedUid', map(function(Uid){
+                                          var Name = Uid.uid + "@" + Uid.domain;
+					  return OPTION({'value': Name}, Name)
+				      },
+                                      json.reply));
     showElement('loggedContainer');
     hideElement('welcomePage');
     showElement('mainDesk');
