@@ -88,6 +88,10 @@ remove(Uid, Id) ->
             [] -> ok;
             _ -> mnesia:abort(notempty)
         end,
+        case mnesia:wread(Oid) of
+            [] -> mnesia:abort(notexists);
+            _ -> ok
+        end,
         mnesia:delete(Oid)
     end,
     tr(F).

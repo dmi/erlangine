@@ -3,7 +3,7 @@
 // Create an array of nodes, insert into elt, activate
 // You got a fully ready structure
 // jsona is [json]
-// json is {id, name, anno, childs}
+// json is {id, title, anno, childs}
 // childs is [json] | []
 function xtreeCreateStruct(elt, jsona, UserCB){
     elt = $(elt);
@@ -15,23 +15,23 @@ function xtreeCreateStruct(elt, jsona, UserCB){
 // activate xtree structure with callbacks
 function xtreeActivate(Id, UserCB){
     map(
-	function(elt){log(elt);connect(elt, 'onclick', xtreeToggle)},
+	function(elt){connect(elt, 'onclick', xtreeToggle)},
 	findChildElements($(Id), ['.xtreePlus']));
     if(UserCB != undefined){
 	map(
-	    function(elt){log(elt);connect(elt, 'onclick', UserCB)},
+	    function(elt){connect(elt, 'onclick', UserCB)},
 	    findChildElements($(Id), ['.xtreeItem']));
     }
 }
 
 // Create one node with subnodes
 // xtreeActivate must be applied explicitly
-// json is {id, name, anno, childs}
+// json is {id, title, anno, childs}
 // childs is [json] | []
 function xtreeCreateNode(json){
     return DIV({'class': 'xtreeNode'},
 	       IMG({'src': "images/minus.gif", 'class': 'xtreePlus'}),
-	       SPAN({'id': json.id, 'class': 'xtreeItem', 'title': json.anno}, json.name),
+	       SPAN({'id': json.id, 'class': 'xtreeItem', 'title': json.anno}, json.title),
 	       DIV({'class': 'xtreeChilds'},
 	       map(xtreeCreateNode, json.childs)));
 }
@@ -62,22 +62,22 @@ Example:
 <script>
 var xtreeTestJSON = [
 {"id": "i1",
- "name": "item 1",
+ "title": "item 1",
  "anno": "the item",
  "childs": [
     {"id": "i1-1",
-     "name": "item 1-1",
+     "title": "item 1-1",
      "anno": "the item",
      "childs": [
 	{"id": "i1-1-1",
-	 "name": "item 1-1-1",
+	 "title": "item 1-1-1",
 	 "anno": "the item",
 	 "childs": [
 	 ]},
      ]},
  ]},
 {"id": "i2",
- "name": "item 2",
+ "title": "item 2",
  "anno": "the item",
  "childs": [
  ]},
@@ -89,7 +89,7 @@ function cbTree(){
 
 xtreeCreateStruct('xtreeTest', xtreeTestJSON, cbTree);
 
-var node = xtreeCreateNode({'id': "i2-1", 'name': "item 2-1", 'anno': "the item", 'childs': []});
+var node = xtreeCreateNode({'id': "i2-1", 'title': "item 2-1", 'anno': "the item", 'childs': []});
 xtreeActivate(node, cbTree);
 xtreeInsertNode('i2', node);
 

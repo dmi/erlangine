@@ -56,5 +56,17 @@ remove(Struct, Session, _Req) ->
 % options: by owner, by name
 destinations(_Struct, Session, _Req) ->
     #session{opaque = #authkey{user = U}} = Session,
-    List = destination:destinations(U),
+    List = lists:map(fun(#destination{id = {U, Id},
+                                      parent = {U, ParentId},
+                                      uid = U,
+                                      title = Title,
+                                      anno = Anno,
+                                      props = _Props}) ->
+                         P = case ParentId of
+                             {Uid, Dom} -> list_to_binary([Uid, "@", Dom]);
+                             _ -> ParentId
+                         end,
+                         {obj, [{"id", Id}, {"parent", P}, {"title", Title}, {"anno", Anno}]}
+                     end,
+                     lists:reverse(destination:destinations(U))),
     {{ok, List}, []}.
