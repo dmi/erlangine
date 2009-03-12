@@ -57,6 +57,7 @@ function cbLoggedIn(json){
     showElement('loggedContainer');
     hideElement('welcomePage');
     showElement('mainDesk');
+    signal(xapi, 'logged');
 }
 
 function cbNotLoggedIn(json){

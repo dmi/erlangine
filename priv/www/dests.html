@@ -1,16 +1,30 @@
-<!-- destinations tree select, mark active, show/edit info and access lists -->
-<div class=toolbar>
-    <a id="destSearch" class=button>Search</a>
-    <a id=destSave class=gbutton>Save</a>
-    <a id=destDelete class=gbutton>Delete</a>
-    <div id=destNew title="Destination name to create in current">
-	<a id=destCreate class=gbutton>New destination</a>
-	<label for=destNewName>Name</label>
-	<input id=destNewName type=text />
+<div id=destList>
+    <div class=toolbar>
+	<a id=destSearch class=button>Search</a>
+	<a id=destNewButton class=gbutton>New</a>
+	<a id=destDeleteButton class=gbutton>Delete</a>
     </div>
+    <div id=destDeleteConfirm>
+	<div class=toolbar>
+	    <a id=destDeleteCancel class=button>X</a>
+	    <a id=destDelete class=gbutton>Confirm Delete</a>
+	</div>
+    </div>
+    <div id=destNew title="Destination name to create in current">
+	<div class=toolbar>
+	    <a id=destNewCancel class=button>X</a>
+	    <a id=destCreate class=gbutton>Create Destination</a>
+	    <label for=destNewName>Name</label>
+	    <input id=destNewName type=text />
+	</div>
+    </div>
+    <div id=destTree></div>
 </div>
-<div id=destList></div>
+<div id=accEdit></div>
 <div id=destEdit>
+    <div class=toolbar>
+	<a id=destSave class=gbutton>Save</a>
+    </div>
     <input id=destId type=hidden />
     <table>
 	<tr><td><label for=destTitle>Destination</label>
@@ -55,7 +69,6 @@ function selectDest(){
     removeElementClass(selDest,'xtreeItemSelected');
     selDest = this.id;
     addElementClass(selDest, 'xtreeItemSelected');
-    // XXX check for top-level account stub
     $('destTitle').value = '...';
     $('destAnno').value = '...';
     $('destSubscrAllow').value = '...';
@@ -63,12 +76,19 @@ function selectDest(){
     $('destPostApproved').value = '...';
     $('destSubscrApproved').value = '...';
     $('destSubscrType').value = '...';
-    var json = {
-		"module": "dest",
-		"action": "destination",
-		"data": {"id": strip_dest(this.id) }
+    if(this.id != ("dest_" + this.innerHTML)){
+	hideElement('accEdit');
+        showElement('destEdit');
+	var json = {
+		    "module": "dest",
+		    "action": "destination",
+		    "data": {"id": strip_dest(this.id) }
+	}
+	ajax(json, "/enge")
+    }else{
+        hideElement('destEdit');
+	showElement('accEdit')
     }
-    ajax(json, "/enge");
 }
 
 function cbSelectDest(json){
@@ -84,12 +104,12 @@ function cbSelectDest(json){
     $('destSubscrType').value = json.reply.sub_type;
 }
 
-function doDestSearch(){
+doSearchDest = function(){
     initRootDests();
     var json = {
 	"module": "dest",
 	"action": "destinations",
-	"data": { }
+	"data": rootDestList()
     }
     ajax(json, "/enge");
 }
@@ -97,6 +117,18 @@ function doDestSearch(){
 function strip_dest(dest){
     var d = dest.split("dest_", 2);
     return d[1]
+}
+
+function rootDestList(){
+    return findChildElements($('loggedUid'), ['option'])
+}
+
+function doDestNewButton(){
+    showElement('destNew');
+}
+
+function doDestNewCancel(){
+    hideElement('destNew');
 }
 
 function doDestCreateNode(){
@@ -110,6 +142,14 @@ function doDestCreateNode(){
 	}
     }
     ajax(json, "/enge");
+}
+
+function doDestDeleteConfirm(){
+    showElement('destDeleteConfirm');
+}
+
+function doDestDeleteCancel(){
+    hideElement('destDeleteConfirm');
 }
 
 function doDestDeleteNode(){
@@ -127,12 +167,14 @@ function cbDestCreateNode(json){
     var node = xtreeCreateNode({'id': "dest_" + json.reply.id, 'title': json.reply.title, 'anno': json.reply.anno, 'childs': []});
     xtreeActivate(node, selectDest);
     xtreeInsertNode("dest_" + json.reply.parent, node);
+    hideElement('destNew');
 }
 
 function cbDestDeleteNode(json){
     selDest = "dest_" + $('loggedUid').value;
     removeElement($("dest_" + json.reply).parentNode);
-    signal("dest_" + $('loggedUid').value, 'onclick')
+    signal("dest_" + $('loggedUid').value, 'onclick');
+    hideElement('destDeleteConfirm');
 }
 
 function cbDestList(json){
@@ -152,19 +194,27 @@ function initRootDests(){
 			    'childs': []
 			   }
 		},
-	    findChildElements($('loggedUid'), ['option']));
-    xtreeCreateStruct('destList', L, selectDest);
+	    rootDestList());
+    xtreeCreateStruct('destTree', L, selectDest);
 
     selDest = "dest_" + $('loggedUid').value;
     addElementClass(selDest, 'xtreeItemSelected');
 }
 
-connect('destSearch', 'onclick', doDestSearch);
+connect('destSearch', 'onclick', doSearchDest);
+connect('destNewButton', 'onclick', doDestNewButton);
+connect('destNewCancel', 'onclick', doDestNewCancel);
 connect('destCreate', 'onclick', doDestCreateNode);
+connect('destDeleteButton', 'onclick', doDestDeleteConfirm);
+connect('destDeleteCancel', 'onclick', doDestDeleteCancel);
 connect('destDelete', 'onclick', doDestDeleteNode);
+
 connect(xapi, 'dest:new-ok', cbDestCreateNode);
 connect(xapi, 'dest:remove-ok', cbDestDeleteNode);
 connect(xapi, 'dest:destinations-ok', cbDestList);
 connect(xapi, 'dest:destination-ok', cbSelectDest);
+
+connect(xapi, 'logged', doSearchDest);
+
 
 </script>

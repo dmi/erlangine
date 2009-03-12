@@ -173,7 +173,7 @@ textarea
 {
    padding: 5px;
 }
-#pageContent input, #pageContent textarea
+#pageContent input, #pageContent textarea, #pageContent select
 {
    margin: 3px;
 }
@@ -230,6 +230,7 @@ textarea
 {
    float: left;
    margin-left: 2em;
+   width: 70%;
 }
 
 #docSelect
@@ -309,9 +310,10 @@ textarea
    margin-right: 2em;
    padding-right: 2em;
 }
-#destEdit
+#destEdit, #accEdit
 {
    float: left;
+   display: none;
 }
 #destNewName, #destName
 {
@@ -328,4 +330,13 @@ textarea
 #destAnno
 {
    width: 400px;
+}
+
+#destDeleteConfirm, #destNew
+{
+   display: none;
+}
+#destTree
+{
+   clear: left;
 }

@@ -20,5 +20,6 @@
 .xtreeItemSelected
 {
    border: dotted 1px #202020;
+   background-color: #DDDDDD;
    margin: 0px;
 }

@@ -81,4 +81,6 @@ connect('docDelete', 'onclick', doDeleteDocs);
 
 connect(xapi, 'doc:search-ok', cbSearchResult);
 connect(xapi, 'doc:bulk_delete-ok', doSearchDocs);
+
+connect(xapi, 'logged', doSearchDocs);
 </script>
