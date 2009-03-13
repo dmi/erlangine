@@ -11,8 +11,9 @@ function logOut(){
     ajax(json, "/enge");
 };
 
-function cbAlreadyLogged(json){
-    // copypasted from login.html
+cbLoggedIn = function(json){
+    $('loginPassword').value = "";
+    $('loggedUid').innerHTML = "";
     appendChildNodes('loggedUid', map(function(Uid){
                                           var Name = Uid.uid + "@" + Uid.domain;
 					  return OPTION({'value': Name}, Name)
@@ -33,11 +34,11 @@ function loggedOut(){
     showElement('loginContainer');
     hideElement('mainDesk');
     showElement('welcomePage');
-    // XXX reload page to hide old user's data in hidden divs
+    // XXX reload page to effective cleanout old user's data in hidden divs
 }
 
 connect('logoutNow', 'onclick', logOut);
 
-connect(xapi, 'login:check-ok', cbAlreadyLogged);
+connect(xapi, 'login:check-ok', cbLoggedIn);
 connect(xapi, 'login:logout-ok', cbLoggedOut);
 </script>

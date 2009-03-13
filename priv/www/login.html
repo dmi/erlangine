@@ -47,19 +47,6 @@ function openRegister(){
     ajax(json, "/enge");
 };
 
-function cbLoggedIn(json){
-    $('loginPassword').value = "";
-    appendChildNodes('loggedUid', map(function(Uid){
-                                          var Name = Uid.uid + "@" + Uid.domain;
-					  return OPTION({'value': Name}, Name)
-				      },
-                                      json.reply));
-    showElement('loggedContainer');
-    hideElement('welcomePage');
-    showElement('mainDesk');
-    signal(xapi, 'logged');
-}
-
 function cbNotLoggedIn(json){
     alert(JSON.stringify(json));
 }

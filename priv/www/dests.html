@@ -104,6 +104,30 @@ function cbSelectDest(json){
     $('destSubscrType').value = json.reply.sub_type;
 }
 
+function cbDestList(json){
+    for(i in json.reply){
+        var node = xtreeCreateNode({'id': "dest_" + json.reply[i].id, 'title': json.reply[i].title, 'anno': json.reply[i].anno, 'childs': []});
+		xtreeActivate(node, selectDest);
+		xtreeInsertNode("dest_" + json.reply[i].parent, node)
+    }
+}
+
+function initRootDests(){
+    var L = map(function(opt){
+		    log("root: " + opt.value);
+		    return {'id': "dest_" + opt.value,
+			    'title': opt.value,
+			    'anno': 'Your account',
+			    'childs': []
+			   }
+		},
+	    rootDestList());
+    xtreeCreateStruct('destTree', L, selectDest);
+
+    selDest = "dest_" + $('loggedUid').value;
+    addElementClass(selDest, 'xtreeItemSelected');
+}
+
 doSearchDest = function(){
     initRootDests();
     var json = {
@@ -175,30 +199,6 @@ function cbDestDeleteNode(json){
     removeElement($("dest_" + json.reply).parentNode);
     signal("dest_" + $('loggedUid').value, 'onclick');
     hideElement('destDeleteConfirm');
-}
-
-function cbDestList(json){
-    for(i in json.reply){
-        var node = xtreeCreateNode({'id': "dest_" + json.reply[i].id, 'title': json.reply[i].title, 'anno': json.reply[i].anno, 'childs': []});
-		xtreeActivate(node, selectDest);
-		xtreeInsertNode("dest_" + json.reply[i].parent, node)
-    }
-}
-
-function initRootDests(){
-    var L = map(function(opt){
-		    log("root: " + opt.value);
-		    return {'id': "dest_" + opt.value,
-			    'title': opt.value,
-			    'anno': 'Your account',
-			    'childs': []
-			   }
-		},
-	    rootDestList());
-    xtreeCreateStruct('destTree', L, selectDest);
-
-    selDest = "dest_" + $('loggedUid').value;
-    addElementClass(selDest, 'xtreeItemSelected');
 }
 
 connect('destSearch', 'onclick', doSearchDest);
