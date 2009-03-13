@@ -8,7 +8,7 @@
 %%      Modified by Dmitry Chernyak losthost@narod.ru
 %%      This version introduces more compact form instead of using 'obj' or 'struct'.
 
--module(ejson).
+-module(engejson).
 -author('bob@mochimedia.com').
 -export([encoder/1, encode/1]).
 -export([decoder/1, decode/1]).
