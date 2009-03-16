@@ -12,6 +12,7 @@
 -author('losthost@narod.ru').
 -export([encoder/1, encode/1]).
 -export([decoder/1, decode/1]).
+-export([get_value/2, get_values/2]).
 -export([test/0]).
 
 % This is a macro to placate syntax highlighters..
@@ -493,6 +494,36 @@ tokenize(B, S=#decoder{offset=O}) ->
             {eof, S}
     end.
 
+% additional part from struct.erl by BeeBole
+
+%% @spec get_value(path() | key(), struct()) -> value()
+get_value(_, {empty}) ->
+    undefined;
+get_value(Path, Struct) when is_tuple(Path) ->
+    L = tuple_to_list(Path),
+    get_val(L, Struct);
+get_value(Key, Struct) ->
+    proplists:get_value(Key, Struct).
+
+get_val(_, undefined) ->
+    undefined;
+get_val([Key], Struct) ->
+    get_value(Key, Struct);
+get_val([Key | T], Struct) ->
+    NewStruct = get_value(Key, Struct),
+    get_val(T, NewStruct).
+
+
+%% @spec get_values([path() | key()], struct()) -> [value()]
+get_values(Keys, Struct) ->
+    get_values(Keys, Struct, []).
+
+get_values([Key | Keys], Struct, Acc) ->
+    get_values(Keys, Struct, [get_value(Key, Struct) | Acc]);
+
+get_values([], _Struct, Acc) ->
+    lists:reverse(Acc).
+
 %% testing constructs borrowed from the Yaws JSON implementation.
 
 %% Create an object from a list of Key/Value pairs.
@@ -608,4 +639,10 @@ e2j_test_vec(utf8) ->
      %% json object in a json array
      {[-123, <<"foo">>, obj_from_list([{<<"bar">>, []}]), null],
       "[-123,\"foo\",{\"bar\":[]},null]"}
+     %{<<"v3-2">>,
+     % get_value({<<"o2-1">>, <<"o3-2">>},
+     %           [{<<"o1-1">>, <<"v1-1">>},
+     %            {<<"o2-1">>, [{<<"o3-1">>, {empty}},
+     %                          {<<"o3-2">>, <<"v3-2">>}]}])}
     ].
+
