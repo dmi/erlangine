@@ -1,58 +1,58 @@
 <div id=destList>
     <div class=toolbar>
-	<a id=destSearch class=button>Search</a>
-	<a id=destNewButton class=gbutton>New</a>
-	<a id=destDeleteButton class=gbutton>Delete</a>
+    <a id=destSearch class=button>Search</a>
+    <a id=destNewButton class=gbutton>New</a>
+    <a id=destDeleteButton class=gbutton>Delete</a>
     </div>
     <div id=destDeleteConfirm>
-	<div class=toolbar>
-	    <a id=destDeleteCancel class=button>X</a>
-	    <a id=destDelete class=gbutton>Confirm Delete</a>
-	</div>
+    <div class=toolbar>
+        <a id=destDeleteCancel class=button>X</a>
+        <a id=destDelete class=gbutton>Confirm Delete</a>
+    </div>
     </div>
     <div id=destNew title="Destination name to create in current">
-	<div class=toolbar>
-	    <a id=destNewCancel class=button>X</a>
-	    <a id=destCreate class=gbutton>Create Destination</a>
-	    <label for=destNewName>Name</label>
-	    <input id=destNewName type=text />
-	</div>
+    <div class=toolbar>
+        <a id=destNewCancel class=button>X</a>
+        <a id=destCreate class=gbutton>Create Destination</a>
+        <label for=destNewName>Name</label>
+        <input id=destNewName type=text />
+    </div>
     </div>
     <div id=destTree></div>
 </div>
 <div id=accEdit></div>
 <div id=destEdit>
     <div class=toolbar>
-	<a id=destSave class=gbutton>Save</a>
+    <a id=destSave class=gbutton>Save</a>
     </div>
     <input id=destId type=hidden />
     <table>
-	<tr><td><label for=destTitle>Destination</label>
-	</td><td><input id=destTitle type=text /></td></tr>
-	<tr><td><label for=destAnno>Annotation</label>
-	</td><td><input id=destAnno type=text /></td></tr>
-	<tr><td><label for=destSubscrAllow>Subscription allowed for:</label>
-	</td><td><select id=destSubscrAllow type=select>
-	    <option value=full>Entire posts</option>
-	    <option value=anno>Post Annotations</option>
-	    <option value=none>None</option>
-	</select></td></tr>
-	<tr><td><label for=destReadApproved title="can read from external">Access approved:</label>
-	</td><td><span id=destReadApproved>no data</span></td></tr>
-	<tr><td><label for=destPostApproved title="can post to external">Post approved:</label>
-	</td><td><span id=destPostApproved>no data</span></td></tr>
-	<tr><td><label for=destSubscrApproved title="subscribed">Subscription approved:</label>
-	</td><td><span id=destSubscrApproved>no data</span></td></tr>
-	<tr><td><label for=destSubscrType>Subscription:</label>
-	</td><td><select id=destSubscrType type=select>
-	    <option value=none>None</option>
-	    <option value=anno>Post Annotations</option>
-	    <option value=full>Entire posts</option>
-	</select></td></tr>
-	<tr><td><label for=xxx>Readers:</label></td></tr>
-	<tr><td><label for=xxx>Writers:</label></td></tr>
-	<tr><td><label for=xxx>Subscribers:</label></td></tr>
-	<tr><td><label for=xxx>New requests:</label></td></tr>
+    <tr><td><label for=destTitle>Destination</label>
+    </td><td><input id=destTitle type=text /></td></tr>
+    <tr><td><label for=destAnno>Annotation</label>
+    </td><td><input id=destAnno type=text /></td></tr>
+    <tr><td><label for=destSubscrAllow>Subscription allowed for:</label>
+    </td><td><select id=destSubscrAllow type=select>
+        <option value=full>Entire posts</option>
+        <option value=anno>Post Annotations</option>
+        <option value=none>None</option>
+    </select></td></tr>
+    <tr><td><label for=destReadApproved title="can read from external">Access approved:</label>
+    </td><td><span id=destReadApproved>no data</span></td></tr>
+    <tr><td><label for=destPostApproved title="can post to external">Post approved:</label>
+    </td><td><span id=destPostApproved>no data</span></td></tr>
+    <tr><td><label for=destSubscrApproved title="subscribed">Subscription approved:</label>
+    </td><td><span id=destSubscrApproved>no data</span></td></tr>
+    <tr><td><label for=destSubscrType>Subscription:</label>
+    </td><td><select id=destSubscrType type=select>
+        <option value=none>None</option>
+        <option value=anno>Post Annotations</option>
+        <option value=full>Entire posts</option>
+    </select></td></tr>
+    <tr><td><label for=xxx>Readers:</label></td></tr>
+    <tr><td><label for=xxx>Writers:</label></td></tr>
+    <tr><td><label for=xxx>Subscribers:</label></td></tr>
+    <tr><td><label for=xxx>New requests:</label></td></tr>
     </table>
 </div>
 
@@ -69,6 +69,7 @@ function selectDest(){
     removeElementClass(selDest,'xtreeItemSelected');
     selDest = this.id;
     addElementClass(selDest, 'xtreeItemSelected');
+    $('destId').value = '...';
     $('destTitle').value = '...';
     $('destAnno').value = '...';
     $('destSubscrAllow').value = '...';
@@ -77,17 +78,17 @@ function selectDest(){
     $('destSubscrApproved').value = '...';
     $('destSubscrType').value = '...';
     if(this.id != ("dest_" + this.innerHTML)){
-	hideElement('accEdit');
-        showElement('destEdit');
-	var json = {
-		    "module": "dest",
-		    "action": "destination",
-		    "data": {"id": strip_dest(this.id) }
-	}
-	ajax(json, "/enge")
+    hideElement('accEdit');
+    showElement('destEdit');
+    var json = {
+        "module": "dest",
+        "action": "destination",
+        "data": {"id": strip_dest(this.id) }
+    }
+    ajax(json, "/enge")
     }else{
         hideElement('destEdit');
-	showElement('accEdit')
+        showElement('accEdit')
     }
 }
 
@@ -95,6 +96,7 @@ function cbSelectDest(json){
     removeElementClass(selDest,'xtreeItemSelected');
     selDest = "dest_" + json.reply.id;
     addElementClass(selDest, 'xtreeItemSelected');
+    $('destId').value = json.reply.id;
     $('destTitle').value = json.reply.title;
     $('destAnno').value = json.reply.anno;
     $('destSubscrAllow').value = json.reply.sub_allow;
@@ -104,24 +106,49 @@ function cbSelectDest(json){
     $('destSubscrType').value = json.reply.sub_type;
 }
 
+function doDestSave(){
+    if($('destId').value != strip_dest(selDest)){
+        $('statusMsg').innerHTML = "can't uupdate destination: synchronisation lost";
+        return
+    }
+    var json = {
+        "module": "dest",
+        "action": "update",
+        "data": {
+            "id": strip_dest(selDest),
+             "title": $('destTitle').value,
+             "anno": $('destAnno').value,
+             "sub_allow": $('destSubscrAllow').value
+        }
+    }
+    ajax(json, "/enge");
+}
+
+function cbDestSave(json){
+    $('statusMsg').innerHTML = "destination updated";
+    var i = $("dest_" + json.reply.id);
+    i.innerHTML = json.reply.title;
+    setNodeAttribute(i, 'title', json.reply.anno);
+}
+
 function cbDestList(json){
     for(i in json.reply){
         var node = xtreeCreateNode({'id': "dest_" + json.reply[i].id, 'title': json.reply[i].title, 'anno': json.reply[i].anno, 'childs': []});
-		xtreeActivate(node, selectDest);
-		xtreeInsertNode("dest_" + json.reply[i].parent, node)
+        xtreeActivate(node, selectDest);
+        xtreeInsertNode("dest_" + json.reply[i].parent, node)
     }
 }
 
 function initRootDests(){
     var L = map(function(opt){
-		    log("root: " + opt.value);
-		    return {'id': "dest_" + opt.value,
-			    'title': opt.value,
-			    'anno': 'Your account',
-			    'childs': []
-			   }
-		},
-	    rootDestList());
+            log("root: " + opt.value);
+            return {'id': "dest_" + opt.value,
+                'title': opt.value,
+                'anno': 'Your account',
+                'childs': []
+               }
+        },
+        rootDestList());
     xtreeCreateStruct('destTree', L, selectDest);
 
     selDest = "dest_" + $('loggedUid').value;
@@ -131,9 +158,9 @@ function initRootDests(){
 doSearchDest = function(){
     initRootDests();
     var json = {
-	"module": "dest",
-	"action": "destinations",
-	"data": rootDestList()
+    "module": "dest",
+    "action": "destinations",
+    "data": rootDestList()
     }
     ajax(json, "/enge");
 }
@@ -157,13 +184,13 @@ function doDestNewCancel(){
 
 function doDestCreateNode(){
     var json = {
-	"module": "dest",
-	"action": "new",
-	"data": {
-	    "parent": strip_dest(selDest),
-	    "title": $('destNewName').value,
-	    "anno": ""
-	}
+    "module": "dest",
+    "action": "new",
+    "data": {
+        "parent": strip_dest(selDest),
+        "title": $('destNewName').value,
+        "anno": ""
+    }
     }
     ajax(json, "/enge");
 }
@@ -178,11 +205,11 @@ function doDestDeleteCancel(){
 
 function doDestDeleteNode(){
     var json = {
-	"module": "dest",
-	"action": "remove",
-	"data": {
-	    "id": strip_dest(selDest)
-	}
+        "module": "dest",
+        "action": "remove",
+        "data": {
+            "id": strip_dest(selDest)
+        }
     }
     ajax(json, "/enge");
 }
@@ -208,11 +235,13 @@ connect('destCreate', 'onclick', doDestCreateNode);
 connect('destDeleteButton', 'onclick', doDestDeleteConfirm);
 connect('destDeleteCancel', 'onclick', doDestDeleteCancel);
 connect('destDelete', 'onclick', doDestDeleteNode);
+connect('destSave', 'onclick', doDestSave);
 
 connect(xapi, 'dest:new-ok', cbDestCreateNode);
 connect(xapi, 'dest:remove-ok', cbDestDeleteNode);
 connect(xapi, 'dest:destinations-ok', cbDestList);
 connect(xapi, 'dest:destination-ok', cbSelectDest);
+connect(xapi, 'dest:update-ok', cbDestSave);
 
 connect(xapi, 'logged', doSearchDest);
 

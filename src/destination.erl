@@ -7,7 +7,7 @@
          terminate/2, code_change/3]).
 
 -export([start/0, stop/0,
-         new/5, update/6, remove/2, destination/2, destinations/1,
+         new/5, update/5, remove/2, destination/2, destinations/1,
          reset/0, test_engine/0]).
 
 -include_lib("stdlib/include/qlc.hrl").
@@ -29,7 +29,7 @@ stop() -> gen_server:call(?MODULE, stop).
 reset() ->
     mnesia:delete_table(destination),
     {atomic, ok} = mnesia:create_table(destination, [{attributes, record_info(fields, destination)},
-                                      {disc_copies, [node()]}]),
+                                                     {disc_copies, [node()]}]),
     {atomic, ok} = mnesia:add_table_index(destination, parent),
     {atomic, ok} = mnesia:add_table_index(destination, uid),
     ok.
@@ -39,7 +39,7 @@ new(Uid, ParentId, Title, Anno, Props) ->
     Id = list_to_binary(session:guid()),
     Row = #destination{id = {Uid, Id}, parent = {Uid, ParentId}, uid = Uid, title = Title, anno = Anno, props = Props},
     F = fun() ->
-        check_parent_and_title(Uid, ParentId, Title),
+        check_parent_and_title({Uid, ParentId}, Title),
         mnesia:write(Row)
     end,
     ok = tr(F),
@@ -47,8 +47,7 @@ new(Uid, ParentId, Title, Anno, Props) ->
 
 % check parent and title
 % abort, noparent; abort, duptitle; ok
-check_parent_and_title(Uid, ParentId, Title) ->
-    Parent = {Uid, ParentId},
+check_parent_and_title(Parent = {Uid, ParentId}, Title) ->
     % ParentId =:= Uid means top-level destination
     if ParentId =/= Uid ->
         case mnesia:wread({destination, Parent}) of  % check parent and lock it
@@ -61,21 +60,23 @@ check_parent_and_title(Uid, ParentId, Title) ->
                                                 title = Title, _ = '_'},
                                    parent) % check title collision
     of
-        [] -> ok;
+       [] -> ok;
         _ -> mnesia:abort(duptitle)
     end.
 
-update(Uid, Id, ParentId, Title, Anno, Props) ->
+update(Uid, Id, Title, Anno, _Props) ->
     RowId = {Uid, Id},
-    Row = #destination{id = RowId, parent = Parent = {Uid, ParentId}, uid=Uid, title = Title, anno = Anno, props = Props},
     F = fun() ->
         case mnesia:wread({destination, RowId}) of
             [] -> mnesia:abort(norecord);
-            [Old] when Old#destination.parent =/= Parent;
-                       Old#destination.title =/= Title ->
-               check_parent_and_title(Uid, ParentId, Title)
-        end,
-        mnesia:write(Row)
+            [Old] ->
+                if Old#destination.title =/= Title ->
+                    check_parent_and_title(Old#destination.parent, Title);
+                true -> ok
+                end,
+                Row = Old#destination{title = Title, anno = Anno},
+                mnesia:write(Row)
+        end
     end,
     tr(F).
 

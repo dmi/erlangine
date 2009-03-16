@@ -26,22 +26,13 @@ new(Struct, Session, _Req) ->
     end.
 
 update(Struct, Session, _Req) ->
-    Keys = ["id", "parent", "title", "annotation", "sub_allow", "read_apvd", "post_apvd", "sub_apvd", "sub_type"],
-    [Id, Parent, Title, Anno, SubAllow, ReadApproved, PostApproved, SubApproved, SubType] = obj:get_values(Keys, Struct),
-    #session{opaque = #authkey{user = User = {U, D}}} = Session,
-    UserCheck = list_to_binary([U, "@", D]),
-    Parent1 = case Parent of
-        UserCheck -> User;
-        _ -> Parent
-    end,
-    case destination:update(User, Id, Parent1, Title, Anno,
-                            #destprops{sub_allow = SubAllow,
-                                       read_apvd = ReadApproved,
-                                       post_apvd = PostApproved,
-                                       sub_apvd = SubApproved,
-                                       sub_type = SubType})
-    of
-        ok -> {{ok, []}, []};
+    Keys = ["id", "title", "anno"],
+    [Id, Title, Anno] = obj:get_values(Keys, Struct),
+    #session{opaque = #authkey{user = User}} = Session,
+    case destination:update(User, Id, Title, Anno, #destprops{}) of
+        ok -> {{ok, {obj, [{"id", Id},
+                           {"title", Title},
+                           {"anno", Anno}]}}, []};
         {error, Reason} -> {{fail, list_to_binary(Reason)}, []}
     end.
 
@@ -57,7 +48,7 @@ destination(Struct, Session, _Req) ->
     R = destination:destination(U, Id),
     io:format("destination: ~p~n", [R]),
     [#destination{id = {U, Id},
-                  parent = {U, ParentId},
+                  parent = {U, _ParentId},
                   uid = U,
                   title = Title,
                   anno = Anno,
@@ -79,14 +70,14 @@ destination(Struct, Session, _Req) ->
 % options: by owner, by name
 destinations(_Struct, Session, _Req) ->
     #session{opaque = #authkey{user = U}} = Session,
-    List = lists:map(fun(#destination{id = {U, Id},
-                                      parent = {U, ParentId},
-                                      uid = U,
+    List = lists:map(fun(#destination{id = {Uid, Id},
+                                      parent = {Uid, ParentId},
+                                      uid = Uid,
                                       title = Title,
                                       anno = Anno,
                                       props = _Props}) ->
                          P = case ParentId of
-                             {Uid, Dom} -> list_to_binary([Uid, "@", Dom]);
+                             Uid = {U1, D1} -> list_to_binary([U1, "@", D1]);
                              _ -> ParentId
                          end,
                          {obj, [{"id", Id}, {"parent", P}, {"title", Title}, {"anno", Anno}]}
