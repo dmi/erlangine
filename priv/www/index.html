@@ -29,7 +29,7 @@ function tuneInterface(par){
 
 function cbTest(json){
     log("cbTest: " + JSON.stringify(json));
-    $('testResult').innerHTML = json.reply;
+    $('statusMsg').innerHTML = json.reply;
 }
 
 /* Signal Handlers end */
@@ -51,7 +51,7 @@ function doTest(){
     }
     log("test request: " + JSON.stringify(json));
     ajax(json, "/enge"); */
-    insert('testResult', '/hello.html');
+    insert('statusMsg', '/hello.html');
 }
 
 /* Button Handlers end */
@@ -101,7 +101,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 
     <!--input id="testButton" type=button value="Test"/-->
     <div id="testRequest"></div>
-    <div id="testResult"></div> <!-- caution:: using Highlight('testResult') in includes _may_ cause compilation errors -->
+    <div id="statusMsg"></div> <!-- caution:: using Highlight('statusMsg') in includes _may_ cause compilation errors -->
 
     <div id=pageContent>
 	<div id=welcomePage>

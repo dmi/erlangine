@@ -58,8 +58,8 @@ function composeDocRow(doc){
 
 function cbSearchResult(json){
     log("search results: " + JSON.stringify(json));
-    $('testResult').innerHTML = json.event;
-    Highlight('testResult');
+    $('statusMsg').innerHTML = json.event;
+    Highlight('statusMsg');
     disconnectAllTo(doDocView); // was doDocEdit
     var tab = "";
     var tabn = 0;

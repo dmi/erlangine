@@ -53,7 +53,7 @@ function doTest(){
 
 function cbTest(json){
         log("cbTest: " + JSON.stringify(json));
-	$('testResult').innerHTML = json.reply;
+	$('statusMsg').innerHTML = json.reply;
 }
 
 function srvapi(){}
@@ -117,7 +117,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 
 		<input id="testButton" type=button value="Test"/>
 		<div id="testRequest"></div>
-		<div id="testResult"></div>
+		<div id="statusMsg"></div>
 
 		<div id="console"></div>
 		<div id="sample">

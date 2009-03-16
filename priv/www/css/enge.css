@@ -340,3 +340,10 @@ textarea
 {
    clear: left;
 }
+
+#statusMsg{
+   background-color: #FFFBCC;
+   border: solid 1px #E6DB55;
+   height: 1.5em;
+   margin: 3px;
+}
