@@ -22,10 +22,10 @@ function doSearchDocs(){
 
 function doDeleteDocs(){
     var doclist = map(
-    function(elt){ return({"id": elt.name, "rev": elt.value}) },
-    ifilter(
-        function(elt){return(elt.checked)},
-        findChildElements($('docSelect'), ['.docRowCheck'])));
+        function(elt){ return({"id": elt.name, "rev": elt.value}) },
+        ifilter(
+            function(elt){return(elt.checked)},
+            findChildElements($('docSelect'), ['.docRowCheck'])));
     log("to delete: " + JSON.stringify(doclist));
     var json = {
         "module": "doc",
@@ -50,26 +50,25 @@ function doDocView(what){
 }
 
 function composeDocRow(doc){
-    var Title = TD({},[SPAN({'id': "docs:' + doc._id + ':' + doc._rev + '",
-                             'title': doc.anno},
-                            doc.title)]);
-    connect(title, 'onclick', doDocView);
-    return
-      TR({'class': 'docSearchResultRow'},
-         [TD({}, [INPUT({'type': 'checkbox',
-                         'class': 'docRowCheck',
-                'name': doc._id,
-                'value': doc._rev)]),
-          Title,
-          TD({},doc.date.D + "." + doc.date.M + "." + doc.date.Y)]);
+    var Title = TD(null, [SPAN({'id': 'docs:' + doc._id + ':' + doc._rev,
+                                'title': doc.anno},
+                               doc.title)]);
+    connect(Title, 'onclick', doDocView);
+    return TR({'class': 'docSearchResultRow'},
+              [TD(null, INPUT({'type': 'checkbox',
+                               'class': 'docRowCheck',
+                               'name': doc._id,
+                               'value': doc._rev})),
+               Title,
+               TD(null, doc.date.D + "." + doc.date.M + "." + doc.date.Y)
+              ]);
 }
 
 function cbSearchResult(json){
     log("search results: " + JSON.stringify(json));
     $('statusMsg').innerHTML = json.event;
-    Highlight('statusMsg');
-    disconnectAllTo(doDocView); // was doDocEdit
-    var tab = map(function(json){composeDocRow(json)},
+    disconnectAllTo(doDocView);
+    var tab = map(function(doc){return composeDocRow(doc)},
                   json.reply);
     replaceChildNodes('docSearchResult', tab)
 }
