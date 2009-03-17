@@ -29,7 +29,7 @@ function tuneInterface(par){
 
 function cbTest(json){
     log("cbTest: " + JSON.stringify(json));
-    $('statusMsg').innerHTML = json.reply;
+    statusM(json.reply);
 }
 
 /* Signal Handlers end */
@@ -45,13 +45,17 @@ function checkSession(){
 }
 
 function doTest(){
-    /* var json = {
+    var json = {
 	"module": "test",
 	"action": "test",
     }
     log("test request: " + JSON.stringify(json));
-    ajax(json, "/enge"); */
-    insert('statusMsg', '/hello.html');
+    ajax(json, "/enge");
+    //insert('statusMsg', '/hello.html');
+}
+
+function statusM(str){
+    $('statusMsg').innerHTML = str
 }
 
 /* Button Handlers end */

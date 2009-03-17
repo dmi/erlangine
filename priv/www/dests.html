@@ -108,7 +108,7 @@ function cbSelectDest(json){
 
 function doDestSave(){
     if($('destId').value != strip_dest(selDest)){
-        $('statusMsg').innerHTML = "can't uupdate destination: synchronisation lost";
+        statusM("can't uupdate destination: synchronisation lost");
         return
     }
     var json = {
@@ -125,7 +125,7 @@ function doDestSave(){
 }
 
 function cbDestSave(json){
-    $('statusMsg').innerHTML = "destination updated";
+    statusMsg("destination updated");
     var i = $("dest_" + json.reply.id);
     i.innerHTML = json.reply.title;
     setNodeAttribute(i, 'title', json.reply.anno);

@@ -98,8 +98,7 @@ function cbEditNoAttach(json){
 
 function cbDocSaved(json){
     log("document saved: " + JSON.stringify(json))
-    $('statusMsg').innerHTML = json.reply.action;
-    Highlight('statusMsg');
+    statusM(json.reply.action);
     $('docId').value = json.reply.id;
     $('docRev').value = json.reply.rev;
 }
