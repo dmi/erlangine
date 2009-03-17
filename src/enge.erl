@@ -3,7 +3,7 @@
 
 %% @doc ErlaNGine request/reply dispatcher.
 
-% %% @type request() = {obj, [request_data()]}
+% %% @type request() = [request_data()]
 % %% @type request_data() = module() + action() + event_spec() + args()
 % %% @type module() = {module::binary(), word()}
 % %% @type action() = {<<"action">>, word()}
@@ -12,7 +12,7 @@
 
 % %% @type word() = binary(). A binary string valid for erlang atom and for JavaScript string.
 
-% %% @type reply() = {obj, [event(), reply()]}
+% %% @type reply() = [event(), reply()]
 % %% @type event() = {<<"event>>, iolist_to_binary(event_value())}
 % %% @type event_value() = [event_spec(), "-", result_type()]. If event_spec was omited, module():action() is used.
 % %% @type result() = {result_type(), result_value()}
@@ -26,18 +26,18 @@
 -include("authkey.hrl").
 
 compose_reply({Type, Result}, Event) ->
-    {obj, [{"event", iolist_to_binary([Event, "-",  atom_to_list(Type)])},
-           {"reply", Result}]};
+    [{"event", iolist_to_binary([Event, "-",  atom_to_list(Type)])},
+     {"reply", Result}];
 
 % case when handler returns wrong format by mistake
 compose_reply(R, E) ->
     io:format("compose reply error: ~p, ~p~n",[R, E]),
-    {obj, [{"event", <<"enge2_error">>}, {"reply", <<"internal error">>}]}.
+    [{"event", <<"enge2_error">>}, {"reply", <<"internal error">>}].
 
 % {Result, Headers} | error
 dispatch(Struct, Session, Req) ->
 
-    M = obj:get_value(<<"module">>, Struct),
+    M = engejson:get_value(<<"module">>, Struct),
     Module = list_to_atom("ajax_" ++ binary_to_list(M)),
 
     Grant = case Session of
@@ -55,11 +55,11 @@ dispatch(Struct, Session, Req) ->
     io:format("Grant: ~p~n",[Grant]),
     case Grant of
         true ->
-            A = obj:get_value(<<"action">>, Struct),
+            A = engejson:get_value(<<"action">>, Struct),
             Action = list_to_atom(binary_to_list(A)),
-            try Module:Action(obj:get_value(<<"data">>, Struct), Session, Req) of
+            try Module:Action(engejson:get_value(<<"data">>, Struct), Session, Req) of
                 {Result, Headers} ->
-                    E = case obj:get_value(<<"event">>, Struct) of
+                    E = case engejson:get_value(<<"event">>, Struct) of
                         undefined -> [M, <<":">>, A];
                         Event -> Event
                     end,

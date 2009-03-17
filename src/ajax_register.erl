@@ -8,9 +8,9 @@
 % whole method is ugly but quick. Welcome to improve ;-)
 account(Struct, _Session, _Req) ->
     [N, U, D, P, P2, M, CL, CC] =
-        obj:get_values(["name", "uid", "domain", "password", "repeat",
-                        "email", "captchalink", "captchacode"],
-                       Struct),
+        engejson:get_values(["name", "uid", "domain", "password", "repeat",
+                             "email", "captchalink", "captchacode"],
+                            Struct),
 
     LL = length(binary_to_list(P)),
     SessionTest = case session:get_session({captcha, CL}, -1) of
@@ -76,4 +76,4 @@ account(Struct, _Session, _Req) ->
 prepare(_Struct, _Session, _Req) ->
     {Link, Code} = captchas:make_href("demo", "secret", 200), % possible to retrieve size from request
     session:new_session({captcha, Link}, ?CAPTCHA_TIMEOUT, Code),
-    {{ok, {obj, [{"captcha", Link}, {"domains", [<<"localhost">>]}]}}, []}.
+    {{ok, [{"captcha", Link}, {"domains", [<<"localhost">>]}]}, []}.

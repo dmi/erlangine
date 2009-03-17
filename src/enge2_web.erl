@@ -44,7 +44,7 @@ loop(Req, DocRoot) ->
 		    Data = Req:parse_post(),
 		    %io:format("Data: ~p~n",[Data]),
 		    Json = proplists:get_value("json", Data),
-		    Struct = rfc4627:decode(Json),
+		    Struct = engejson:decode(Json),
 
                     io:format("Enge request: ~p~n", [Struct]),
 
@@ -55,7 +55,7 @@ loop(Req, DocRoot) ->
 		    case Reply of
 
 			{reply, {Result, Headers}} ->
-			    DataOut = rfc4627:encode(Result),
+			    DataOut = engejson:encode(Result),
 			    Req:ok({"application/json", Headers, [DataOut]});
 
 			{respond, Respond } -> Req:respond(Respond);

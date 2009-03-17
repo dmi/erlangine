@@ -8,21 +8,21 @@ compose_attachment(Attachments) ->
     compose_attachment(Attachments, []).
 
 compose_attachment([], Acc) ->
-     {"_attachments", {obj, Acc}};
+     {"_attachments", Acc};
 
 compose_attachment([{Name, CType, Data} | T], Acc) ->
-    Att = {Name, {obj, [{"content-type", list_to_binary(CType)},
-                        {"data", Data}]}},
+    Att = {Name, [{"content-type", list_to_binary(CType)},
+                  {"data", Data}]},
     compose_attachment(T, [Att | Acc]).
 
 save(Struct, Session, _Req) ->
-    Keys = ["title", "anno", "text", "id", "rev"],
-    [Title, Anno, Text, Id_old, Rev_old] = obj:get_values(Keys, Struct),
+    [Title, Anno, Text, Id_old, Rev_old] =
+        engejson:get_values(["title", "anno", "text", "id", "rev"], Struct),
     #session{opaque = #authkey{user = {U, Dom} = Db}} = Session,
     {Y, M, D} = date(),
 
     AttrList = [{"type", <<"writing">>},
-                {"date", {obj, [{"Y", Y}, {"M", M}, {"D", D}]}},
+                {"date", [{"Y", Y}, {"M", M}, {"D", D}]},
                 {"author", list_to_binary([U, "@", Dom])},
                 {"title", Title},
                 {"anno", Anno}],
@@ -39,13 +39,13 @@ save(Struct, Session, _Req) ->
             lists:reverse([Att | AttrList1])
     end,
 
-    Obj = {obj, AttrList2},
+    Obj = AttrList2,
 
     io:format("Save doc: ~p@~p: ~p~nObj: ~p~n", [U, Dom, Title, Obj]),
 
-    %{obj,[{"ok",true},
-    %      {"id",<<"8d80981151b8cecd024b804c0c51c97b">>},
-    %       {"rev",<<"101943079">>}]}
+    %[{"ok",true},
+    % {"id",<<"8d80981151b8cecd024b804c0c51c97b">>},
+    % {"rev",<<"101943079">>}]
     CreateResult = case Id_old of
         <<>> ->
             SaveNature = <<"saved">>,
@@ -58,9 +58,9 @@ save(Struct, Session, _Req) ->
     case CreateResult of
         {ok, Id, Rev} -> 
             io:format("doc id=~p, rev=~p~n",[Id, Rev]),
-            {{ok, {obj, [{"action", SaveNature},
-                         {"id", Id},
-                         {"rev", Rev}]}},
+            {{ok, [{"action", SaveNature},
+                   {"id", Id},
+                   {"rev", Rev}]},
               []};
         {error, Reason} ->
             io:format("failure ~p~n",[Reason]),
@@ -68,8 +68,8 @@ save(Struct, Session, _Req) ->
     end.
 
 save_att(Struct, Session, _Req) ->
-    Keys = ["id", "rev", "name", "ctype", "data"],
-    [Id, Rev, Name, CType, Data] = obj:get_values(Keys, Struct),
+    [Id, Rev, Name, CType, Data] =
+        engejson:get_values(["id", "rev", "name", "ctype", "data"], Struct),
     #session{opaque = #authkey{user = Db}} = Session,
     Att = compose_attachment([{Name, CType, Data}]),
     Obj = [{"_id", Id},
@@ -78,8 +78,8 @@ save_att(Struct, Session, _Req) ->
     case docs:create(Db, Obj) of
         {ok, Id, Rev} -> 
             io:format("doc id=~p, rev=~p~n",[Id, Rev]),
-            {{ok, {obj, [{"id", Id},
-                         {"rev", Rev}]}},
+            {{ok, [{"id", Id},
+                   {"rev", Rev}]},
               []};
         {error, Reason} ->
             io:format("failure ~p~n",[Reason]),
@@ -87,13 +87,13 @@ save_att(Struct, Session, _Req) ->
     end.
 
 parse_view_response(R) ->
-    parse_view_response(obj:get_value("rows",R), []).
+    parse_view_response(engejson:get_value("rows",R), []).
 
 parse_view_response([], Acc) ->
     lists:reverse(Acc);
 
 parse_view_response([Doc | T], Acc) ->
-    V = obj:get_value("value", Doc),
+    V = engejson:get_value("value", Doc),
     parse_view_response(T, [V | Acc]).
     
 search(_Struct, Session, _Req) ->
@@ -108,8 +108,7 @@ search(_Struct, Session, _Req) ->
     end.
 
 doc_get(Struct, Session, _Req) ->
-    Keys = ["id", "rev"],
-    [Id, Rev] = obj:get_values(Keys, Struct),
+    [Id, Rev] = engejson:get_values(["id", "rev"], Struct),
     #session{opaque = #authkey{user = Db}} = Session,
     case docs:doc_get(Db, binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev)) of
         {ok, Response} ->
@@ -124,7 +123,7 @@ idrev(Id, Rev) ->
     binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev).
 
 attach_get(Struct, Session, _Req) ->
-    [Id, Rev] = obj:get_values(["id", "rev"], Struct),
+    [Id, Rev] = engejson:get_values(["id", "rev"], Struct),
     #session{opaque = #authkey{user = Db}} = Session,
     case docs:attach_get(Db, idrev(Id, Rev)) of
         {ok, Doc} ->
@@ -137,7 +136,7 @@ attach_get(Struct, Session, _Req) ->
 bulk_delete(_Db, []) -> ok;
 
 bulk_delete(Db, [H | T]) ->
-    [Id, Rev] = obj:get_values(["id", "rev"], H),
+    [Id, Rev] = engejson:get_values(["id", "rev"], H),
     io:format("bulk_delete: ~p ~p~n",[Id, Rev]),
     docs:doc_delete(Db, Id, Rev),
     bulk_delete(Db, T).

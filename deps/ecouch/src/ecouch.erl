@@ -24,7 +24,7 @@
 %% @doc
 %% <h1>Elang API to CouchDb</h1> 
 %% eCouch is an application that provides an API to a CouchDb server
-%% It uses the <a href="http://www.lshift.net/blog/2007/02/17/json-and-json-rpc-for-erlang">rfc4627</a> module from <a href="http://www.lshift.net/">LShift</a>
+%% It uses the <a href="http://www.lshift.net/blog/2007/02/17/json-and-json-rpc-for-erlang">engejson</a> module from <a href="http://www.lshift.net/">LShift</a>
 %% The design was inspired in the article <a href="http://www.trapexit.org/Building_a_Non-blocking_TCP_server_using_OTP_principles">Building a Non-blocking TCP server using OTP principles</a> 
 %% and assumes that <a href="http://www.erlang.org/doc/apps/inets/index.html">inets</a> application is running.
 %% todo:
@@ -206,7 +206,7 @@ db_list() ->
 %% @spec db_info(DatabaseName::string()) -> {ok, Info::json()} | {error, Reason::term()}
 %%
 %% @type json() = obj() | array() | num() | str() | true | false | null
-%% @type obj() = {obj, [{key(), val()}]}
+%% @type obj() = [{key(), val()}]
 %% @type array() = [val()]
 %% @type key() = str() | atom()
 %% @type val() = obj() | array() | num() | str() | true | false | null
@@ -225,7 +225,7 @@ db_info(DatabaseName) ->
 %% @doc Create document
 
 doc_create(DatabaseName, Doc) ->
-    DocJson = rfc4627:encode(Doc),
+    DocJson = engejson:encode(Doc),
     io:format("doc_create json: ~p~n",[list_to_binary(DocJson)]),
     Path = lists:flatten(io_lib:format("/~s/", [DatabaseName])),
     Reply = gen_server:call(ec_listener, {post, Path, DocJson}),
@@ -236,7 +236,7 @@ doc_create(DatabaseName, Doc) ->
 %% @doc Create a named document
 
 doc_create(DatabaseName, DocName, Doc) ->
-    JsonDoc = rfc4627:encode(Doc),
+    JsonDoc = engejson:encode(Doc),
     Path = lists:flatten(io_lib:format("/~s/~s", [DatabaseName, DocName])),
     Reply = gen_server:call(ec_listener, {put, Path, JsonDoc}),
     handle_reply(Reply).
@@ -247,7 +247,7 @@ doc_create(DatabaseName, DocName, Doc) ->
 %% @doc Batch create a set of documents.
 
 doc_bulk_create(DatabaseName, DocList) ->
-    BulkDoc = rfc4627:encode({obj, [{"docs", DocList}]}),
+    BulkDoc = engejson:encode([{"docs", DocList}]),
     Path = lists:flatten(io_lib:format("/~s/~s", [DatabaseName, "_bulk_docs"])),
     Reply = gen_server:call(ec_listener, {post, Path, BulkDoc}),
     handle_reply(Reply).
@@ -305,7 +305,7 @@ attach_get(DatabaseName, DocName) ->
         Reply ->
 	    case handle_reply(Reply) of
 		{ok, Json} -> {error, Json};
-		{error, Reason} -> {ok, list_to_binary(Reply)}
+		{error, _Reason} -> {ok, list_to_binary(Reply)}
             end
     end.
 
@@ -388,7 +388,7 @@ handle_reply(Reply) ->
         {error, Reason} ->
             {error, Reason};
         R ->
-              try rfc4627:decode(R) of
+              try engejson:decode(R) of
                   Json -> {ok, Json}
               catch
                   _Error:Reason -> {error, Reason}

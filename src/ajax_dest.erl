@@ -5,7 +5,7 @@
 -include("destination.hrl").
 
 new(Struct, Session, _Req) ->
-    [Parent, Title, Anno] = obj:get_values(["parent", "title", "anno"], Struct),
+    [Parent, Title, Anno] = engejson:get_values(["parent", "title", "anno"], Struct),
     io:format("ajax_dest:new: ~p, ~p, ~p~n", [Parent, Title, Anno]),
     #session{opaque = #authkey{user = User = {U, D}}} = Session,
     UserCheck = list_to_binary([U, "@", D]),
@@ -15,10 +15,10 @@ new(Struct, Session, _Req) ->
     end,
     io:format("Parent1: ~p~n", [Parent1]),
     case destination:new(User, Parent1, Title, Anno, #destprops{}) of
-        {ok, Id} -> {{ok, {obj, [{"id", Id},
-                                 {"parent", Parent},
-                                 {"title", Title},
-                                 {"anno", Anno}]}}, []};
+        {ok, Id} -> {{ok, [{"id", Id},
+                           {"parent", Parent},
+                           {"title", Title},
+                           {"anno", Anno}]}, []};
         {error, Reason} -> {{fail, list_to_binary(Reason)}, []};
         Err -> 
             io:format("ERROR: ~p~n", [Err]),
@@ -26,24 +26,23 @@ new(Struct, Session, _Req) ->
     end.
 
 update(Struct, Session, _Req) ->
-    Keys = ["id", "title", "anno"],
-    [Id, Title, Anno] = obj:get_values(Keys, Struct),
+    [Id, Title, Anno] = engejson:get_values(["id", "title", "anno"], Struct),
     #session{opaque = #authkey{user = User}} = Session,
     case destination:update(User, Id, Title, Anno, #destprops{}) of
-        ok -> {{ok, {obj, [{"id", Id},
-                           {"title", Title},
-                           {"anno", Anno}]}}, []};
+        ok -> {{ok, [{"id", Id},
+                     {"title", Title},
+                     {"anno", Anno}]}, []};
         {error, Reason} -> {{fail, list_to_binary(Reason)}, []}
     end.
 
 remove(Struct, Session, _Req) ->
-    Id = obj:get_value(<<"id">>, Struct),
+    Id = engejson:get_value(<<"id">>, Struct),
     #session{opaque = #authkey{user = U}} = Session,
     destination:remove(U, Id),
     {{ok, Id}, []}.
 
 destination(Struct, Session, _Req) ->
-    Id = obj:get_value(<<"id">>, Struct),
+    Id = engejson:get_value(<<"id">>, Struct),
     #session{opaque = #authkey{user = U}} = Session,
     R = destination:destination(U, Id),
     io:format("destination: ~p~n", [R]),
@@ -58,13 +57,13 @@ destination(Struct, Session, _Req) ->
                                      sub_apvd = SubApproved,
                                      sub_type = SubType}}]
         = R,
-    {{ok, {obj, [{"id", Id}, {"title", Title}, {"anno", Anno},
-                 {"sub_allow", SubAllow},
-                 {"read_apvd", ReadApproved},
-                 {"post_apvd", PostApproved},
-                 {"sub_apvd", SubApproved},
-                 {"sub_type", SubType}
-                ]}},
+    {{ok, [{"id", Id}, {"title", Title}, {"anno", Anno},
+           {"sub_allow", SubAllow},
+           {"read_apvd", ReadApproved},
+           {"post_apvd", PostApproved},
+           {"sub_apvd", SubApproved},
+           {"sub_type", SubType}
+          ]},
      []}.
 
 % options: by owner, by name
@@ -80,7 +79,7 @@ destinations(_Struct, Session, _Req) ->
                              Uid = {U1, D1} -> list_to_binary([U1, "@", D1]);
                              _ -> ParentId
                          end,
-                         {obj, [{"id", Id}, {"parent", P}, {"title", Title}, {"anno", Anno}]}
+                         [{"id", Id}, {"parent", P}, {"title", Title}, {"anno", Anno}]
                      end,
                      lists:reverse(destination:destinations(U))),
     {{ok, List}, []}.

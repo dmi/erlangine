@@ -5,7 +5,7 @@
 -include("authop.hrl").
 
 login(Struct, _Session, _Req) ->
-    [U, D, P] = obj:get_values(["uid", "domain", "password"], Struct),
+    [U, D, P] = engejson:get_values(["uid", "domain", "password"], Struct),
     case authdb:auth({U, D}, {passw, P}) of
         {ok, #authop{realm = Realm}} ->
             SessionId = session:guid(),
@@ -13,7 +13,7 @@ login(Struct, _Session, _Req) ->
             io:format("cookie is ~p~n", [H]),
 
             session:new_session({auth, SessionId}, ?AUTHKEY_TIMEOUT, #authkey{user = {U, D}, realm = Realm}),
-            {{ok, [{obj, [{"uid", U}, {"domain", D}]}]}, [H]};
+            {{ok, [[{"uid", U}, {"domain", D}]]}, [H]};
 
         _ -> {{fail, <<"Bad login">>}, []}
     end.
@@ -32,7 +32,7 @@ check(_Struct, Session, _Req) ->
         {error, _} -> 
             {{fail, <<"Not logged in">>}, []};
         #session{opaque = #authkey{user = {U, D}}} ->
-            {{ok, [{obj, [{"uid", U}, {"domain", D}]}]}, []}
+            {{ok, [[{"uid", U}, {"domain", D}]]}, []}
     end.
 
 domains(_Struct, _Session, _Req) ->
