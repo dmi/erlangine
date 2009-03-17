@@ -586,7 +586,8 @@ equiv_list([V1 | L1], [V2 | L2]) ->
 
 test_all() ->
     [1199344435545.0, 1] = decode(<<"[1199344435545.0,1]">>),
-    test_one(e2j_test_vec(utf8), 1).
+    test_one(e2j_test_vec(utf8), 1),
+    test_get().
 
 test_one([], _N) ->
     %% io:format("~p tests passed~n", [N-1]),
@@ -639,10 +640,15 @@ e2j_test_vec(utf8) ->
      %% json object in a json array
      {[-123, <<"foo">>, obj_from_list([{<<"bar">>, []}]), null],
       "[-123,\"foo\",{\"bar\":[]},null]"}
-     %{<<"v3-2">>,
-     % get_value({<<"o2-1">>, <<"o3-2">>},
-     %           [{<<"o1-1">>, <<"v1-1">>},
-     %            {<<"o2-1">>, [{<<"o3-1">>, {empty}},
-     %                          {<<"o3-2">>, <<"v3-2">>}]}])}
     ].
 
+test_get() ->
+    case equiv(<<"v3-2">>,
+               get_value({<<"o2-1">>, <<"o3-2">>},
+                         [{<<"o1-1">>, <<"v1-1">>},
+                          {<<"o2-1">>, [{<<"o3-1">>, {empty}},
+                                        {<<"o3-2">>, <<"v3-2">>}]}]))
+    of
+        true -> ok;
+        _ -> fail
+    end.
