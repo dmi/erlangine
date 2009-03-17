@@ -502,6 +502,8 @@ get_value(_, {empty}) ->
 get_value(Path, Struct) when is_tuple(Path) ->
     L = tuple_to_list(Path),
     get_val(L, Struct);
+get_value(Key, Struct) when is_list(Key) ->
+        get_value(list_to_binary(Key),Struct);
 get_value(Key, Struct) ->
     proplists:get_value(Key, Struct).
 
