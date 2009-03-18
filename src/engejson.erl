@@ -4,7 +4,8 @@
 %%      with binaries as strings, arrays as lists (without an {array, _})
 %%      wrapper and it only knows how to decode UTF-8 (and ASCII).
 %%      
-%%      Original code was written by Bob Ippolito &lt;bob@mochimedia.com&gt;, copyright 2007 Mochi Media, Inc.
+%%      Original code was written by Bob Ippolito bob@mochimedia.com, copyright 2007 Mochi Media, Inc.
+%%      This version also has some modified includes from "struct.erl" originally written by BeeBole.
 %%
 %%      This version introduces more compact form instead of using 'obj' or 'struct'.
 
