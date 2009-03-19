@@ -8,6 +8,7 @@
 %%      This version also has some modified includes from "struct.erl" originally written by BeeBole.
 %%
 %%      This version introduces more compact form instead of using 'obj' or 'struct'.
+%%      Also this version uses utf8 encoding instead of \uXXXX. \uXXXX is converted to utf8
 
 -module(engejson).
 -author('losthost@narod.ru').
