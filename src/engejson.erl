@@ -248,8 +248,10 @@ json_encode_string_unicode([C | Cs], Acc) ->
                    [$r, $\\ | Acc];
                $\t ->
                    [$t, $\\ | Acc];
-               C when C >= 0, C < $\s; C >= 16#7f, C =< 16#10FFFF ->
+               C when C >= 0, C < $\s ->
                    [unihex(C) | Acc];
+               C when C >= 16#7f, C =< 16#10FFFF ->
+                   [xmerl_ucs:to_utf8(C) | Acc];
                C when C < 16#7f ->
                    [C | Acc];
                _ ->
