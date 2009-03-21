@@ -1,6 +1,18 @@
+%% @author Dmitry Chernyak <losthost@narod.ru>
+%% @copyright Copyleft 2009 
+
+%% @doc Document storage
+%%
+%% Uses CouchDB
+%%
+%% @type uid() = {username(), domain()}
+%% @type dbname() = binary(). Database name
+
 -module(docs).
 -compile(export_all).
 
+%% @spec userdb(uid()) -> dbname()
+%% @doc Forms a valid database name for user
 userdb({U, D}) ->
     list_to_binary(["user_", U, "_", D]).
 
@@ -106,3 +118,6 @@ reset_db(Db) ->
         {ok, _Id, _Rev} -> ok;
         {error, _Reason} -> error
     end.
+
+test() ->
+    ok.
