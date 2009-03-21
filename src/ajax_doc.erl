@@ -98,7 +98,7 @@ parse_view_response([Doc | T], Acc) ->
     
 search(_Struct, Session, _Req) ->
     #session{opaque = #authkey{user = Db}} = Session,
-    case docs:doc_get(Db, "_view/writings/all") of
+    case docs:doc_get(Db, "_design/writings/_view/all") of
         {ok, Response} ->
             Docs = parse_view_response(Response),
             {{ok, Docs}, []};
