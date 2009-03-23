@@ -11,7 +11,7 @@ compose_attachment([], Acc) ->
      {"_attachments", Acc};
 
 compose_attachment([{Name, CType, Data} | T], Acc) ->
-    Att = {Name, [{"content-type", list_to_binary(CType)},
+    Att = {Name, [{"content_type", list_to_binary(CType)},
                   {"data", Data}]},
     compose_attachment(T, [Att | Acc]).
 

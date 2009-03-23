@@ -90,8 +90,8 @@ compose_views([{Name, Map, Reduce} | T], Acc) ->
 
 % Db -> db(); map, reduce -> javascript()
 % MRList -> {name(), map(), reduce())
-create_view(Db, Name, MRList) ->
-    ViewName = "_design/" ++ Name,
+create_view(Db, Design, View, MRList) ->
+    ViewName = "_design/" ++ Design ++ "/_views/" ++ View,
     Views = compose_views(MRList),
     Obj = [{"_id", list_to_binary(ViewName)},
            {"language", <<"javascript">>},
@@ -114,7 +114,8 @@ attach_get(Db, Id) ->
 reset_db(Db) ->
     db_delete(Db),
     db_create(Db),
-    case create_view(Db,"writings",[{"all", "function(doc){ if(doc.type == 'writing') emit(null, doc) }", null}]) of
+    case create_view(Db,"listing", "writings",[{"all", "function(doc){ if(doc.type == 'writing') emit(null, doc) }", null}]) of
+
         {ok, _Id, _Rev} -> ok;
         {error, _Reason} -> error
     end.
