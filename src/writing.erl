@@ -96,7 +96,7 @@ put_attach(Id, Rev, Name) ->
 reset() ->
     ecouch:db_delete(?DB),
     ecouch:db_create(?DB),
-    case create_view(?DB,"listing", "writings",[{"all", "function(doc){ if(doc.type == 'writing') emit(null, doc) }", null}])
+    case create_view(?DB,"listing", "writings",[{"all", "function(doc){ if(doc.type == 'writing') emit(doc.author, doc) }", null}])
     of
         {ok, _Id, _Rev} -> ok;
         {error, _Reason} -> error
