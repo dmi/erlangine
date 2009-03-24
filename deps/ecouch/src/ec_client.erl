@@ -42,6 +42,7 @@
  %% macro definitions
  %%--------------------------------------------------------------------
  -define(SERVER, ?MODULE).
+ -define(BINARY, {body_format, binary}).
 
 %%====================================================================
 %% API
@@ -92,40 +93,38 @@ handle_call(_Request, _From, State) ->
 %% @end 
 %%--------------------------------------------------------------------
 handle_cast({Operation, Host, Port, From}, State) ->
-    case Operation of
+    Reply = case Operation of
         {get, Path, Options} ->
             QueryString = query_string(Options),
             Url = lists:flatten(io_lib:format("http://~s:~s~s~s", [Host, Port, Path, QueryString])),
-            Reply = http_g_request(Url),
-            gen_server:reply(From, Reply),
-            {stop, "Normal", State};
+            http_g_request(Url);
+        {bin, Path, Options} ->
+            QueryString = query_string(Options),
+            Url = lists:flatten(io_lib:format("http://~s:~s~s~s", [Host, Port, Path, QueryString])),
+            http_b_request(Url);
         {post, Path, Doc} ->
             Url = lists:flatten(io_lib:format("http://~s:~s~s", [Host, Port, Path])),
-            Reply = http_p_request(post, Url, Doc),
-            gen_server:reply(From, Reply),
-            {stop, "Normal", State};
+            http_p_request(post, Url, Doc);
         {post, Path, Doc, ContentType, Options} ->
             QueryString = query_string(Options),
             Url = lists:flatten(io_lib:format("http://~s:~s~s~s", [Host, Port, Path, QueryString])),
-            Reply = http_p_request(post, Url, Doc, ContentType),
-            gen_server:reply(From, Reply),
-            {stop, "Normal", State};
+            http_p_request(post, Url, Doc, ContentType);
         {put, Path, Doc} ->
             Url = lists:flatten(io_lib:format("http://~s:~s~s", [Host, Port, Path])),
-            Reply = http_p_request(put, Url, Doc),
-            gen_server:reply(From, Reply),
-            {stop, "Normal", State};
+            http_p_request(put, Url, Doc);
+        {put, Path, Doc, ContentType, Options} ->
+            QueryString = query_string(Options),
+            Url = lists:flatten(io_lib:format("http://~s:~s~s~s", [Host, Port, Path, QueryString])),
+            http_p_request(put, Url, Doc, ContentType);
         {delete, Path, Options} ->
             QueryString = query_string(Options),
             Url = lists:flatten(io_lib:format("http://~s:~s~s~s", [Host, Port, Path, QueryString])),
-            Reply = http_d_request(Url),
-            gen_server:reply(From, Reply),
-            {stop, "Normal", State};
+            http_d_request(Url);
         _Other ->
-            gen_server:reply(From, {error, "Bad operation"}),
-            {stop, "Normal", State}
+            {error, "Bad operation"}
     end,
-    {noreply, State}.
+    gen_server:reply(From, Reply),
+    {stop, "Normal", State}.
 
 %%--------------------------------------------------------------------
 %% @spec handle_info(Info, State) -> {noreply, State} |
@@ -160,6 +159,44 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%--------------------------------------------------------------------
 
+%% @spec handle_reply(reply(), check()) -> {ok, json()} | {fail, json()} | {error, reason()}
+%% @doc Internal function for handling json http:request.
+%% @type check() = string(). Status code to to distinguish between ok and fail states.
+handle_reply(Reply, Check) ->
+    case Reply of
+        {error, Reason} ->
+            {error, Reason};
+        {Status, _Headers, Body} ->
+            try engejson:decode(Body) of
+                Json ->
+                    case Status of
+                        Check -> {ok, Json};
+                        _ -> {fail, Json}
+                    end
+            catch
+                _Error:Reason -> {error, Reason}
+            end
+    end.
+
+%% @spec handle_reply_b(reply(), check()) -> {bin, binary()} | {fail, json()} | {error, reason()}
+%% @doc Internal function for handling binary http:request.
+%% @type check() = string(). Status code to to distinguish between ok and fail states.
+handle_reply_b(Reply, Check) ->
+    case Reply of
+        {error, Reason} ->
+            {error, Reason};
+        {Status, _Headers, Body} ->
+            case Status of
+                Check -> {bin, Body};
+                _ ->
+                    try engejson:decode(Body) of
+                        Json -> {fail, Json}
+                    catch
+                        _Error:Reason -> {error, Reason}
+                    end
+            end
+    end.
+
 query_string(Options) ->
     query_string(Options, "?", []).
 query_string([], _Separator, Acc) ->
@@ -171,25 +208,17 @@ query_string([{Name, Value} | T], Separator, Acc) ->
     query_string(T, "&", [O | Acc]).
 
 http_p_request(Method, Url, Body) ->
-    http_p_request(Method, Url, Body, "application/json").
+    Reply = http_p_request(Method, Url, Body, "application/json"),
+    handle_reply(Reply, 201).
 http_p_request(Method, Url, Doc, ContentType) ->
-    case http:request(Method, {Url, [], ContentType, list_to_binary(Doc)}, [], []) of
-        {ok, {_Status, _Header, Body}} ->            
-            Body;
-        {error, Reason} ->
-            {error, Reason}
-    end.
+    Reply = http:request(Method, {Url, [], ContentType, list_to_binary(Doc)}, [], [?BINARY]),
+    handle_reply(Reply, "201").
 http_g_request(Url) ->
-    case http:request(Url) of
-        {ok, {_Status, _Header, Body}} ->
-            Body;
-        {error, Reason} ->
-            {error, Reason}
-    end.
+    Reply = http:request(get, {Url, []}, [], [?BINARY]),
+    handle_reply(Reply, "200").
+http_b_request(Url) ->
+    Reply = http:request(get, {Url, []}, [], [?BINARY]),
+    handle_reply_b(Reply, "200").
 http_d_request(Url) ->
-    case http:request(delete, {Url, []}, [], []) of
-        {ok, {_Status, _Header, Body}} ->
-            Body;
-        {error, Reason} ->
-            {error, Reason}
-    end.
+    Reply = http:request(delete, {Url, []}, [], [?BINARY]),
+    handle_reply(Reply, "200").

@@ -37,6 +37,8 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
 
+-export([get/2, bin/2, put/2, put/4, post/2, post/4, delete/2]).
+
 -record(state, {host, port}).
 
 
@@ -56,6 +58,29 @@
 %%--------------------------------------------------------------------
 start_link(Host, Port) ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [Host, Port], []).
+
+%% @spec get(Paht, Options) -> {ok, Status, Result} | {error, Reason}
+get(Path, Options) ->
+    gen_server:call(ec_listener, {get, Path, Options}).
+
+bin(Path, Options) ->
+    gen_server:call(ec_listener, {bin, Path, Options}).
+
+put(Path, Doc) ->
+    gen_server:call(ec_listener, {put, Path, Doc}).
+
+put(Path, Doc, ContentType, Options) ->
+    gen_server:call(ec_listener, {put, Path, Doc, ContentType, Options}).
+
+post(Path, Doc) ->
+    gen_server:call(ec_listener, {post, Path, Doc}).
+
+post(Path, Doc, ContentType, Options) ->
+    gen_server:call(ec_listener, {post, Path, Doc, ContentType, Options}).
+
+delete(Path, Options) ->
+    gen_server:call(ec_listener, {delete, Path, Options}).
+
 
 %%====================================================================
 %% gen_server callbacks

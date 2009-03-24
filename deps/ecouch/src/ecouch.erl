@@ -34,6 +34,14 @@
 %% @end
 %% =====================================================================
 
+%%
+%% Modifiedd by Dmitry Chernyak
+%% Impovements: engejson, requests are binary because of engejson parsing,
+%% functions of ec_client are now wrapped,
+%% parsing reply is done by sub-processes themselves
+%% added attachment requests
+%%
+
 -module(ecouch).
 -author('Vitor Rodrigues').
 -author('Yoan Blanc').
@@ -60,6 +68,7 @@
         doc_get_all/1,
         doc_get_all/2,
         attach_get/2,
+        attach_put/5,
         view_create/2,
         view_update/3,
         view_delete/2,
@@ -179,8 +188,7 @@ db_create(DatabaseName) when is_binary(DatabaseName) ->
 
 db_create(DatabaseName) ->
     Path = lists:flatten(io_lib:format("/~s/", [DatabaseName])),
-    Reply = gen_server:call(ec_listener, {put, Path, []}),
-    handle_reply(Reply).
+    ec_listener:put(Path, []).
 
 %% @spec db_delete(DatabaseName::string()) -> ok | {error, Reason::term()}
 %%
@@ -191,8 +199,7 @@ db_delete(DatabaseName) when is_binary(DatabaseName) ->
 
 db_delete(DatabaseName) ->
     Path = lists:flatten(io_lib:format("/~s/", [DatabaseName])),
-    Reply = gen_server:call(ec_listener, {delete, Path, []}),
-    handle_reply(Reply).
+    ec_listener:delete(Path, []).
 
 %% @spec db_list() -> ok | {error, Reason::term()}
 %%
@@ -200,8 +207,7 @@ db_delete(DatabaseName) ->
     
 db_list() ->
     Path = "/_all_dbs",
-    Reply = gen_server:call(ec_listener, {get, Path, []}),
-    handle_reply(Reply).
+    ec_listener:get(Path, []).
 
 %% @spec db_info(DatabaseName::string()) -> {ok, Info::json()} | {error, Reason::term()}
 %%
@@ -217,8 +223,7 @@ db_list() ->
 
 db_info(DatabaseName) ->
     Path = lists:flatten(io_lib:format("/~s", [DatabaseName])),
-    Reply = gen_server:call(ec_listener, {get, Path, []}),
-    handle_reply(Reply).
+    ec_listener:get(Path, []).
 
 %% @spec doc_create(DatabaseName::string(), Doc::json()) -> {ok, Response::json()} | {error, Reason::term()}
 %%
@@ -228,8 +233,7 @@ doc_create(DatabaseName, Doc) ->
     DocJson = engejson:encode(Doc),
     io:format("doc_create json: ~p~n",[list_to_binary(DocJson)]),
     Path = lists:flatten(io_lib:format("/~s/", [DatabaseName])),
-    Reply = gen_server:call(ec_listener, {post, Path, DocJson}),
-    handle_reply(Reply).
+    ec_listener:post(Path, DocJson).
 
 %% @spec doc_create(DatabaseName::string(), DocName::string(), Doc::json()) -> {ok, Response::json()} | {error, Reason::term()}
 %%
@@ -238,8 +242,7 @@ doc_create(DatabaseName, Doc) ->
 doc_create(DatabaseName, DocName, Doc) ->
     JsonDoc = engejson:encode(Doc),
     Path = lists:flatten(io_lib:format("/~s/~s", [DatabaseName, DocName])),
-    Reply = gen_server:call(ec_listener, {put, Path, JsonDoc}),
-    handle_reply(Reply).
+    ec_listener:put(Path, JsonDoc).
 
 %% @spec doc_bulk_create(DatabaseName::string(), DocList) -> {ok, Response::json()} | {error, Reason::term()}
 %%     DocList = [json()]
@@ -249,8 +252,7 @@ doc_create(DatabaseName, DocName, Doc) ->
 doc_bulk_create(DatabaseName, DocList) ->
     BulkDoc = engejson:encode([{"docs", DocList}]),
     Path = lists:flatten(io_lib:format("/~s/~s", [DatabaseName, "_bulk_docs"])),
-    Reply = gen_server:call(ec_listener, {post, Path, BulkDoc}),
-    handle_reply(Reply).
+    ec_listener:post(Path, BulkDoc).
     
 %% @spec doc_update(DatabaseName::string(), DocName::string(), Doc::json()) -> {ok, Response::json()} | {error, Reason::term()}
 %%
@@ -273,8 +275,7 @@ doc_bulk_update(DatabaseName, DocListRev) ->
 
 doc_delete(DatabaseName, DocName, Rev) ->
     Path = lists:flatten(io_lib:format("/~s/~s", [DatabaseName, DocName])),
-    Reply = gen_server:call(ec_listener, {delete, Path, [{"rev", Rev}]}),
-    handle_reply(Reply).
+    ec_listener:delete(Path, [{"rev", Rev}]).
 
 %% @spec doc_get(DatabaseName::string(), DocName::string) -> {ok, Response::json()} | {error, Reason::term()}
 %%
@@ -289,25 +290,23 @@ doc_get(DatabaseName, DocName) ->
 
 doc_get(DatabaseName, DocName, Options) ->
     Path = lists:flatten(io_lib:format("/~s/~s", [DatabaseName, DocName])),
-    Reply = gen_server:call(ec_listener, {get, Path, Options}),
-    handle_reply(Reply).
+    ec_listener:get(Path, Options).
 
-%% @spec attach_get(DatabaseName::string(), DocName::string()) -> {ok, Response::binary()} | {error, Reason::term()}
+%% @spec attach_get(DatabaseName::string(), DocName::string()) -> {bin, Response::binary()} | {error, Reason::term()}
 %%
 %% @doc Get binary attach
 
-% TODO this all is ugly and ineffective. must be fixed
 attach_get(DatabaseName, DocName) ->
     Path = lists:flatten(io_lib:format("/~s/~s", [DatabaseName, DocName])),
-    Reply = gen_server:call(ec_listener, {get, Path, []}),
-    case Reply of
-        {error, Reason} -> {error, Reason};
-        Reply ->
-	    case handle_reply(Reply) of
-		{ok, Json} -> {error, Json};
-		{error, _Reason} -> {ok, list_to_binary(Reply)}
-            end
-    end.
+    ec_listener:bin(Path, []).
+
+%% @spec attach_put(DatabaseName::string(), DocName::string(), Rev::string(), ContentType::string(), Data::binary()) -> {ok, Response::json()} | {error, Reason::term()}
+%%
+%% @doc Get binary attach
+
+attach_put(DatabaseName, DocName, Rev, ContentType, Data) ->
+    Path = lists:flatten(io_lib:format("/~s/~s", [DatabaseName, DocName])),
+    ec_listener:put(Path, Data, ContentType, [{"rev", Rev}]).
 
 %% @spec doc_get_all(DatabaseName::string()) -> {ok, Response::json()} | {error, Reason::term()}
 %%
@@ -322,8 +321,7 @@ doc_get_all(DatabaseName) ->
 
 doc_get_all(DatabaseName, Options) ->
     Path = lists:flatten(io_lib:format("/~s/_all_docs", [DatabaseName])),
-    Reply = gen_server:call(ec_listener, {get, Path, Options}),
-    handle_reply(Reply).
+    ec_listener:get(Path, Options).
 
 %% @hidden
 
@@ -364,8 +362,7 @@ view_adhoc(DatabaseName, Fun) ->
 
 view_adhoc(DatabaseName, Fun, Options) ->
     Path = lists:flatten(io_lib:format("/~s/_temp_view", [DatabaseName])),
-    Reply = gen_server:call(ec_listener, {post, Path, Fun, "text/javascript", Options}),
-    handle_reply(Reply).
+    ec_listener:post(Path, Fun, "text/javascript", Options).
 
 %% @hidden
 
@@ -376,24 +373,11 @@ view_access(DatabaseName, DesignName, ViewName) ->
 
 view_access(DatabaseName, DesignName, ViewName, Options) ->
     Path = lists:flatten(io_lib:format("/~s/_view/~s/~s", [DatabaseName, DesignName, ViewName])),
-    Reply = gen_server:call(ec_listener, {get, Path, Options}),
-    handle_reply(Reply).
+    ec_listener:get(Path, Options).
 
 %%====================================================================
 %% Internal functions
 %%====================================================================
-
-handle_reply(Reply) ->
-    case Reply of
-        {error, Reason} ->
-            {error, Reason};
-        R ->
-              try engejson:decode(R) of
-                  Json -> {ok, Json}
-              catch
-                  _Error:Reason -> {error, Reason}
-              end
-    end.
 
 get_app_opt(Opt, Default) ->
     Value = case application:get_application() of
