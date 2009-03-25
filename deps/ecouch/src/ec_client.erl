@@ -166,7 +166,7 @@ handle_reply(Reply, Check) ->
     case Reply of
         {error, Reason} ->
             {error, Reason};
-        {Status, _Headers, Body} ->
+        {ok, {{_, Status, _}, _Headers, Body}} ->
             try engejson:decode(Body) of
                 Json ->
                     case Status of
@@ -174,7 +174,8 @@ handle_reply(Reply, Check) ->
                         _ -> {fail, Json}
                     end
             catch
-                _Error:Reason -> {error, Reason}
+                _Error:Reason ->
+                    {error, Reason}
             end
     end.
 
@@ -185,7 +186,7 @@ handle_reply_b(Reply, Check) ->
     case Reply of
         {error, Reason} ->
             {error, Reason};
-        {Status, _Headers, Body} ->
+        {ok, {{_, Status, _}, _Headers, Body}} ->
             case Status of
                 Check -> {bin, Body};
                 _ ->
@@ -208,17 +209,16 @@ query_string([{Name, Value} | T], Separator, Acc) ->
     query_string(T, "&", [O | Acc]).
 
 http_p_request(Method, Url, Body) ->
-    Reply = http_p_request(Method, Url, Body, "application/json"),
-    handle_reply(Reply, 201).
+    http_p_request(Method, Url, Body, "application/json").
 http_p_request(Method, Url, Doc, ContentType) ->
     Reply = http:request(Method, {Url, [], ContentType, list_to_binary(Doc)}, [], [?BINARY]),
-    handle_reply(Reply, "201").
+    handle_reply(Reply, 201).
 http_g_request(Url) ->
     Reply = http:request(get, {Url, []}, [], [?BINARY]),
-    handle_reply(Reply, "200").
+    handle_reply(Reply, 200).
 http_b_request(Url) ->
     Reply = http:request(get, {Url, []}, [], [?BINARY]),
-    handle_reply_b(Reply, "200").
+    handle_reply_b(Reply, 200).
 http_d_request(Url) ->
     Reply = http:request(delete, {Url, []}, [], [?BINARY]),
-    handle_reply(Reply, "200").
+    handle_reply(Reply, 200).
