@@ -40,7 +40,7 @@ test_database_creation(_Config) ->
     {ok, _} = test_helper:delete("ecouch_db_example_test"),
     
     % Now test.
-    ?line {ok, {obj, [{"ok", true}]}} = ecouch:db_create("ecouch_db_example_test"),
+    ?line {ok, [{<<"ok">>, true}]} = ecouch:db_create("ecouch_db_example_test"),
     ?line {ok, {{_,200,_}, _,_}} = http:request(delete, {"http://127.0.0.1:5984/ecouch_db_example_test", []}, [], []),
     ok.
 
@@ -48,7 +48,7 @@ test_database_deletion() ->
     [{userdata, {doc, "Deleting an existing database."}}].
 test_database_deletion(_Config) ->
     {ok,{{_, 200, _}, _, _}} = test_helper:get("ecouch_ct_test"),
-    ?line {ok, {obj, [{"ok", true}]}} = ecouch:db_delete("ecouch_ct_test"),
+    ?line {ok, [{<<"ok">>, true}]} = ecouch:db_delete("ecouch_ct_test"),
     {ok,{{_, 404, _}, _, _}} = test_helper:get("ecouch_ct_test"),
     ok.
 

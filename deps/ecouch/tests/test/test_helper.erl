@@ -30,7 +30,7 @@ put(DatabaseName, DocId, Body) ->
     put(DatabaseName, DocId, [], Body).
 put(DatabaseName, DocId, Parameters, Body) ->
     Url = make_url(DatabaseName, DocId, Parameters),
-    http:request(put, {Url, [], "application/javascript", Body}, [], []).
+    http:request(put, {Url, [], "application/javascript", list_to_binary(Body)}, [], []).
 
 delete(DatabaseName) ->
     delete(DatabaseName, "", []).
