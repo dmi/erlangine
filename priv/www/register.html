@@ -1,3 +1,4 @@
+<div><h3>Register account</h3></div>
 <div><label for=regName>Full Name</label></div>
 <div><input id=regName type=text /></div>
 <div><label for=regLogin>Login</label></div>
@@ -45,7 +46,7 @@ function closeRegister(){
 };
 
 function cbRegistered(json){
-    alert("Log in now!");
+    statusM("Log in now!");
     $('regPassword').value = "";
     $('regPassword2').value = "";
     $('loginName').value = $('regLogin').value;
@@ -54,7 +55,7 @@ function cbRegistered(json){
 }
 
 function cbNotRegistered(json){
-    alert(JSON.stringify(json));
+    statusM(json.reply);
 }
 
 function cbPrepare(json){

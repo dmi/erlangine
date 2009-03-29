@@ -76,6 +76,7 @@ function pageLoadFunction(){
     insert('loggedContainer', "/logged.html");
     insert('loginContainer', "/login.html");
     insert('registerContainer', "/register.html");
+    insert('recoverContainer', "/pwreco.html");
     insert('activTabs', "/tabs.html");
     insert('docSelector', "/selector.html");
     insert('docView', "/view.html");
@@ -134,12 +135,13 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 	    </div>
 	    <div id=loginContainer></div>
 	    <div id=registerContainer></div>
+	    <div id=recoverContainer></div>
 	    <div class=thirdPart>
 		<div class=welcomeText>
 		    <p align=center>Инструкция</p>
 		    <p>
 			<ul>
-			<li>Зарегистрируйтесь (какой-то e-mail обязателен, но не используется)</li>
+			<li>Зарегистрируйтесь</li>
 			<li>Введите логин и пароль в форме авторизации</li>
 			<li>Внутри интерфейса:
 			    <ul>

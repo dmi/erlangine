@@ -1,0 +1,66 @@
+<div><h3>Password recovery</h3></div>
+<div><label for=recoLogin>Login</label></div>
+<div><input id=recoLogin type=text /></div>
+<div><label for=recoDomain>Domain</label></div>
+<div><select id=recoDomain></select></div>
+<div><label for=recoMail>E-Mail</label></div>
+<div><input id=recoMail type=text /></div>
+<div><div id=recoCaptchaImg></div></div>
+<div><label for=recoCaptcha>Enter verification code</label></div>
+<div><input id=recoCaptcha type=text /></div>
+<div><input id=recoCaptchaLink type=hidden /></div>
+<div class=centerWrapper>
+    <a id=recoverButton class=gbutton>Recover</a>
+    <a id=closeRecover class=button>Cancel</a>
+</div>
+
+<script>
+
+function recoverAccount(){
+    var json = {
+	    "module": "pwreco",
+	    "action": "recover",
+	    "data": {
+		"uid": $('recoLogin').value,
+		"domain": $('recoDomain').value,
+		"email": $('recoMail').value,
+		"captchalink": $('recoCaptchaLink').value,
+		"captchacode": $('recoCaptcha').value
+	    }
+    }
+    ajax(json, "/enge");
+}; 
+
+function closeRecover(){
+    hideElement('recoverContainer');
+    showElement('loginContainer');
+};
+
+function cbRecovered(json){
+    statusM("Password has been sent to your e-mail account");
+    $('recoMail').value = "";
+    $('loginName').value = $('recoLogin').value;
+    $('domainName').value = $('recoDomain').value;
+    closeRecover();
+}
+
+function cbNotRecovered(json){
+    statusM(json.reply);
+}
+
+function cbPrepare(json){
+    log("cbCaptcha: " + json.reply.captcha);
+    $('recoCaptchaImg').innerHTML = '<img src="'+ json.reply.captcha + '"/>';
+    $('recoCaptcha').value = "";
+    $('recoCaptchaLink').value = json.reply.captcha;
+    appendChildNodes('recoDomain', map(function(Name){return OPTION({'value': Name}, Name)},
+                                       json.reply.domains));
+}
+
+connect('closeRecover', 'onclick', closeRecover);
+connect('recoverButton', 'onclick', recoverAccount);
+
+connect(xapi, 'pwreco:prepare-ok', cbPrepare);
+connect(xapi, 'pwreco:recover-ok', cbRecovered);
+connect(xapi, 'pwreco:recover-fail', cbNotRecovered);
+</script>

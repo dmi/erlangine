@@ -1,4 +1,4 @@
--module(ajax_register).
+-module(ajax_pwreco).
 -compile(export_all).
 -include("session.hrl").
 -include("authkey.hrl").
@@ -6,13 +6,12 @@
 
 % XXX no username check because no unicode here.
 % whole method is ugly but quick. Welcome to improve ;-)
-account(Struct, _Session, _Req) ->
-    [N, U, D, P, P2, M, CL, CC] =
-        engejson:get_values(["name", "uid", "domain", "password", "repeat",
+recover(Struct, _Session, _Req) ->
+    [U, D, M, CL, CC] =
+        engejson:get_values(["uid", "domain",
                              "email", "captchalink", "captchacode"],
                             Struct),
 
-    LL = length(binary_to_list(P)),
     SessionTest = case session:get_session({captcha, CL}, -1) of
         {error, expired} -> "Verification code expired";
         {error, nosession} -> "Bad verification code";
@@ -27,45 +26,30 @@ account(Struct, _Session, _Req) ->
             "Internal error 1";
         {match, _MStart, _MLength} -> ok
     end,
-    UidTest = case regexp:match(binary_to_list(U), "^[a-zA-Z][a-zA-Z0-9_.@ ]+$") of
-        nomatch -> "Uid is incorrect";
-        {error, ReasonU} ->
-            io:format("uid match error: ~p~n",[ReasonU]),
-            "Internal error 2";
-        {match, _UStart, _ULength} -> ok
-    end,
-    DomainTest = case lists:member(D, enge2_conf:option(domains)) of
-        true -> ok;
-        false -> "Domain not allowed"
-    end,
     Test = if
         SessionTest /= ok -> SessionTest;
         EMailTest /= ok -> EMailTest;
-        UidTest /= ok -> UidTest;
-        DomainTest /= ok -> DomainTest;
-        LL < 4 -> "Pasword is too short";
-        P /= P2 -> "Paswords not match";
         true -> ok
     end,
 
-    io:format("reg tests: ~p~n", [Test]),
+    io:format("reco tests: ~p~n", [Test]),
     case Test of
         ok -> 
-            case authdb:new({U, D}, [{passw, P}], #authop{realm = user, name = N, recovery = {email, M}}) of
-                ok ->
-                    case docs:reset_db({U, D}) of
-                        ok -> 
+            case authdb:account({U, D}) of
+                {account, Tokens, #authop{recovery = {email, M}}} ->
+                    case lists:keysearch(passw, 1, Tokens) of
+                        {value, {passw, Password}} ->
+                            % XXX Password should be emailed to M here
                             {{ok, []}, []};
-                        error ->
-                            {{fail, <<"Db create failed">>}, []}
+                        false ->
+                            {{fail, <<"No password token for account">>}, []}
                     end;
 
-                {error, exists} ->
-                    {{fail, <<"Account already exists">>}, []};
+                {account, _, _} ->
+                    {{fail, <<"E-mail mismatch for account">>}, []};
 
-                Reason ->
-                    io:format("authdb error when new: ~p~n",[Reason]),
-                    {{fail, <<"Internal error 2">>}, []}
+                {error, notfound} ->
+                    {{fail, <<"Account not found">>}, []}
             end;
 
         Error ->

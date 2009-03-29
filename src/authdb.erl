@@ -21,7 +21,7 @@
          terminate/2, code_change/3]).
 
 -export([start/0, stop/0,
-         new/3, update/3, remove/1, auth/2, accounts/0,
+         new/3, update/3, remove/1, auth/2, account/1, accounts/0,
          reset/0, upgrade/0]).
 
 -include_lib("stdlib/include/qlc.hrl").
@@ -88,6 +88,17 @@ auth(Uid, Token = {passw, _Passw}) ->
                     true -> {ok, Opaque};
                     _ -> {error, notfound}
                 end
+        end
+    end,
+    tr(F).
+
+%% @spec account(Uid) -> {account, tokens(), opaque()} | {error, notfound}
+%% @doc Get account
+account(Uid) ->
+    F = fun() ->
+        case mnesia:read({authdb, Uid}) of
+            [] -> {error, notfound};
+            [#authdb{tokens = T, opaque = O}] -> {account, T, O}
         end
     end,
     tr(F).
