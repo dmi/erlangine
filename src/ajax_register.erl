@@ -34,7 +34,7 @@ account(Struct, _Session, _Req) ->
             "Internal error 2";
         {match, _UStart, _ULength} -> ok
     end,
-    DomainTest = case lists:member(D, [<<"localhost">>]) of
+    DomainTest = case lists:member(D, enge2_conf:option(domains)) of
         true -> ok;
         false -> "Domain not allowed"
     end,
@@ -76,4 +76,4 @@ account(Struct, _Session, _Req) ->
 prepare(_Struct, _Session, _Req) ->
     {Link, Code} = captchas:make_href("demo", "secret", 200), % possible to retrieve size from request
     session:new_session({captcha, Link}, ?CAPTCHA_TIMEOUT, Code),
-    {{ok, [{"captcha", Link}, {"domains", [<<"localhost">>]}]}, []}.
+    {{ok, [{"captcha", Link}, {"domains", enge2_conf:option(domains)}]}, []}.
