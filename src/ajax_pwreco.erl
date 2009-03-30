@@ -39,8 +39,23 @@ recover(Struct, _Session, _Req) ->
                 {account, Tokens, #authop{recovery = {email, M}}} ->
                     case lists:keysearch(passw, 1, Tokens) of
                         {value, {passw, Password}} ->
-                            % XXX Password should be emailed to M here
-                            {{ok, []}, []};
+                            File = case enge2_conf:option(pwreco_file) of
+                                undefined -> "conf/pwreco.txt";
+                                File1 -> File1
+                            end,
+                            {ok, Template} = file:read_file(File),
+                            case enge2_mail:send(M,
+                                                 enge2_conf:option(pwreco_subj),
+                                                 [Template, "\n", Password])
+                            of
+                                ok -> {{ok, []}, []};
+                                {error, Reason} ->
+                                    io:format("mail error: ~p~n", [Reason]),
+                                    {{fail, "Error sending mail"}, []};
+                                Any ->
+                                    io:format("mail error: ~p~n", [Any]),
+                                    {{fail, "Error 2 sending mail"}, []}
+                            end;
                         false ->
                             {{fail, <<"No password token for account">>}, []}
                     end;

@@ -1,0 +1,12 @@
+{name, "smtp_client"}.
+{vsn, {1,1}}.
+{summary, "Simple SMTP client using gen_fsm behaviour"}.
+{author, "Michael Bradford", "michael.bradford@t-mobile.uk.net",
+ "20040108"}.
+{keywords, ["smtp", "client", "gen_fsm"]}.
+{needs, []}.
+{abstract,"A simple SMTP client using gen_fsm behaviour. Supports basic SMTP & ESMTP commands, including MD5, plain & login authentication.
+
+This version fixes a minor bug in v1.0 (see source code for details).
+ 
+Also included is email_msg.erl. This very simple module builds a plain text email suitable for sending via the smtp client."}.

@@ -27,7 +27,7 @@ init() ->
     DbData = lists:map(fun({K, V}) -> #config{option = K, value = V} end,
                        Terms),
     F = fun() ->
-			lists:foreach(fun mnesia:write/1, DbData)
+            lists:foreach(fun mnesia:write/1, DbData)
         end,
     tr(F).
 
