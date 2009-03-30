@@ -126,6 +126,12 @@ textarea
    margin: 0.5em;
    float: right;
 }
+#loginContainer  #openRecover
+{
+   font-size: 0.9em;
+   float: right;
+   margin-right: 20px;
+}
 #loginContainer input[type=text], #loginContainer input[type=password], select
 {
    border: solid 1px #202020;
@@ -164,6 +170,36 @@ textarea
    float:left;
 }
 #registerContainer #closeRegister
+{
+   margin: 0.5em;
+   float: right;
+}
+
+#recoverContainer
+{
+   margin-top: 1em;
+   padding: 0.5em;
+   width: 30%;
+   font-family: sans-serif;
+   text-align: center;
+   float: left;
+   display: none;
+}
+#recoverContainer input[type=text], #recoverContainer input[type=password], select
+{
+   border: solid 1px #202020;
+   width: 200px;
+}
+#recoverContainer img
+{
+   padding-top: 5px;
+}
+#recoverContainer #recoverButton
+{
+   margin: 0.5em;
+   float:left;
+}
+#recoverContainer #closeRecover
 {
    margin: 0.5em;
    float: right;

@@ -23,6 +23,7 @@ start() ->
     ensure_started(mnesia),
     ensure_started(inets),
     ensure_started(ecouch),
+    enge2_conf:init(),
     application:start(enge2).
 
 %% @spec stop() -> ok

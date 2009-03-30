@@ -7,8 +7,8 @@
 <div class=centerWrapper>
     <a id=loginButton class=gbutton>Login</a>
     <a id=openRegister class=button>Register now!</a>
+    <a id=openRecover class=hint>Lost password</a>
 </div>
-<!--a class=button href=# onclick="this.blur();"><span>Register now!</span></a-->
 
 <script>
 function requestDomains(){
@@ -47,6 +47,17 @@ function openRegister(){
     ajax(json, "/enge");
 };
 
+function openRecover(){
+    $('recoCaptchaImg').innerHTML = '';
+    hideElement('loginContainer');
+    showElement('recoverContainer');
+    var json = {
+	"module": "pwreco",
+	"action": "prepare"
+    }
+    ajax(json, "/enge");
+};
+
 function cbNotLoggedIn(json){
     alert(JSON.stringify(json));
 }
@@ -59,6 +70,7 @@ function cbSetDomains(json){
 connect('loginButton', 'onclick', logIn);
 connect('loginPassword', 'onkeydown', logInFromPassw);
 connect('openRegister', 'onclick', openRegister);
+connect('openRecover', 'onclick', openRecover);
 
 connect(xapi, 'login:login-ok', cbLoggedIn);
 connect(xapi, 'login:login-fail', cbNotLoggedIn);

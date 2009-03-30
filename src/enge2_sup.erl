@@ -41,10 +41,13 @@ upgrade() ->
 %% @spec init([]) -> SupervisorTree
 %% @doc supervisor callback.
 init([]) ->
-    Ip = case os:getenv("MOCHIWEB_IP") of false -> "0.0.0.0"; Any -> Any end,   
+    Ip = case enge2_conf:option(ip) of false -> "0.0.0.0"; Any -> Any end,   
     WebConfig = [
          {ip, Ip},
-                 {port, 8080},
+                 {port, case enge2_conf:option(port) of
+                            undefined -> 8080;
+                            Port -> Port
+                        end},
                  {docroot, enge2_deps:local_path(["priv", "www"])}],
 
     Web = {enge2_web,

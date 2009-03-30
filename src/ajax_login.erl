@@ -36,4 +36,4 @@ check(_Struct, Session, _Req) ->
     end.
 
 domains(_Struct, _Session, _Req) ->
-    {{ok, [<<"localhost">>]}, []}.
+    {{ok, enge2_conf:option(domains)}, []}.
