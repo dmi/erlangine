@@ -10,6 +10,7 @@
 -export([init/0, option/1, option/2]).
 
 -define(CONFIG_PATH, "conf/enge2.cfg").
+-define(CONFIG_LOCAL, "conf/enge2.local").
 
 -record(config, {option, value}).
 
@@ -23,13 +24,20 @@ init() ->
     mnesia:delete_table(config),
     mnesia:create_table(config, [{attributes, record_info(fields, config)},
                                  {disc_copies, [node()]}]),
-    {ok, Terms} = file:consult(?CONFIG_PATH),
-    DbData = lists:map(fun({K, V}) -> #config{option = K, value = V} end,
-                       Terms),
-    F = fun() ->
-            lists:foreach(fun mnesia:write/1, DbData)
-        end,
-    tr(F).
+    read_config(?CONFIG_PATH),
+    read_config(?CONFIG_LOCAL).
+
+read_config(File) ->
+    case file:consult(File) of
+        {ok, Terms} ->
+            DbData = lists:map(fun({K, V}) -> #config{option = K, value = V} end,
+                               Terms),
+            F = fun() ->
+                    lists:foreach(fun mnesia:write/1, DbData)
+                end,
+            tr(F);
+        _ -> ok
+    end.
 
 %% @spec option(option()) -> value()
 option(Option) ->
