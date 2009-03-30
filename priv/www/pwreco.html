@@ -33,6 +33,9 @@ function recoverAccount(){
 
 function closeRecover(){
     hideElement('recoverContainer');
+    $('recoCaptchaImg').innerHTML = "";
+    $('recoCaptcha').value = "";
+    $('recoCaptchaLink').value = "";
     showElement('loginContainer');
 };
 

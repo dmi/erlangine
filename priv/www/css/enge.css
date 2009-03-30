@@ -159,6 +159,7 @@ textarea
 {
    border: solid 1px #202020;
    width: 200px;
+   text-align: center;
 }
 #registerContainer img
 {
@@ -189,6 +190,7 @@ textarea
 {
    border: solid 1px #202020;
    width: 200px;
+   text-align: center;
 }
 #recoverContainer img
 {
