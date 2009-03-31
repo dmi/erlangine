@@ -18,14 +18,14 @@ function cbResult(XHR){
 function cbError(result){
 	log("Ajax Error: " + result.number);
 	if(result.number == "403"){
-	    alert("Session has expired! Login again please.");
+	    statusM("Session has expired! Login again please.");
 	    logOut();
         }else if(result.number == "404"){
-	    alert("This function is not available (possible You have to log in?)");
+	    statusM("This function is not available (possible You have to log in?)");
         }else if(result.number == "500"){
-	    alert("Unexpected error occured while processing request");
+	    statusM("Unexpected error occured while processing request");
         }else if(result.number == "501"){
-	    alert("Function not implemented");
+	    statusM("Function not implemented");
 	}
 }
 
@@ -86,4 +86,8 @@ function cbInsertError(result){
 
 function rand(upper){
 	return Math.floor(Math.random()*upper) + 50
+}
+
+statusM = function(str){
+    alert(str)
 }

@@ -54,7 +54,7 @@ function doTest(){
     //insert('statusMsg', '/hello.html');
 }
 
-function statusM(str){
+statusM = function(str){
     $('statusMsg').innerHTML = str
 }
 
@@ -62,6 +62,7 @@ function statusM(str){
 
 TabsList = [{'id': "docNavigator", 'name': "Navigator"},
             {'id': "docEditor", 'name': "Document Editor"},
+            {'id': "entEditor", 'name': "Entry Editor"},
 	    {'id': "destinations", 'name': "Destinations"}];
 
 function pageLoadFunction(){
@@ -81,6 +82,7 @@ function pageLoadFunction(){
     insert('docSelector', "/selector.html");
     insert('docView', "/view.html");
     insert('docEditor', "/editor.html");
+    insert('entEditor', "/entry.html");
     insert('destinations', "/dests.html");
     
     // on-click handlers
@@ -164,6 +166,8 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 	    </div>
 
 	    <div id=docEditor></div>
+
+	    <div id=entEditor></div>
 
 	    <div id=destinations></div>
 	</div>

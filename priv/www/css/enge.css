@@ -7,27 +7,21 @@ body{
     width: 100%;
     height: 100%;
     position: relative;
-    font-size: 8pt;
+    /*font-size: 8pt;*/
+    font-size: 11px;
     font-family: sans-serif;
 }
-
 label
 {
    color:#707070;
 }     
-input[type=text], input[type=password], select
+input[type=text], input[type=password], textarea, select
 {
-   font-size: 1.2em;
    border: solid 1px #202020;
    width: 150px;
    background-color: #fcfcc0;
-}
-textarea
-{
-   font-size: 1.2em;
-   border: solid 1px #202020;
-   width: 150px;
-   background-color: #fcfcc0;
+   font-size: 1em;
+   margin: 3px;
 }
 .label
 {
@@ -72,8 +66,13 @@ textarea
 .hint
 {
    color: blue;
+   font-size: 1em;
 }
-
+.rhint
+{
+   color: red;
+   font-size: 1em;
+}
 #headLine
 {
    border-bottom: 2px solid #d0d0d0;
@@ -128,15 +127,9 @@ textarea
 }
 #loginContainer  #openRecover
 {
-   font-size: 0.9em;
+   font-size: 1em;
    float: right;
    margin-right: 20px;
-}
-#loginContainer input[type=text], #loginContainer input[type=password], select
-{
-   border: solid 1px #202020;
-   width: 200px;
-   text-align: center;
 }
 
 .centerWrapper {
@@ -154,12 +147,6 @@ textarea
    text-align: center;
    float: left;
    display: none;
-}
-#registerContainer input[type=text], #registerContainer input[type=password], select
-{
-   border: solid 1px #202020;
-   width: 200px;
-   text-align: center;
 }
 #registerContainer img
 {
@@ -186,12 +173,6 @@ textarea
    float: left;
    display: none;
 }
-#recoverContainer input[type=text], #recoverContainer input[type=password], select
-{
-   border: solid 1px #202020;
-   width: 200px;
-   text-align: center;
-}
 #recoverContainer img
 {
    padding-top: 5px;
@@ -211,23 +192,18 @@ textarea
 {
    padding: 5px;
 }
-#pageContent input, #pageContent textarea, #pageContent select
-{
-   margin: 3px;
-}
 
-#welcomePage
+#welcomePage input, #welcomePage input[type=password], #welcomePage textarea, #welcomePage select
 {
+   font-size: 1.2em;
+   margin: 3px;
+   width: 200px;
+   text-align: center;
 }
 .welcomeText
 {
    font-size: 1.1em;
    padding: 1em;
-}
-
-#docNavigator, #docEditor, #destinations
-{
-   display:none;
 }
 
 #docTitle
@@ -253,8 +229,9 @@ textarea
 {
    margin-top: 1em;
 }
-#docNavigator, #docEditor
+#docNavigator, #docEditor, #entEditor, #destinations
 {
+   display:none;
 }
 
 #docSelector
@@ -274,13 +251,16 @@ textarea
 
 #docSelect
 {
-   background: #707070;
    width: 100%;
+   border-collapse: collapse;
 }
-
-#docSelect td, th
+#docSelect th
 {
    background: #e7e7e7;
+}
+#docSelect td, #docSelect th
+{
+   border: solid 1px #d0d0d0;
 }
 
 #docSave
@@ -299,7 +279,7 @@ textarea
    float: left;
 }
 
-.docSearchResultRow:hover, .tab:hover, .hint:hover
+.docSearchResultRow:hover, .tab:hover, .hint:hover, .rhint:hover
 {
    cursor: pointer;
 }
@@ -364,7 +344,7 @@ textarea
 }
 #destNewName
 {
-   font-size: 0.9em;
+   font-size: 1em;
 }
 #destAnno
 {
@@ -380,9 +360,40 @@ textarea
    clear: left;
 }
 
-#statusMsg{
+#statusMsg
+{
    background-color: #FFFBCC;
    border: solid 1px #E6DB55;
    padding: 3px;
    margin: 3px;
+}
+
+.proplist
+{
+   width: 70%;
+   border-collapse: collapse;
+}
+.proplist th
+{
+   background: #e7e7e7;
+}
+.proplist td, .proplist th
+{
+   border: solid 1px #d0d0d0;
+   padding: 3px;
+}
+.propname
+{
+   font-weight: bold;
+   width: 20%;
+}
+.proptype
+{
+   width: 10%;
+}
+#entPropsMand input, #entPropsOpt input
+{
+   border: inset 1px #f0f0f0;
+   background-color: #fdfdd0;
+   width: 98%;
 }

@@ -158,9 +158,9 @@ function initRootDests(){
 doSearchDest = function(){
     initRootDests();
     var json = {
-    "module": "dest",
-    "action": "destinations",
-    "data": rootDestList()
+        "module": "dest",
+        "action": "destinations",
+        "data": rootDestList()
     }
     ajax(json, "/enge");
 }
