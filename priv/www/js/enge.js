@@ -91,3 +91,10 @@ function rand(upper){
 statusM = function(str){
     alert(str)
 }
+
+function quote(str){
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+}
+function dequote(str){
+    return str.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&amp;/g,'&')
+}

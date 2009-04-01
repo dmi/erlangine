@@ -368,32 +368,43 @@ input[type=text], input[type=password], textarea, select
    margin: 3px;
 }
 
-.proplist
+.fieldlist
 {
-   width: 70%;
+   width: 99%;
+   margin: 1px;
    border-collapse: collapse;
 }
-.proplist th
+.fieldlist th
 {
    background: #e7e7e7;
 }
-.proplist td, .proplist th
+.fieldlist td, .fieldlist th
 {
    border: solid 1px #d0d0d0;
    padding: 3px;
 }
-.propname
+.fieldname
 {
    font-weight: bold;
    width: 20%;
 }
-.proptype
+.fieldtype
 {
    width: 10%;
 }
-#entPropsMand input, #entPropsOpt input
+.fieldvalue
+{
+   color: #339933;
+}
+#entFieldsMand input, #entFieldsOpt input
 {
    border: inset 1px #f0f0f0;
    background-color: #fdfdd0;
-   width: 98%;
+   width: 99%;
+}
+.fieldlistscroll
+{
+   width: 70%;
+   height: 30em;
+   overflow: auto;
 }
