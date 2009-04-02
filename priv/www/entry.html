@@ -1,0 +1,158 @@
+<div class=toolbar>
+    <a id=entSave class=gbutton>Save</a>
+</div>
+<div id=entInfo>
+    <input id=entId type=hidden />
+    <input id=entRev type=hidden />
+    <label for=entType>Entry Type</label>
+    <select id=entType></select>;
+    <label for=entOptField>Add field</label>
+    <select id=entOptField></select> <!-- type for new fielderty -->
+    <label for=entOptType>of type</label>
+    <span id=entOptType></span>
+    <!--select id=entFieldType></select--> <!-- type for new fielderty -->
+    <a id=entFieldAdd class=rhint title="Add ptional field">+</a>
+    <div class=fieldlistscroll>
+        <h4>Mandatory fields</h4>
+        <table class=fieldlist cellspacing=0> <!-- mandatory fields, types are reserved -->
+            <thead><tr><th class=fieldname>Field</th><th class=fieldtype>Type</th><th>Value</th></thead>
+            <tbody id=entFieldsMand></tbody>
+        </table>
+        <h4>Optional fields</h4>
+        <table class=fieldlist cellspacing=0> <!-- optional fields, types are free -->
+            <thead><tr><th class=fieldname>Field</th><th class=fieldtype>Type</th><th>Value</th></thead>
+            <tbody id=entFieldsOpt></tbody>
+        </table>
+    </div>
+</div>
+<div id=entEditorView></div>
+<div id=entEditorText></div>
+
+<script>
+
+function prepEntEditor(){
+    var json = {
+        "module": "entry",
+        "action": "entry_types",
+        "data": {}
+    }
+    ajax(json, "/enge");
+}
+
+function cbEntryTypes(json){
+    replaceChildNodes('entType', map(function(Name){return OPTION({'value': Name}, Name)},
+                                    json.reply));
+    doChangeType()
+}
+
+function doChangeType(){
+    var json = {
+        "module": "entry",
+        "action": "type_fields",
+        "data": $('entType').value
+    }
+    ajax(json, "/enge");
+}
+
+function cbEntTypeFields(json){
+    disconnectAllTo(doFieldEdit);
+    disconnectAllTo(doFieldFix);
+    replaceChildNodes('entFieldsMand',
+                      map(function(Field){
+                              var val = TD({'class': 'fieldvalue'});
+	                      connect(val, 'ondblclick', doFieldEdit);
+                              return TR(null, TD({'class': 'fieldname'}, Field.name),
+                                              TD({'class': 'fieldtype'}, Field.type),
+                                              val)
+                          },
+                          json.reply.mandatory));
+    replaceChildNodes('entOptField', map(function(field){return OPTION({'value': field.name + " & " + field.type}, field.name)},
+                                        json.reply.optional));
+    doChangeOpt();
+}
+
+function doChangeOpt(){
+    $('entOptType').innerHTML = $('entOptField').value.split(" & ", 2)[1];
+}
+
+function doFieldAdd(){
+    var Field = $('entOptField').value.split(" & ", 2);
+    var val = TD({'class': 'fieldvalue'});
+    connect(val, 'ondblclick', doFieldEdit);
+    appendChildNodes('entFieldsOpt', TR(null, TD({'class': 'fieldname'}, Field[0]),
+                                              TD({'class': 'fieldtype'}, Field[1]),
+                                              val))
+}
+
+function doFieldEdit(){
+     EditFieldValue = this.innerHTML;
+     EditField = INPUT({'type': 'text', 'value': dequote(this.innerHTML)});
+     connect(EditField, 'onblur', doFieldFix);
+     connect(EditField, 'onkeydown', escRevertField);
+     replaceChildNodes(this, EditField)
+     EditField.focus()
+}
+
+function doFieldFix(){
+     EditField.parentNode.innerHTML = quote(this.value);
+     disconnectAll(EditField)
+     EditFieldValue = "";
+}
+
+function doFieldRevert(){
+     EditField.parentNode.innerHTML = EditFieldValue;
+     EditFieldValue = "";
+     disconnectAll(EditField)
+}
+
+function escRevertField(ev){
+    if(ev.key().code==27) doFieldRevert();
+}
+
+function doNewEntry(){
+    $('entId').value="";
+    $('entRev').value="";
+    $('entFieldsMand').innerHTML="";
+    $('entFieldsOpt').innerHTML="";
+}
+
+function cbEditEntry(json){
+    statusM("Edit entry: " + json.reply._id + " : " + json.reply._rev);
+    $('entId').value = json.reply._id,
+    $('entRev').value = json.reply._rev,
+    signal('entEditor_tab', 'onclick');
+}
+
+function doSave(){
+    var json = {
+	"module": "entry",
+	"action": "save",
+	"data": {
+	    "title": $('entTitle').value,
+	    "id": $('entId').value,
+	    "rev": $('entRev').value,
+	    "anno": $('entAnnotation').value,
+            "text": text
+	}
+    }
+    ajax(json, "/enge");
+}
+
+function cbEntSaved(json){
+    log("entry saved: " + JSON.stringify(json))
+    statusM(json.reply.action);
+    $('entId').value = json.reply.id;
+    $('entRev').value = json.reply.rev;
+}
+
+connect('entSave', 'onclick', doSave);
+connect('entFieldAdd', 'onclick', doFieldAdd);
+connect('entType', 'onchange', doChangeType);
+connect('entOptField', 'onchange', doChangeOpt);
+
+connect(xapi, 'entry:save-ok', cbEntSaved);
+connect(xapi, 'entry:entry_types-ok', cbEntryTypes);
+connect(xapi, 'entry:type_fields-ok', cbEntTypeFields);
+
+connect(xapi, 'logged', prepEntEditor);
+</script>
