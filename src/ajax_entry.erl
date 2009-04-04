@@ -4,23 +4,20 @@
 -include("authkey.hrl").
 
 entry_types(_Struct, _Session, _Req) ->
-    {{ok, [<<"Запись">>, <<"Кафе">>]}, []}.
+    {{ok, [{entry, [<<"Запись">>, <<"Кафе">>]},
+           {fields, [string, text]}]},
+     []}.
 
-type_fields(<<"Запись">>, _Session, _Req) ->
-    {{ok, [{mandatory, [[{name, <<"Название">>},
-                         {type, string}]]},
-           {optional, [[{name, <<"Описание">>},
-                        {type, text}]]},
-           {types, []}]},
+template(<<"Запись">>, _Session, _Req) ->
+    {{ok, [{fields, [[{name, <<"Название">>},
+                      {type, string}]]}]},
      []};
-type_fields(<<"Кафе">>, _Session, _Req) ->
-    {{ok, [{mandatory, [[{name, <<"Название">>},
-                         {type, string}],
-                        [{name, test},
-                         {type, text}]]},
-           {optional, [[{name, <<"Описание">>},
-                        {type, text}]]},
-           {types, []}]},
+template(<<"Кафе">>, _Session, _Req) ->
+    {{ok, [{fields, [[{name, <<"Название">>},
+                      {type, string}],
+                     [{name, test},
+                      {type, text},
+                      {value, blabla}]]}]},
      []};
-type_fields(Any, _Session, _Req) ->
+template(Any, _Session, _Req) ->
     {{fail, Any}, []}.

@@ -92,6 +92,22 @@ a.bapply:hover, a.bcancel:hover {
     outline: none; /* hide dotted outline in Firefox */
 }
 
+a.bdelete {
+    background: transparent url('/images/delete-mini.png') no-repeat scroll 0 0;
+    cursor: pointer;
+    display: block;
+    float: left;
+    height: 15px;
+    width: 15px;
+    margin: 0 0.2em;
+    outline: none; /* hide dotted outline in Firefox */
+}
+
+a.bdelete:hover {
+    background-position: -15px 0;
+    outline: none; /* hide dotted outline in Firefox */
+}
+
 .button:hover, .gbutton:hover
 {
    cursor: pointer;

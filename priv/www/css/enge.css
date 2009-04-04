@@ -63,6 +63,15 @@ input[type=text], input[type=password], textarea, select
    border-bottom: 1em solid #e4f4e4;
    height: 28px;
 }
+.toolbar select
+{
+   float: left;
+}
+.toolbar label
+{
+   float: left;
+   margin: 3px;
+}
 .hint
 {
    color: blue;
@@ -377,26 +386,36 @@ input[type=text], input[type=password], textarea, select
 .fieldlist th
 {
    background: #e7e7e7;
-}
-.fieldlist td, .fieldlist th
-{
-   border: solid 1px #d0d0d0;
+   border-top: solid 1px #d0d0d0;
+   border-bottom: solid 1px #d0d0d0;
    padding: 3px;
 }
-.fieldname
+.fieldlist td
+{
+   border-top: solid 1px #d0d0d0;
+   border-bottom: solid 1px #d0d0d0;
+   padding-top: 1em;
+   padding-bottom: 3px;
+}
+.fieldlist input
+{
+   margin: 0;
+}
+.fldname-td
 {
    font-weight: bold;
    width: 20%;
 }
 .fieldtype
 {
-   width: 10%;
+   width: 10em;
+   border: solid 1px #d0d0d0;
 }
 .fieldvalue
 {
    color: #339933;
 }
-#entFieldsMand input, #entFieldsOpt input
+#entFields input
 {
    border: inset 1px #f0f0f0;
    background-color: #fdfdd0;
@@ -407,4 +426,8 @@ input[type=text], input[type=password], textarea, select
    width: 70%;
    height: 30em;
    overflow: auto;
+}
+.dataholder
+{
+   display: inline;
 }
