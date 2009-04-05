@@ -14,8 +14,14 @@
     <select id=entFieldTypes></select>
     <a id=entFieldAdd class=rhint title="Add field">+</a>
     <div class=fieldlistscroll>
-        <table class=fieldlist cellspacing=0> <!-- mandatory fields, types are reserved -->
-            <thead><tr><th class=fldname-td>Field</th><th class=fieldtype>Type</th><th>Value</th></thead>
+        <table class=fieldlist cellspacing=0>
+            <thead><tr>
+                <th class=fldctl-td></th>
+                <th class=fieldname>Field</th>
+                <th class=fieldtype>Type</th>
+                <th class=fieldvalue></th>
+                <th>Value</th>
+            </tr></thead>
             <tbody id=entFields></tbody>
         </table>
     </div>
@@ -51,14 +57,14 @@ function doApplyTemplate(){
 }
 
 function composeTR(Field){
-    var fld = DIV({'class': 'fieldname'}, Field.name);
     var del_fld = A({'class': 'bdelete'});
     connect (del_fld, 'onclick', doDeleteField);
-    var td_fld = TD({'class': 'fldname-td'}, del_fld, fld);
-    var val = TD({'class': 'fieldvalue'}, Field.value);
+    var val = TD({'class': 'fldvalue-td'}, Field.value);
     connect(val, 'ondblclick', doEditField);
-    return TR(null, td_fld,
+    return TR(null, TD({'class': 'fldctl-td'}, del_fld),
+                    TD({'class': 'fieldname'}, Field.name),
                     TD({'class': 'fieldtype'}, Field.type),
+                    TD({'class': 'fieldvalue'}, Field.value),
                     val)
 }
 
@@ -84,12 +90,12 @@ function doAddField(){
     var matched = findField(Name);
     if(matched){
         statusM('Edit existing field');
-        signal(findChildElements(matched.parentNode.parentNode, ['.fieldvalue'])[0],
+        signal(findChildElements(matched.parentNode, ['.fldvalue-td'])[0],
                'ondblclick')
     }else{
         var tr = composeTR({'name': Name, 'type': $('entFieldTypes').value});
         appendChildNodes('entFields', tr)
-        signal(findChildElements(tr, ['.fieldvalue'])[0],
+        signal(findChildElements(tr, ['.fldvalue-td'])[0],
                'ondblclick')
     }
 }
@@ -99,12 +105,15 @@ function doDeleteField(){
     removeElement(this.parentNode.parentNode)
 }
 
+function FieldValue(item){
+    return findChildElements(item.parentNode, ['.fieldvalue'])[0]
+}
+
 EditField = null;
 
 function doEditField(){
      if(EditField) return;
-     EditFieldValue = this.innerHTML;
-     EditField = INPUT({'type': 'text', 'value': dequote(this.innerHTML)});
+     EditField = INPUT({'type': 'text', 'value': dequote(FieldValue(this).innerHTML)});
      connect(EditField, 'onblur', doFieldFix);
      connect(EditField, 'onkeydown', escRevertField);
      replaceChildNodes(this, EditField)
@@ -112,15 +121,15 @@ function doEditField(){
 }
 
 function doFieldFix(){
+     disconnectAll(EditField);
+     FieldValue(EditField.parentNode).innerHTML = quote(EditField.value);
      EditField.parentNode.innerHTML = quote(EditField.value);
-     disconnectAll(EditField)
-     EditFieldValue = "";
      EditField = null;
 }
 
 function doFieldRevert(){
-     EditField.parentNode.innerHTML = EditFieldValue;
      disconnectAll(EditField)
+     EditField.parentNode.innerHTML = FieldValue(EditField.parentNode).innerHTML;
      EditFieldValue = "";
      EditField = null;
 }

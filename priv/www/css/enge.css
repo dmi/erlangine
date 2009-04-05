@@ -401,7 +401,11 @@ input[type=text], input[type=password], textarea, select
 {
    margin: 0;
 }
-.fldname-td
+.fldctl-td
+{
+   width: 16px;
+}
+.fieldname
 {
    font-weight: bold;
    width: 20%;
@@ -412,6 +416,10 @@ input[type=text], input[type=password], textarea, select
    border: solid 1px #d0d0d0;
 }
 .fieldvalue
+{
+   display: none;
+}
+.fldvalue-td
 {
    color: #339933;
 }
