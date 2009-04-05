@@ -59,7 +59,7 @@ function doApplyTemplate(){
 function composeTR(Field){
     var del_fld = A({'class': 'bdelete'});
     connect (del_fld, 'onclick', doDeleteField);
-    var val = TD({'class': 'fldvalue-td'}, Field.value);
+    var val = TD({'class': 'fldvalue-td'}, DisplayField(Field.type, Field.value));
     connect(val, 'ondblclick', doEditField);
     return TR(null, TD({'class': 'fldctl-td'}, del_fld),
                     TD({'class': 'fieldname'}, Field.name),
@@ -105,37 +105,74 @@ function doDeleteField(){
     removeElement(this.parentNode.parentNode)
 }
 
+// return TD
 function FieldValue(item){
     return findChildElements(item.parentNode, ['.fieldvalue'])[0]
 }
 
+// return text
+function FieldType(item){
+    return findChildElements(item.parentNode, ['.fieldvalue'])[0].innerHTML
+}
+
+/* ********************
+display field by value
+    DisplayField(type, value) -- DOM
+edit field by value - make input construct
+    FieldEditor(type, value) -- DOM
+callbacks calls (after cleanup):
+    doFieldFix(value) - save and redisplay
+    doFieldRevert() - simple redisplay the old value
+*/
+
+function DisplayField(type, value){
+    return value
+}
+
+function FieldEditor(type, value){
+    var ed = INPUT({'type': 'text', 'value': value});
+    connect(ed, 'onblur', sigFieldFix);
+    connect(ed, 'onkeydown', sigFieldKeys);
+    return ed
+}
+
+function sigFieldFix(ev){
+    disconnectAll(EditField);
+    doFieldFix(EditField.value)
+}
+
+function sigFieldKeys(ev){
+    if(ev.key().code==27){
+        disconnectAll(EditField);
+        doFieldRevert()
+    }
+}
+
+/* ******************** */
+
 EditField = null;
 
 function doEditField(){
-     if(EditField) return;
-     EditField = INPUT({'type': 'text', 'value': dequote(FieldValue(this).innerHTML)});
-     connect(EditField, 'onblur', doFieldFix);
-     connect(EditField, 'onkeydown', escRevertField);
-     replaceChildNodes(this, EditField)
-     EditField.focus()
+    if(EditField) return;
+    EditField = FieldEditor(FieldType(this), dequote(FieldValue(this).innerHTML));
+    replaceChildNodes(this, EditField)
+    EditField.focus()
 }
 
-function doFieldFix(){
-     disconnectAll(EditField);
-     FieldValue(EditField.parentNode).innerHTML = quote(EditField.value);
-     EditField.parentNode.innerHTML = quote(EditField.value);
-     EditField = null;
+function doFieldFix(value){
+    var qv = quote(value);
+    FieldValue(EditField.parentNode).innerHTML = qv;
+    replaceChildNodes(EditField.parentNode,
+                      DisplayField(FieldType(EditField.parentNode),
+                                   qv));
+    EditField = null;
 }
 
 function doFieldRevert(){
-     disconnectAll(EditField)
-     EditField.parentNode.innerHTML = FieldValue(EditField.parentNode).innerHTML;
-     EditFieldValue = "";
-     EditField = null;
-}
-
-function escRevertField(ev){
-    if(ev.key().code==27) doFieldRevert();
+    replaceChildNodes(EditField.parentNode,
+                      DisplayField(FieldType(EditField.parentNode),
+                                   FieldValue(EditField.parentNode).innerHTML));
+    EditField = null;
 }
 
 function doNewEntry(){
