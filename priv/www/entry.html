@@ -1,26 +1,31 @@
-<div class=toolbar>
-    <a id=entSave class=gbutton>Save</a>
-    <a id=entSaveTemplate class=gbutton>Save as template</a>
-    <a id=entNew class=gbutton>New</a>
-    <label for=entType>as</label>
+<div class=hidden><table id=entTypeSelectorDiv></table></div>
+<div class=toolbar id=entCreate>
+    <a id=entNew class=gbutton>Новая запись</a>
+    <!--label for=entType>как</label-->
     <select id=entType></select>
 </div>
 <div id=entInfo>
     <input id=entId type=hidden />
     <input id=entRev type=hidden />
-    <label for=entOptType>Add field named</label>
-    <input id=entNewFieldName type=text />
-    <label for=entOptType>of type</label>
-    <select id=entFieldTypes></select>
-    <a id=entFieldAdd class=rhint title="Add field">+</a>
+    <div class=toolbar>
+        <a id=entSave class=gbutton>Сохранить</a>
+        <a id=entSaveTemplate class=gbutton>Сохранить как шаблон</a>
+        <a class=button id=entFieldAdd>Добавить полe</a>
+        <label for=entNewFieldName>имя:</label>
+        <input id=entNewFieldName type=text />
+        <label for=entFieldTypes>тип:</label>
+        <select id=entFieldTypes></select>
+        <label for=entFieldTypes>значение:</label>
+        <input id=entNewFieldValue type=text />
+        <a id=entCancel class=button>Отмена</a>
+    </div>
     <div class=fieldlistscroll>
         <table class=fieldlist cellspacing=0>
             <thead><tr>
                 <th class=fldctl-td></th>
-                <th class=fieldname>Field</th>
-                <th class=fieldtype>Type</th>
-                <th class=fieldvalue></th>
-                <th>Value</th>
+                <th class=fieldname>Поле</th>
+                <th class=valctl-td></th>
+                <th class=fldvalue-td>Значение</th>
             </tr></thead>
             <tbody id=entFields></tbody>
         </table>
@@ -34,7 +39,7 @@
 function prepEntEditor(){
     var json = {
         "module": "entry",
-        "action": "entry_types",
+        "action": "entry_templates",
         "data": {}
     }
     ajax(json, "/enge");
@@ -43,8 +48,6 @@ function prepEntEditor(){
 function cbEntryTypes(json){
     replaceChildNodes('entType', map(function(Name){return OPTION({'value': Name}, Name)},
                                     json.reply.entry));
-    replaceChildNodes('entFieldTypes', map(function(Name){return OPTION({'value': Name}, Name)},
-                                           json.reply.fields))
 }
 
 function doApplyTemplate(){
@@ -54,24 +57,74 @@ function doApplyTemplate(){
         "data": $('entType').value
     }
     ajax(json, "/enge");
+    json = {
+        "module": "entry",
+        "action": "value_types",
+        "data": $('entType').value
+    }
+    ajax(json, "/enge");
+}
+
+function composeValue(Value){
+    var del_val = A({'class': 'rhint'}, 'x');
+    connect (del_val, 'onclick', doDeleteValue);
+    return TR(null,
+               TD({'class': 'fldvalue-ctl'}, del_val),
+               TD({'class': 'fldvalue-td'},
+                   SPAN({'class': 'fldvalue-name'}, Value.type),
+                   SPAN(null, Value.value)))
 }
 
 function composeTR(Field){
     var del_fld = A({'class': 'bdelete'});
     connect (del_fld, 'onclick', doDeleteField);
-    var val = TD({'class': 'fldvalue-td'}, DisplayField(Field.type, Field.value));
-    connect(val, 'ondblclick', doEditField);
+    var add_val = A({'class': 'rhint'}, '+');
+    connect (add_val, 'onclick', doAddField);
     return TR(null, TD({'class': 'fldctl-td'}, del_fld),
                     TD({'class': 'fieldname'}, Field.name),
-                    TD({'class': 'fieldtype'}, Field.type),
-                    TD({'class': 'fieldvalue'}, Field.value),
-                    val)
+                    TD({'class': 'valctl-td'}, add_val),
+                    TD({'class': 'fldvalues-td'},
+                        TABLE(null, TBODY({'class': 'valuestab'},
+                            map(composeValue, Field.values)))))
 }
 
 function cbEntTemplate(json){
     disconnectAllTo(doEditField);
     disconnectAllTo(doFieldFix);
     replaceChildNodes('entFields', map(composeTR, json.reply.fields));
+    hideElement('entCreate');
+    showElement('entInfo')
+}
+
+function cbValueTypes(json){
+    var apply = A({'class': 'bapply'});
+    connect(apply, 'onclick', doValueTypeFix);
+    var cancel = A({'class': 'bcancel'});
+    connect(apply, 'onclick', doValueTypeCancel);
+    log('fired: ' + JSON.stringify(json.reply));
+    replaceChildElements($('entTypeSelectorDiv'),
+        TD({'id': 'entTypeSelector'},
+            SELECT({'id': 'valuetype-sel'},
+                map(function(Name){log("f:" + Name); return OPTION({'value': Name}, Name)},
+                    json.reply)),
+            apply,
+            cancel))
+}
+
+function doValueTypeFix(){
+    replaceNode(this.parentNode.parentNode, composeValue({'type': $('valuetype-sel').value}));
+}
+
+function doValueTypeCancel(){
+    removeNode(this.parentNode.parentNode);
+}
+
+function doCancel(){
+    disconnectAllTo(doEditField);
+    disconnectAllTo(doFieldFix);
+    replaceChildNodes('entFields', TR(null));
+    showElement('entCreate');
+    hideElement('entInfo')
 }
 
 function findField(Name){
@@ -82,6 +135,12 @@ function findField(Name){
 }
 
 function doAddField(){
+    var sel = $('entTypeSelector');
+    appendChildNodes(findChildElements(this.parentNode.parentNode, ['.valuestab']), TR(null, sel));
+    sel.focus();
+}
+
+function doAddField_old(){
     var Name = $('entNewFieldName').value;
     if(Name == ""){
         statusM("Name for new field is not set!");
@@ -101,6 +160,11 @@ function doAddField(){
 }
 
 function doDeleteField(){
+    disconnectAll(this);
+    removeElement(this.parentNode.parentNode)
+}
+
+function doDeleteValue(){
     disconnectAll(this);
     removeElement(this.parentNode.parentNode)
 }
@@ -211,12 +275,14 @@ function cbEntSaved(json){
 }
 
 connect('entSave', 'onclick', doSave);
-connect('entFieldAdd', 'onclick', doAddField);
+connect('entCancel', 'onclick', doCancel);
 connect('entNew', 'onclick', doApplyTemplate);
+connect('entFieldAdd', 'onclick', doAddField);
 
 connect(xapi, 'entry:save-ok', cbEntSaved);
-connect(xapi, 'entry:entry_types-ok', cbEntryTypes);
+connect(xapi, 'entry:entry_templates-ok', cbEntryTypes);
 connect(xapi, 'entry:template-ok', cbEntTemplate);
+connect(xapi, 'entry:value_types-ok', cbValueTypes);
 
 connect(xapi, 'logged', prepEntEditor);
 </script>

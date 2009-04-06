@@ -63,7 +63,7 @@ input[type=text], input[type=password], textarea, select
    border-bottom: 1em solid #e4f4e4;
    height: 28px;
 }
-.toolbar select
+.toolbar select, .toolbar input
 {
    float: left;
 }
@@ -404,24 +404,32 @@ input[type=text], input[type=password], textarea, select
 .fldctl-td
 {
    width: 16px;
+   vertical-align: top;
 }
 .fieldname
 {
    font-weight: bold;
    width: 20%;
+   vertical-align: top;
+}
+.valctl-td
+{
+    vertical-align: top;
+    width: 1em;
 }
 .fieldtype
 {
    width: 10em;
    border: solid 1px #d0d0d0;
 }
-.fieldvalue
+.fieldvalue, .fieldtype
 {
    display: none;
 }
-.fldvalue-td
+.fldvalues-td
 {
-   color: #339933;
+   /*color: #339933;*/
+   border-left: solid 1px #d0d0d0;
 }
 #entFields input
 {
@@ -438,4 +446,38 @@ input[type=text], input[type=password], textarea, select
 .dataholder
 {
    display: inline;
+}
+
+#entInfo
+{
+    display: none;
+}
+
+.valuestab td
+{
+   border: 0;
+   padding: 3px;
+}
+.fldvalue-ctl
+{
+    vertical-align: top;
+    width: 1em;
+}
+.fldvalue-td
+{
+   color: #339933;
+   background-color: #f7f7f7;
+   margin: 3px;
+   /*border: solid 1px #d0d0d0;*/
+}
+
+.fldvalue-name
+{
+   color: #993333;
+   margin-right: 0.5em;
+   font-weight: bold;
+}
+.hidden
+{
+   display: none;
 }
