@@ -1,7 +1,5 @@
-<div class=hidden><table id=entTypeSelectorDiv></table></div>
 <div class=toolbar id=entCreate>
     <a id=entNew class=gbutton>Новая запись</a>
-    <!--label for=entType>как</label-->
     <select id=entType></select>
 </div>
 <div id=entInfo>
@@ -13,8 +11,6 @@
         <a class=button id=entFieldAdd>Добавить полe</a>
         <label for=entNewFieldName>имя:</label>
         <input id=entNewFieldName type=text />
-        <label for=entFieldTypes>тип:</label>
-        <select id=entFieldTypes></select>
         <label for=entFieldTypes>значение:</label>
         <input id=entNewFieldValue type=text />
         <a id=entCancel class=button>Отмена</a>
@@ -25,7 +21,7 @@
                 <th class=fldctl-td></th>
                 <th class=fieldname>Поле</th>
                 <th class=valctl-td></th>
-                <th class=fldvalue-td>Значение</th>
+                <th class=fldvalues-td>Значение</th>
             </tr></thead>
             <tbody id=entFields></tbody>
         </table>
@@ -45,9 +41,34 @@ function prepEntEditor(){
     ajax(json, "/enge");
 }
 
-function cbEntryTypes(json){
+function cbEntryTemplates(json){
     replaceChildNodes('entType', map(function(Name){return OPTION({'value': Name}, Name)},
                                     json.reply.entry));
+}
+
+function cbValueTypes(json){
+    var apply = A({'class': 'bapply'});
+    connect(apply, 'onclick', doValueTypeFix);
+    var cancel = A({'class': 'bcancel'});
+    connect(cancel, 'onclick', doValueTypeCancel);
+    EntTypeSelector =
+        TD({'id': 'entTypeSelector'},
+            SELECT({'id': 'valuetype-sel'},
+                map(function(Name){return OPTION({'value': Name}, Name)},
+                    json.reply.types)),
+            apply,
+            cancel);
+}
+
+function doValueTypeFix(){
+    var val = $('valuetype-sel').value;
+    var tab = this.parentNode.parentNode.parentNode;
+    removeElement(this.parentNode.parentNode);
+    appendChildNodes(tab, composeValue({'type': val, 'value': ''}))
+}
+
+function doValueTypeCancel(){
+    removeElement(this.parentNode.parentNode)
 }
 
 function doApplyTemplate(){
@@ -79,13 +100,18 @@ function composeTR(Field){
     var del_fld = A({'class': 'bdelete'});
     connect (del_fld, 'onclick', doDeleteField);
     var add_val = A({'class': 'rhint'}, '+');
-    connect (add_val, 'onclick', doAddField);
+    connect (add_val, 'onclick', doAddValue);
     return TR(null, TD({'class': 'fldctl-td'}, del_fld),
                     TD({'class': 'fieldname'}, Field.name),
                     TD({'class': 'valctl-td'}, add_val),
                     TD({'class': 'fldvalues-td'},
-                        TABLE(null, TBODY({'class': 'valuestab'},
+                        TABLE({'class': 'valuestab'}, TBODY({'class': 'valuesbody'},
                             map(composeValue, Field.values)))))
+}
+
+function doAddValue(){
+    appendChildNodes(findChildElements(this.parentNode.parentNode, ['.valuesbody'])[0], TR(null, TD(), EntTypeSelector));
+    $('valuetype-sel').focus();
 }
 
 function cbEntTemplate(json){
@@ -94,29 +120,6 @@ function cbEntTemplate(json){
     replaceChildNodes('entFields', map(composeTR, json.reply.fields));
     hideElement('entCreate');
     showElement('entInfo')
-}
-
-function cbValueTypes(json){
-    var apply = A({'class': 'bapply'});
-    connect(apply, 'onclick', doValueTypeFix);
-    var cancel = A({'class': 'bcancel'});
-    connect(apply, 'onclick', doValueTypeCancel);
-    log('fired: ' + JSON.stringify(json.reply));
-    replaceChildElements($('entTypeSelectorDiv'),
-        TD({'id': 'entTypeSelector'},
-            SELECT({'id': 'valuetype-sel'},
-                map(function(Name){log("f:" + Name); return OPTION({'value': Name}, Name)},
-                    json.reply)),
-            apply,
-            cancel))
-}
-
-function doValueTypeFix(){
-    replaceNode(this.parentNode.parentNode, composeValue({'type': $('valuetype-sel').value}));
-}
-
-function doValueTypeCancel(){
-    removeNode(this.parentNode.parentNode);
 }
 
 function doCancel(){
@@ -135,12 +138,6 @@ function findField(Name){
 }
 
 function doAddField(){
-    var sel = $('entTypeSelector');
-    appendChildNodes(findChildElements(this.parentNode.parentNode, ['.valuestab']), TR(null, sel));
-    sel.focus();
-}
-
-function doAddField_old(){
     var Name = $('entNewFieldName').value;
     if(Name == ""){
         statusM("Name for new field is not set!");
@@ -148,14 +145,15 @@ function doAddField_old(){
     }
     var matched = findField(Name);
     if(matched){
-        statusM('Edit existing field');
-        signal(findChildElements(matched.parentNode, ['.fldvalue-td'])[0],
-               'ondblclick')
+        statusM('Please edit existing field');
+        matched.focus();
     }else{
-        var tr = composeTR({'name': Name, 'type': $('entFieldTypes').value});
+        var val = $('entNewFieldValue');
+        var values = [];
+        if(val != "") values = [{'default': val}];
+        var tr = composeTR({'name': Name, 'values': values});
         appendChildNodes('entFields', tr)
-        signal(findChildElements(tr, ['.fldvalue-td'])[0],
-               'ondblclick')
+        // XXX if not val, open new value dialog (addValue click)
     }
 }
 
@@ -279,10 +277,10 @@ connect('entCancel', 'onclick', doCancel);
 connect('entNew', 'onclick', doApplyTemplate);
 connect('entFieldAdd', 'onclick', doAddField);
 
-connect(xapi, 'entry:save-ok', cbEntSaved);
-connect(xapi, 'entry:entry_templates-ok', cbEntryTypes);
-connect(xapi, 'entry:template-ok', cbEntTemplate);
+connect(xapi, 'entry:entry_templates-ok', cbEntryTemplates);
 connect(xapi, 'entry:value_types-ok', cbValueTypes);
+connect(xapi, 'entry:template-ok', cbEntTemplate);
+connect(xapi, 'entry:save-ok', cbEntSaved);
 
 connect(xapi, 'logged', prepEntEditor);
 </script>

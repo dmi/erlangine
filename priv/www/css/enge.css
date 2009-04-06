@@ -430,6 +430,7 @@ input[type=text], input[type=password], textarea, select
 {
    /*color: #339933;*/
    border-left: solid 1px #d0d0d0;
+   padding-top: 3px;
 }
 #entFields input
 {
@@ -453,6 +454,10 @@ input[type=text], input[type=password], textarea, select
     display: none;
 }
 
+.valuestab
+{
+   width: 100%;
+}
 .valuestab td
 {
    border: 0;
@@ -469,6 +474,11 @@ input[type=text], input[type=password], textarea, select
    background-color: #f7f7f7;
    margin: 3px;
    /*border: solid 1px #d0d0d0;*/
+}
+
+#entTypeSelector select
+{
+   float: left;
 }
 
 .fldvalue-name

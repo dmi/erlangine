@@ -30,5 +30,5 @@ template(Any, _Session, _Req) ->
     {{fail, Any}, []}.
 
 value_types(_Struct, _Session, _Req) ->
-    {{ok, [string, text]},
+    {{ok, [{types, [<<"Название">>, <<"Тип">>, <<"Город">>, <<"Адрес">>, <<"Гео">>, <<"Описание">>, <<"Оценка">>]}]},
      []}.
