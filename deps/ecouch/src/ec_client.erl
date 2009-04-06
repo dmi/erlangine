@@ -124,7 +124,8 @@ handle_cast({Operation, Host, Port, From}, State) ->
             {error, "Bad operation"}
     end,
     gen_server:reply(From, Reply),
-    {stop, "Normal", State}.
+    {noreply, State}.
+    %{stop, "Normal", State}. % XXX check is it need to be stopped?
 
 %%--------------------------------------------------------------------
 %% @spec handle_info(Info, State) -> {noreply, State} |
