@@ -15,13 +15,13 @@
         <input id=entNewFieldValue type=text />
         <a id=entCancel class=button>Отмена</a>
     </div>
-    <div class=fieldlistscroll>
+    <div class=fieldscroll>
         <table class=fieldlist cellspacing=0>
             <thead><tr>
-                <th class=fldctl-td></th>
-                <th class=fieldname>Поле</th>
-                <th class=valctl-td></th>
-                <th class=fldvalues-td>Значение</th>
+                <th class=fld-ctl></th>
+                <th class=fld-name>Поле</th>
+                <th class=fld-valctl></th>
+                <th class=fld-values>Значение</th>
             </tr></thead>
             <tbody id=entFields></tbody>
         </table>
@@ -90,9 +90,9 @@ function composeValue(Value){
     var del_val = A({'class': 'rhint'}, 'x');
     connect (del_val, 'onclick', doDeleteValue);
     return TR(null,
-               TD({'class': 'fldvalue-ctl'}, del_val),
-               TD({'class': 'fldvalue-td'},
-                   SPAN({'class': 'fldvalue-name'}, Value.type),
+               TD({'class': 'val-ctl'}, del_val),
+               TD({'class': 'val-value'},
+                   SPAN({'class': 'valuename'}, Value.type),
                    SPAN(null, Value.value)))
 }
 
@@ -101,16 +101,16 @@ function composeTR(Field){
     connect (del_fld, 'onclick', doDeleteField);
     var add_val = A({'class': 'rhint'}, '+');
     connect (add_val, 'onclick', doAddValue);
-    return TR(null, TD({'class': 'fldctl-td'}, del_fld),
-                    TD({'class': 'fieldname'}, Field.name),
-                    TD({'class': 'valctl-td'}, add_val),
-                    TD({'class': 'fldvalues-td'},
-                        TABLE({'class': 'valuestab'}, TBODY({'class': 'valuesbody'},
+    return TR(null, TD({'class': 'fld-ctl'}, del_fld),
+                    TD({'class': 'fld-name'}, Field.name),
+                    TD({'class': 'fld-valctl'}, add_val),
+                    TD({'class': 'fld-values'},
+                        TABLE({'class': 'valuelist'}, TBODY({'class': 'val-tbody'},
                             map(composeValue, Field.values)))))
 }
 
 function doAddValue(){
-    appendChildNodes(findChildElements(this.parentNode.parentNode, ['.valuesbody'])[0], TR(null, TD(), EntTypeSelector));
+    appendChildNodes(findChildElements(this.parentNode.parentNode, ['.val-tbody'])[0], TR(null, TD(), EntTypeSelector));
     $('valuetype-sel').focus();
 }
 
@@ -133,7 +133,7 @@ function doCancel(){
 function findField(Name){
     var matched = null;
     map(function(item){if(item.innerHTML == Name)matched = item; return null},
-        findChildElements($('entFields'), ['.fieldname']));
+        findChildElements($('entFields'), ['.fld-name']));
     return matched
 }
 

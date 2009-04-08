@@ -23,54 +23,14 @@ input[type=text], input[type=password], textarea, select
    font-size: 1em;
    margin: 3px;
 }
+.hidden
+{
+   display: none;
+}
 .label
 {
    margin-top: 0.5em;
    color:#707070;
-}
-.tab
-{
-   font-size: 13px;
-   padding: 3px;
-   margin: 2px;
-   margin-bottom: 3px;
-   background-color: #e7e7e7;
-   color: #474747;
-   border-top: 3px solid white;
-}
-.tab:hover
-{
-   border-top: 3px solid #909090;
-   border-right: 1px dotted black;
-   margin-right: 1px;
-   color: black;
-}
-.tabSelected
-{
-   border-bottom: 2px solid #e7e7e7;
-   margin-bottom: 0;
-}
-.tabBreak
-{
-   margin-top: 5px;
-   width: 100%;
-   height: 1em;
-   background: #d0d0d0;
-}
-.toolbar
-{
-   padding-top: 3px;
-   border-bottom: 1em solid #e4f4e4;
-   height: 28px;
-}
-.toolbar select, .toolbar input
-{
-   float: left;
-}
-.toolbar label
-{
-   float: left;
-   margin: 3px;
 }
 .hint
 {
@@ -100,6 +60,74 @@ input[type=text], input[type=password], textarea, select
    padding: 0.35em;
    background-color: #6060f0;
 }
+#statusMsg
+{
+   background-color: #FFFBCC;
+   border: solid 1px #E6DB55;
+   padding: 3px;
+   margin: 3px;
+}
+
+
+/*******************************
+ *  Tabs
+ *******************************/
+
+.tab
+{
+   font-size: 13px;
+   padding: 3px;
+   margin: 2px;
+   margin-bottom: 3px;
+   background-color: #e7e7e7;
+   color: #474747;
+   border-top: 3px solid white;
+}
+.tab:hover
+{
+   border-top: 3px solid #909090;
+   border-right: 1px dotted black;
+   margin-right: 1px;
+   color: black;
+}
+.tabSelected
+{
+   border-bottom: 2px solid #e7e7e7;
+   margin-bottom: 0;
+}
+.tabBreak
+{
+   margin-top: 5px;
+   width: 100%;
+   height: 1em;
+   background: #d0d0d0;
+}
+
+
+/*******************************
+ *  Toolbar
+ *******************************/
+
+.toolbar
+{
+   padding-top: 3px;
+   border-bottom: 1em solid #e4f4e4;
+   height: 28px;
+}
+.toolbar select, .toolbar input
+{
+   float: left;
+}
+.toolbar label
+{
+   float: left;
+   margin: 3px;
+}
+
+
+/*******************************
+ *  loggedContainer
+ *******************************/
 
 #loggedContainer
 {
@@ -114,6 +142,51 @@ input[type=text], input[type=password], textarea, select
 {
    float: none;
 }
+
+
+/*******************************
+ *  pageContent
+ *******************************/
+
+#pageContent
+{
+   padding: 5px;
+}
+
+
+/*******************************
+ *  welcomePage
+ *******************************/
+
+.centerWrapper {
+   width: 250px;
+   margin-left: auto;
+   margin-right: auto;
+}
+
+.thirdPart
+{
+   width: 33%;
+   float: left;
+}
+
+#welcomePage input, #welcomePage input[type=password], #welcomePage textarea, #welcomePage select
+{
+   font-size: 1.2em;
+   margin: 3px;
+   width: 200px;
+   text-align: center;
+}
+.welcomeText
+{
+   font-size: 1.1em;
+   padding: 1em;
+}
+
+
+/*******************************
+ *  loginContainer
+ *******************************/
 
 #loginContainer
 {
@@ -141,11 +214,10 @@ input[type=text], input[type=password], textarea, select
    margin-right: 20px;
 }
 
-.centerWrapper {
-   width: 250px;
-   margin-left: auto;
-   margin-right: auto;
-}
+
+/*******************************
+ *  registerContainer
+ *******************************/
 
 #registerContainer
 {
@@ -172,6 +244,11 @@ input[type=text], input[type=password], textarea, select
    float: right;
 }
 
+
+/*******************************
+ *  recoverContainer
+ *******************************/
+
 #recoverContainer
 {
    margin-top: 1em;
@@ -197,23 +274,28 @@ input[type=text], input[type=password], textarea, select
    float: right;
 }
 
-#pageContent
+
+/*******************************
+ *  mainDesk
+ *******************************/
+
+#mainDesk
 {
-   padding: 5px;
+   display: none;
+}
+#mainDesk, #activTabs
+{
+   margin-top: 1em;
+}
+#docNavigator, #docEditor, #entEditor, #destinations
+{
+   display:none;
 }
 
-#welcomePage input, #welcomePage input[type=password], #welcomePage textarea, #welcomePage select
-{
-   font-size: 1.2em;
-   margin: 3px;
-   width: 200px;
-   text-align: center;
-}
-.welcomeText
-{
-   font-size: 1.1em;
-   padding: 1em;
-}
+
+/*******************************
+ *  Other
+ *******************************/
 
 #docTitle
 {
@@ -228,19 +310,6 @@ input[type=text], input[type=password], textarea, select
 #docText
 {
    border: solid 1px #202020;
-}
-
-#mainDesk
-{
-   display: none;
-}
-#mainDesk, #activTabs
-{
-   margin-top: 1em;
-}
-#docNavigator, #docEditor, #entEditor, #destinations
-{
-   display:none;
 }
 
 #docSelector
@@ -280,12 +349,6 @@ input[type=text], input[type=password], textarea, select
 #viewToggleAnno, #viewEditDocument
 {
    display: inline;
-}
-
-.thirdPart
-{
-   width: 33%;
-   float: left;
 }
 
 .docSearchResultRow:hover, .tab:hover, .hint:hover, .rhint:hover
@@ -369,12 +432,16 @@ input[type=text], input[type=password], textarea, select
    clear: left;
 }
 
-#statusMsg
+
+/*******************************
+ *  entEditor
+ *******************************/
+
+.fieldscroll
 {
-   background-color: #FFFBCC;
-   border: solid 1px #E6DB55;
-   padding: 3px;
-   margin: 3px;
+   width: 70%;
+   height: 30em;
+   overflow: auto;
 }
 
 .fieldlist
@@ -401,22 +468,58 @@ input[type=text], input[type=password], textarea, select
 {
    margin: 0;
 }
-.fldctl-td
+.fld-ctl
 {
    width: 16px;
    vertical-align: top;
 }
-.fieldname
+.fld-name
 {
    font-weight: bold;
    width: 20%;
    vertical-align: top;
 }
-.valctl-td
+.fld-valctl
 {
     vertical-align: top;
     width: 1em;
 }
+.fld-values
+{
+   /*color: #339933;*/
+   border-left: solid 1px #d0d0d0;
+   padding-top: 3px;
+}
+
+.valuelist
+{
+   width: 100%;
+}
+.valuelist td
+{
+   border: 0;
+   padding: 3px;
+}
+.val-ctl
+{
+    vertical-align: top;
+    width: 1em;
+}
+.val-value
+{
+   color: #339933;
+   background-color: #f7f7f7;
+   margin: 3px;
+   /*border: solid 1px #d0d0d0;*/
+}
+
+.valuename
+{
+   color: #993333;
+   margin-right: 0.5em;
+   font-weight: bold;
+}
+
 .fieldtype
 {
    width: 10em;
@@ -426,27 +529,12 @@ input[type=text], input[type=password], textarea, select
 {
    display: none;
 }
-.fldvalues-td
-{
-   /*color: #339933;*/
-   border-left: solid 1px #d0d0d0;
-   padding-top: 3px;
-}
+
 #entFields input
 {
    border: inset 1px #f0f0f0;
    background-color: #fdfdd0;
    width: 99%;
-}
-.fieldlistscroll
-{
-   width: 70%;
-   height: 30em;
-   overflow: auto;
-}
-.dataholder
-{
-   display: inline;
 }
 
 #entInfo
@@ -454,40 +542,7 @@ input[type=text], input[type=password], textarea, select
     display: none;
 }
 
-.valuestab
-{
-   width: 100%;
-}
-.valuestab td
-{
-   border: 0;
-   padding: 3px;
-}
-.fldvalue-ctl
-{
-    vertical-align: top;
-    width: 1em;
-}
-.fldvalue-td
-{
-   color: #339933;
-   background-color: #f7f7f7;
-   margin: 3px;
-   /*border: solid 1px #d0d0d0;*/
-}
-
 #entTypeSelector select
 {
    float: left;
-}
-
-.fldvalue-name
-{
-   color: #993333;
-   margin-right: 0.5em;
-   font-weight: bold;
-}
-.hidden
-{
-   display: none;
 }
