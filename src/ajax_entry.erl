@@ -11,9 +11,10 @@ template(<<"Запись">>, _Session, _Req) ->
     {{ok, [{fields, [[{name, <<"Название">>}]]}]},
      []};
 template(<<"Кафе">>, _Session, _Req) ->
-    {{ok, [{fields, [[{name, <<"Описание">>},
-                      {values, [[{name, <<"Название">>}, {type, text}, {value, <<"Портос">>}],
-                                [{name, <<"Тип">>}, {type, text}, {value, <<"Кафе">>}]]}],
+    {{ok, [{fields, [[{name, <<"Название">>},
+                      {values, [[{name, <<"Название">>}, {type, text}, {value, <<"Портос">>}]]}],
+                     [{name, <<"Тип">>},
+                      {values, [[{name, <<"Тип">>}, {type, text}, {value, <<"Кафе">>}]]}],
                      [{name, <<"Место">>},
                       {values,
                           [[{name, <<"Город">>}, {type, text}, {value, <<"Санкт-Петербург">>}],
@@ -21,10 +22,10 @@ template(<<"Кафе">>, _Session, _Req) ->
                            [{name, <<"Гео">>}]]}],
                      [{name, <<"Бизнес-ланч">>},
                       {values, [[{name, <<"Описание">>}, {type, text}, {value, <<"<p>Стабильно приличная пища, среднего объема, не жирная.</p><p>Можно длительно ходить</p>">>}],
-                                [{name, <<"Оценка">>}, {type, text}, {value, <<"Хороший">>}]]}],
+                                [{name, <<"Оценка">>}, {type, score5}, {value, <<"4">>}]]}],
                      [{name, <<"Коктейль">>},
                       {values,
-                           [[{name, <<"Оценка">>}, {type, text}, {value, <<"Хороший">>}]]}]]}]},
+                           [[{name, <<"Оценка">>}, {type, score5}, {value, <<"3">>}]]}]]}]},
      []};
 template(Any, _Session, _Req) ->
     {{fail, Any}, []}.
@@ -36,5 +37,5 @@ value_names(_Struct, _Session, _Req) ->
                      [{name, <<"Адрес">>}, {type, text}],
                      [{name, <<"Гео">>}, {type, text}],
                      [{name, <<"Описание">>}, {type, text}],
-                     [{name, <<"Оценка">>}, {type, select}]]}]},
+                     [{name, <<"Оценка">>}, {type, score5}]]}]},
      []}.

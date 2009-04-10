@@ -95,6 +95,7 @@ statusM = function(str){
 function quote(str){
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 }
+// XXX possible to check sanity here
 function dequote(str){
     return str.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&amp;/g,'&')
 }

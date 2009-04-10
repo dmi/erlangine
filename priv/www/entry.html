@@ -70,6 +70,7 @@ function doValueNameCancel(){
 }
 
 function doApplyTemplate(){
+    statusM("requesting new entry...")
     var json = {
         "module": "entry",
         "action": "template",
@@ -90,12 +91,12 @@ function composeValue(Value){
     connect (del_val, 'onclick', doDeleteValue);
     var vis = DIV({'class': 'valuevis'});
     var val = TD({'class': 'val-value'},
-                  // XXX valueval and valuetype here
+                  // XXX do not show value name if equal to field name
                   SPAN({'class': 'valuename'}, Value.name),
                   SPAN({'class': 'valuetype'}, Value.type),
                   SPAN({'class': 'valueval'}, Value.value),
                   vis);
-    DisplayField(vis, Value.type, Value.value);
+    DisplayValue(vis, Value.type, Value.value);
     connect(val, 'ondblclick', doEditValue);
     return TR(null,
                TD({'class': 'val-ctl'}, del_val),
@@ -117,12 +118,12 @@ function composeTR(Field){
 
 function doAddValue(){
     appendChildNodes(findChildElements(this.parentNode.parentNode, ['.val-tbody'])[0], TR(null, TD(), EntValueSelector));
-    $('value-sel').focus();
+    $('value-sel').focus()
 }
 
 function cbEntTemplate(json){
-    disconnectAllTo(doEditValue);
-    disconnectAllTo(doValueFix);
+    map(disconnectAllTo,
+        [doEditValue, doValueNameFix, doValueNameCancel]);
     replaceChildNodes('entFields', map(composeTR, json.reply.fields));
     hideElement('entCreate');
     showElement('entInfo');
@@ -130,9 +131,9 @@ function cbEntTemplate(json){
 }
 
 function doCancel(){
-    // XXX partial disconnect
+    // XXX _partial_ list for disconnect
     map(disconnectAllTo,
-        [doEditValue, doValueFix, doValueRevert, doValueNameFix, doValueNameCancel]);
+        [doEditValue, doValueNameFix, doValueNameCancel]);
     replaceChildNodes('entFields', TR(null));
     showElement('entCreate');
     hideElement('entInfo')
@@ -153,8 +154,7 @@ function doAddField(){
     }
     var matched = findField(Name);
     if(matched){
-        statusM('Please edit existing field');
-        matched.focus(); // XXX doesn't work
+        statusM('Please edit existing field')
     }else{
         var val = $('entNewFieldValue').value;
         var values = [];
@@ -185,17 +185,13 @@ function doDeleteValue(){
 
 /* ********************
 display field by value
-    DisplayField(vis, type, value) -- DOM element, class=valuevis
+    DisplayValue(vis, type, value) -- DOM element, class=valuevis
 edit field by value - make input construct
     ValueEditor(elt, type, value) -- DOM
 callbacks calls (after cleanup):
     doFieldFix(value) - save and redisplay
     doFieldRevert() - simple redisplay the old value
 */
-
-function DisplayField(vis, type, value){
-    vis.innerHTML = value
-}
 
 function ValueEditor1(type, value){
     var apply = A({'class': 'bapply'});
@@ -207,17 +203,38 @@ function ValueEditor1(type, value){
     return DIV({'class': 'valuevis'}, [revert, apply, ed])
 }
 
-function ValueEditor(elt, type, value){
+function DisplayValueText(vis, type, value){
+    vis.innerHTML = value
+}
+
+function ValueEditorText(elt, type, value){
     var apply = A({'class': 'bapply'});
-    connect(apply, 'onclick', doValueFix);
+    connect(apply, 'onclick', doValueFixText);
     var revert = A({'class': 'bcancel'});
-    connect(revert, 'onclick', doValueRevert);
+    connect(revert, 'onclick', doValueRevertText);
     var ed = DIV({'id': 'entEditorText'});
     connect(ed, 'onkeydown', sigFieldKeys);
     var VE = DIV({'class': 'valuevis'}, [revert, apply, ed])
     swapDOM(elt, VE);
     setupEditor('entEditorText', value);
-    return VE
+    EditValue = VE
+}
+
+function doValueFixText(){
+    var qv = tinyMCE.get('entEditorText').getContent();
+    //var qv = quote(value);
+    // XXX wrong when only one <p/> follows <ul> etc tags
+    if(qv.split("<p>").length <= 2) qv = qv.replace('<p>', '').replace('</p>', '');
+    ValueValue(EditValue.parentNode).innerHTML = qv;
+    DisplayValue(EditValue, 'text', qv);
+    EditValue = null
+}
+
+function doValueRevertText(){
+    DisplayValue(EditValue,
+                 'text',
+                 dequote(ValueValue(EditValue.parentNode).innerHTML));
+    EditValue = null
 }
 
 function sigFieldKeys(ev){
@@ -230,7 +247,30 @@ function sigFieldKeys(ev){
     }
 }
 
+function DisplayValueScore5(vis, type, value){
+    var s = '';
+    for(i=0; i<value; i++) s+= '+ ';
+    vis.innerHTML = '<b>' + s + '</b>'
+}
+
 /* ******************** */
+
+displayValue = new Array();
+valueEditor = new Array();
+
+displayValue['text'] = DisplayValueText;
+valueEditor['text'] = ValueEditorText;
+displayValue['score5'] = DisplayValueScore5;
+
+function DisplayValue(vis, type, value){
+    f = displayValue[type];
+    if(f != undefined) f(vis, type, value);
+}
+
+function ValueEditor(vis, type, value){
+    f = valueEditor[type];
+    if(f != undefined) f(vis, type, value);
+}
 
 // return TD
 function ValueValue(item){
@@ -255,34 +295,17 @@ function doEditValue(){
         return
     }
     //var value = dequote(ValueValue(this).innerHTML);
-    log(ValueValue(this).innerHTML);
-    EditValue = ValueEditor(ValueVis(this),
-                            ValueType(this),
-                            dequote(ValueValue(this).innerHTML))
+    var type = ValueType(this);
+    ValueEditor(ValueVis(this),
+        type,
+        dequote(ValueValue(this).innerHTML))
 }
 
 function doValueFix1(){
     var value = findChildElements(EditValue, ['textarea'])[0].value;
     var qv = quote(value);
     ValueValue(EditValue.parentNode).innerHTML = qv;
-    DisplayField(EditValue, ValueType(EditValue.parentNode), qv);
-    EditValue = null
-}
-
-function doValueFix(){
-    var qv = tinyMCE.get('entEditorText').getContent();
-    //var qv = quote(value);
-    // XXX wrong when only one <p/> follows <ul> etc tags
-    if(qv.split("<p>").length <= 2) qv = qv.replace('<p>', '').replace('</p>', '');
-    ValueValue(EditValue.parentNode).innerHTML = qv;
-    DisplayField(EditValue, ValueType(EditValue.parentNode), qv);
-    EditValue = null
-}
-
-function doValueRevert(){
-    DisplayField(EditValue,
-                 ValueType(EditValue.parentNode),
-                 ValueValue(EditValue.parentNode).innerHTML);
+    DisplayValue(EditValue, ValueType(EditValue.parentNode), qv);
     EditValue = null
 }
 
