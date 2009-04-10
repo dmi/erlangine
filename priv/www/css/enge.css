@@ -552,6 +552,30 @@ input[type=text], input[type=password], textarea, select
    display: none;
 }
 
+.valuevis .bapply, .valuevis .bcancel
+{
+   float: right;
+}
+
+.valuevis
+{
+   display: inline;
+}
+.valuevis p
+{
+   margin: 0.5em;
+}
+.valuevis textarea
+{
+   float: right;
+   width: 80%;
+   height: 5em;
+}
+#entEditorText
+{
+   width: 80%;
+}
+
 #entValueSelector select
 {
    float: left;
