@@ -1,6 +1,6 @@
 <div class=toolbar id=entCreate>
     <a id=entNew class=gbutton>Новая запись</a>
-    <select id=entType></select>
+    <select id=entTemplate></select>
 </div>
 <div id=entInfo>
     <input id=entId type=hidden />
@@ -11,7 +11,7 @@
         <a class=button id=entFieldAdd>Добавить полe</a>
         <label for=entNewFieldName>имя:</label>
         <input id=entNewFieldName type=text />
-        <label for=entFieldTypes>значение:</label>
+        <label for=entNewFieldValue>значение:</label>
         <input id=entNewFieldValue type=text />
         <a id=entCancel class=button>Отмена</a>
     </div>
@@ -27,8 +27,6 @@
         </table>
     </div>
 </div>
-<div id=entEditorView></div>
-<div id=entEditorText></div>
 
 <script>
 
@@ -42,32 +40,32 @@ function prepEntEditor(){
 }
 
 function cbEntryTemplates(json){
-    replaceChildNodes('entType', map(function(Name){return OPTION({'value': Name}, Name)},
+    replaceChildNodes('entTemplate', map(function(Name){return OPTION({'value': Name}, Name)},
                                     json.reply.entry));
 }
 
-function cbValueTypes(json){
+function cbValueNames(json){
     var apply = A({'class': 'bapply'});
-    connect(apply, 'onclick', doValueTypeFix);
+    connect(apply, 'onclick', doValueNameFix);
     var cancel = A({'class': 'bcancel'});
-    connect(cancel, 'onclick', doValueTypeCancel);
-    EntTypeSelector =
-        TD({'id': 'entTypeSelector'},
-            SELECT({'id': 'valuetype-sel'},
+    connect(cancel, 'onclick', doValueNameCancel);
+    EntValueSelector =
+        TD({'id': 'entValueSelector'},
+            SELECT({'id': 'value-sel'},
                 map(function(Name){return OPTION({'value': Name}, Name)},
-                    json.reply.types)),
+                    json.reply.values)),
             apply,
-            cancel);
+            cancel)
 }
 
-function doValueTypeFix(){
-    var val = $('valuetype-sel').value;
+function doValueNameFix(){
+    var val = $('value-sel').value.split(',');
     var tab = this.parentNode.parentNode.parentNode;
     removeElement(this.parentNode.parentNode);
-    appendChildNodes(tab, composeValue({'type': val, 'value': ''}))
+    appendChildNodes(tab, composeValue({'name': val[0], 'type': val[1], 'value': ''}))
 }
 
-function doValueTypeCancel(){
+function doValueNameCancel(){
     removeElement(this.parentNode.parentNode)
 }
 
@@ -75,31 +73,37 @@ function doApplyTemplate(){
     var json = {
         "module": "entry",
         "action": "template",
-        "data": $('entType').value
+        "data": $('entTemplate').value
     }
     ajax(json, "/enge");
     json = {
         "module": "entry",
-        "action": "value_types",
-        "data": $('entType').value
+        "action": "value_names",
+        "data": $('entTemplate').value
     }
     ajax(json, "/enge");
+    statusM("wait for new entry...")
 }
 
 function composeValue(Value){
     var del_val = A({'class': 'rhint'}, 'x');
     connect (del_val, 'onclick', doDeleteValue);
+    var val = TD({'class': 'val-value'},
+                   // XXX valueval and valuetype here
+                   SPAN({'class': 'valuename'}, Value.name),
+                   SPAN({'class': 'valuetype'}, Value.type),
+                   SPAN({'class': 'valueval'}, Value.value),
+                   DisplayField(Value.type, Value.value));
+    connect(val, 'ondblclick', doEditValue);
     return TR(null,
                TD({'class': 'val-ctl'}, del_val),
-               TD({'class': 'val-value'},
-                   SPAN({'class': 'valuename'}, Value.type),
-                   SPAN(null, Value.value)))
+               val)
 }
 
 function composeTR(Field){
     var del_fld = A({'class': 'bdelete'});
     connect (del_fld, 'onclick', doDeleteField);
-    var add_val = A({'class': 'rhint'}, '+');
+    var add_val = A({'class': 'rhint add-val'}, '+');
     connect (add_val, 'onclick', doAddValue);
     return TR(null, TD({'class': 'fld-ctl'}, del_fld),
                     TD({'class': 'fld-name'}, Field.name),
@@ -110,20 +114,21 @@ function composeTR(Field){
 }
 
 function doAddValue(){
-    appendChildNodes(findChildElements(this.parentNode.parentNode, ['.val-tbody'])[0], TR(null, TD(), EntTypeSelector));
-    $('valuetype-sel').focus();
+    appendChildNodes(findChildElements(this.parentNode.parentNode, ['.val-tbody'])[0], TR(null, TD(), EntValueSelector));
+    $('value-sel').focus();
 }
 
 function cbEntTemplate(json){
-    disconnectAllTo(doEditField);
-    disconnectAllTo(doFieldFix);
+    disconnectAllTo(doEditValue);
+    disconnectAllTo(doValueFix);
     replaceChildNodes('entFields', map(composeTR, json.reply.fields));
     hideElement('entCreate');
-    showElement('entInfo')
+    showElement('entInfo');
+    statusM("ok")
 }
 
 function doCancel(){
-    disconnectAllTo(doEditField);
+    disconnectAllTo(doEditValue);
     disconnectAllTo(doFieldFix);
     replaceChildNodes('entFields', TR(null));
     showElement('entCreate');
@@ -146,14 +151,14 @@ function doAddField(){
     var matched = findField(Name);
     if(matched){
         statusM('Please edit existing field');
-        matched.focus();
+        matched.focus(); // XXX doesn't work
     }else{
-        var val = $('entNewFieldValue');
+        var val = $('entNewFieldValue').value;
         var values = [];
-        if(val != "") values = [{'default': val}];
+        if(val != "") values = [{'type': 'text', 'value': val}];
         var tr = composeTR({'name': Name, 'values': values});
-        appendChildNodes('entFields', tr)
-        // XXX if not val, open new value dialog (addValue click)
+        appendChildNodes('entFields', tr);
+        if(val == "") signal(findChildElements(tr, ['.add-val'])[0], 'onclick')
     }
 }
 
@@ -168,86 +173,83 @@ function doDeleteValue(){
 }
 
 // return TD
-function FieldValue(item){
-    return findChildElements(item.parentNode, ['.fieldvalue'])[0]
+function ValueValue(item){
+    return findChildElements(item, ['.valueval'])[0]
 }
 
 // return text
-function FieldType(item){
-    return findChildElements(item.parentNode, ['.fieldvalue'])[0].innerHTML
+function ValueType(item){
+    return findChildElements(item, ['.valuetype'])[0].innerHTML
 }
 
 /* ********************
 display field by value
-    DisplayField(type, value) -- DOM
+    DisplayField(type, value) -- DOM element, class=valuevis
 edit field by value - make input construct
-    FieldEditor(type, value) -- DOM
+    ValueEditor(type, value) -- DOM
 callbacks calls (after cleanup):
     doFieldFix(value) - save and redisplay
     doFieldRevert() - simple redisplay the old value
 */
 
 function DisplayField(type, value){
-    return value
+    return SPAN({'class': 'valuevis'}, value)
 }
 
-function FieldEditor(type, value){
+function ValueEditor(type, value){
+    var apply = A({'class': 'bapply'});
+    connect(apply, 'onclick', doValueFix);
+    var revert = A({'class': 'bcancel'});
+    connect(revert, 'onclick', doValueRevert);
     var ed = INPUT({'type': 'text', 'value': value});
-    connect(ed, 'onblur', sigFieldFix);
     connect(ed, 'onkeydown', sigFieldKeys);
-    return ed
-}
-
-function sigFieldFix(ev){
-    disconnectAll(EditField);
-    doFieldFix(EditField.value)
+    return SPAN({'class': 'valuevis'}, [ed, apply, revert])
 }
 
 function sigFieldKeys(ev){
     if(ev.key().code==27){
-        disconnectAll(EditField);
+        disconnectAll(EditValue);
         doFieldRevert()
     }
 }
 
 /* ******************** */
 
-EditField = null;
+EditValue = null;
 
-function doEditField(){
-    if(EditField) return;
-    EditField = FieldEditor(FieldType(this), dequote(FieldValue(this).innerHTML));
-    replaceChildNodes(this, EditField)
-    EditField.focus()
+function doEditValue(){
+    if(EditValue) return;
+    EditValue = ValueEditor(ValueType(this), dequote(ValueValue(this).innerHTML));
+    swapDOM(findChildElements(this, ['.valuevis'])[0], EditValue);
+    EditValue.focus()
 }
 
-function doFieldFix(value){
+function doValueFix(){
+    var value = findChildElements(EditValue, ['input'])[0].value;
     var qv = quote(value);
-    FieldValue(EditField.parentNode).innerHTML = qv;
-    replaceChildNodes(EditField.parentNode,
-                      DisplayField(FieldType(EditField.parentNode),
-                                   qv));
-    EditField = null;
+    ValueValue(EditValue.parentNode).innerHTML = qv;
+    swapDOM(EditValue, DisplayField(ValueType(EditValue.parentNode),
+                                    qv));
+    EditValue = null
 }
 
-function doFieldRevert(){
-    replaceChildNodes(EditField.parentNode,
-                      DisplayField(FieldType(EditField.parentNode),
-                                   FieldValue(EditField.parentNode).innerHTML));
-    EditField = null;
+function doValueRevert(){
+    swapDOM(EditValue, DisplayField(ValueType(EditValue.parentNode),
+                                    ValueValue(EditValue.parentNode).innerHTML));
+    EditValue = null
 }
 
 function doNewEntry(){
     $('entId').value="";
     $('entRev').value="";
-    $('entFields').innerHTML="";
+    $('entFields').innerHTML=""
 }
 
 function cbEditEntry(json){
     statusM("Edit entry: " + json.reply._id + " : " + json.reply._rev);
-    $('entId').value = json.reply._id,
-    $('entRev').value = json.reply._rev,
-    signal('entEditor_tab', 'onclick');
+    $('entId').value = json.reply._id;
+    $('entRev').value = json.reply._rev;
+    signal('entEditor_tab', 'onclick')
 }
 
 function doSave(){
@@ -269,7 +271,7 @@ function cbEntSaved(json){
     log("entry saved: " + JSON.stringify(json))
     statusM(json.reply.action);
     $('entId').value = json.reply.id;
-    $('entRev').value = json.reply.rev;
+    $('entRev').value = json.reply.rev
 }
 
 connect('entSave', 'onclick', doSave);
@@ -278,7 +280,7 @@ connect('entNew', 'onclick', doApplyTemplate);
 connect('entFieldAdd', 'onclick', doAddField);
 
 connect(xapi, 'entry:entry_templates-ok', cbEntryTemplates);
-connect(xapi, 'entry:value_types-ok', cbValueTypes);
+connect(xapi, 'entry:value_names-ok', cbValueNames);
 connect(xapi, 'entry:template-ok', cbEntTemplate);
 connect(xapi, 'entry:save-ok', cbEntSaved);
 

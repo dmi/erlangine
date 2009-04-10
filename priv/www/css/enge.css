@@ -1,3 +1,7 @@
+/*******************************
+ *  Common part
+ *******************************/
+
 html {
 }
 
@@ -10,6 +14,12 @@ body{
     /*font-size: 8pt;*/
     font-size: 11px;
     font-family: sans-serif;
+}
+table, td, tr, thead, tfoot, tbody, th, tf
+{
+   border-collapse: collapse;
+   margin: 0px;
+   padding: 0px;
 }
 label
 {
@@ -42,6 +52,12 @@ input[type=text], input[type=password], textarea, select
    color: red;
    font-size: 1em;
 }
+
+
+/*******************************
+ *  Head
+ *******************************/
+
 #headLine
 {
    border-bottom: 2px solid #d0d0d0;
@@ -437,6 +453,11 @@ input[type=text], input[type=password], textarea, select
  *  entEditor
  *******************************/
 
+#entInfo
+{
+    display: none;
+}
+
 .fieldscroll
 {
    width: 70%;
@@ -461,8 +482,8 @@ input[type=text], input[type=password], textarea, select
 {
    border-top: solid 1px #d0d0d0;
    border-bottom: solid 1px #d0d0d0;
+   padding: 3px;
    padding-top: 1em;
-   padding-bottom: 3px;
 }
 .fieldlist input
 {
@@ -481,15 +502,21 @@ input[type=text], input[type=password], textarea, select
 }
 .fld-valctl
 {
-    vertical-align: top;
-    width: 1em;
+   vertical-align: top;
+   width: 1em;
 }
 .fld-values
 {
-   /*color: #339933;*/
    border-left: solid 1px #d0d0d0;
-   padding-top: 3px;
 }
+
+#entFields input
+{
+   border: inset 1px #f0f0f0;
+   background-color: #fdfdd0;
+   width: 99%;
+}
+
 
 .valuelist
 {
@@ -498,7 +525,7 @@ input[type=text], input[type=password], textarea, select
 .valuelist td
 {
    border: 0;
-   padding: 3px;
+   padding-top: 0;
 }
 .val-ctl
 {
@@ -520,29 +547,17 @@ input[type=text], input[type=password], textarea, select
    font-weight: bold;
 }
 
-.fieldtype
-{
-   width: 10em;
-   border: solid 1px #d0d0d0;
-}
-.fieldvalue, .fieldtype
+.valueval, .valuetype
 {
    display: none;
 }
 
-#entFields input
-{
-   border: inset 1px #f0f0f0;
-   background-color: #fdfdd0;
-   width: 99%;
-}
-
-#entInfo
-{
-    display: none;
-}
-
-#entTypeSelector select
+#entValueSelector select
 {
    float: left;
+}
+
+#entValueSelector .bapply, #entValueSelector .bcancel
+{
+   margin-top: 5px;
 }
