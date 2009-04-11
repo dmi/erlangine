@@ -247,10 +247,23 @@ function sigFieldKeys(ev){
     }
 }
 
+function doValueFixScore5(elt, score){
+    // XXX ask confirmation
+    ev = elt.parentNode.parentNode.parentNode;
+    ValueValue(ev.parentNode).innerHTML = score;
+    DisplayValue(ev, 'score5', score)
+}
+
 function DisplayValueScore5(vis, type, value){
-    var s = '';
-    for(i=0; i<value; i++) s+= '+ ';
-    vis.innerHTML = '<b>' + s + '</b>'
+    var score = UL({'class': 'star-rating inline-rating small-star'},
+                   LI({'class': 'current-rating', 'style': 'width:' + value * 20 + '%'}, value + " / 5"),  
+                   map(function(i){
+                           var a = A({'title': i + " / 5", 'class': 'score-' + i}, i);
+                           connect(a, 'onclick', function(){doValueFixScore5(a, i)});
+                           return LI(null, a)
+                       },
+                       [1, 2, 3, 4, 5]));
+    replaceChildNodes(vis, score)
 }
 
 /* ******************** */

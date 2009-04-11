@@ -1,0 +1,112 @@
+/*
+   original code got from
+   http://www.cssblog.ru/2007/12/04/sozdanie-zvezdochek-rejtingov-na-css/
+   with thanks
+*/
+.star-rating,
+.star-rating a:hover,
+.star-rating a:active,
+.star-rating a:focus,
+.star-rating .current-rating{
+ background: url(/images/starrating_stars.gif) left -1000px repeat-x;
+ /* В качестве фона для сылок, списка и текущего рейтинга 
+    зададим нашу картинку и расположим ее пока за 
+    пределами элемента */
+}
+
+.star-rating{
+ position: relative;
+ width: 125px; /* Ширина всего рейтинга*/
+ height: 25px;
+ overflow: hidden;
+ list-style: none;
+ margin: 0;
+ padding: 0;
+ background-position: left top;
+ /* Фоном будет являться "пустая" звездочка */
+}
+
+.star-rating li{
+ display: inline;
+ /* Элементы списка пойдут друг за другом. */
+}
+
+.star-rating a,
+.star-rating .current-rating{
+ position: absolute;
+ top: 0;
+ left: 0;
+ text-indent: -1000em;
+ /* Уберем текст за пределы видимости */
+ height: 25px;
+ line-height: 25px;
+ outline: none;
+ overflow: hidden;
+ border: none;
+}
+
+.star-rating a:hover,
+.star-rating a:active,
+.star-rating a:focus{
+ background-position: left bottom;
+ /* При наведении мышки и т.д. фоном будет 
+    нижняя часть картинки, а именно "подсвеченная" 
+    звездочка */
+}
+
+/* Зададим стили для каждой звездочки */
+.star-rating a.score-1{
+ width: 20%;
+ z-index: 6;
+}
+
+.star-rating a.score-2{
+ width: 40%;
+ z-index: 5;
+}
+
+.star-rating a.score-3{
+ width: 60%;
+ z-index: 4;
+}
+
+.star-rating a.score-4{
+ width: 80%;
+ z-index: 3;
+}
+
+.star-rating a.score-5{
+width:100%;
+z-index:2;
+}
+
+/* Текущий рейтинг выше всех и имеет в качестве 
+   фона "нормальную" звездочку */
+.star-rating .current-rating{
+ z-index: 1;
+ background-position: left center;
+}
+
+.small-star{
+ width:50px;
+ height:10px;
+}
+
+.small-star,
+.small-star a:hover,
+.small-star a:active,
+.small-star a:focus,
+.small-star .current-rating{
+ background-image: url(/images/starrating_stars_s.gif);
+ line-height: 10px;
+ height: 10px;
+}
+
+.inline-rating{
+ display: -moz-inline-block;
+ display: -moz-inline-box;
+/* Для поддержки кроссбраузерности */
+
+ display: inline-block;
+ vertical-align: middle;
+}
