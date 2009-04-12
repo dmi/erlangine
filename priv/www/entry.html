@@ -108,12 +108,13 @@ function composeTR(Field){
     connect (del_fld, 'onclick', doDeleteField);
     var add_val = A({'class': 'rhint add-val'}, '+');
     connect (add_val, 'onclick', doAddValue);
-    return TR(null, TD({'class': 'fld-ctl'}, del_fld),
-                    TD({'class': 'fld-name'}, Field.name),
-                    TD({'class': 'fld-valctl'}, add_val),
-                    TD({'class': 'fld-values'},
-                        TABLE({'class': 'valuelist'}, TBODY({'class': 'val-tbody'},
-                            map(composeValue, Field.values)))))
+    return TR({'class': 'fldtr'},
+              TD({'class': 'fld-ctl'}, del_fld),
+              TD({'class': 'fld-name'}, Field.name),
+              TD({'class': 'fld-valctl'}, add_val),
+              TD({'class': 'fld-values'},
+                  TABLE({'class': 'valuelist'}, TBODY({'class': 'val-tbody'},
+                      map(composeValue, Field.values)))))
 }
 
 function doAddValue(){
@@ -356,16 +357,31 @@ function cbEditEntry(json){
     signal('entEditor_tab', 'onclick')
 }
 
+function EntryToJSON(){
+    return map(function(fldn){
+                   return {'name': fldn.innerHTML,
+                           'values':
+                            map(function(fldv){
+                                    return {'name': findChildElements(fldv, ['.valuename'])[0].innerHTML,
+                                            'type': findChildElements(fldv, ['.valuetype'])[0].innerHTML,
+                                            'value': findChildElements(fldv, ['.valueval'])[0].innerHTML
+                                           }
+                                },
+                                findChildElements(fldn.parentNode, ['.val-value']))
+                          }
+               },
+               findChildElements($('entFields'), ['.fld-name']))
+}
+
 function doSave(){
     var json = {
 	"module": "entry",
 	"action": "save",
 	"data": {
-	    "title": $('entTitle').value,
 	    "id": $('entId').value,
 	    "rev": $('entRev').value,
-	    "anno": $('entAnnotation').value,
-            "text": text
+            "destination": "drafts",
+            "fields": EntryToJSON()
 	}
     }
     ajax(json, "/enge");
