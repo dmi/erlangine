@@ -571,6 +571,12 @@ input[type=text], input[type=password], textarea, select
    width: 80%;
    height: 5em;
 }
+.valueask
+{
+   float: left;
+   color: red;
+   font-weight: bold;
+}
 #entEditorText
 {
    width: 80%;

@@ -214,7 +214,7 @@ function ValueEditorText(elt, type, value){
     connect(revert, 'onclick', doValueRevertText);
     var ed = DIV({'id': 'entEditorText'});
     connect(ed, 'onkeydown', sigFieldKeys);
-    var VE = DIV({'class': 'valuevis'}, [revert, apply, ed])
+    var VE = DIV({'class': 'valuevis'}, revert, apply, ed);
     swapDOM(elt, VE);
     setupEditor('entEditorText', value);
     EditValue = VE
@@ -247,11 +247,36 @@ function sigFieldKeys(ev){
     }
 }
 
-function doValueFixScore5(elt, score){
-    // XXX ask confirmation
+// XXX ask confirmation
+function doValueShotScore5(elt, score){
     ev = elt.parentNode.parentNode.parentNode;
-    ValueValue(ev.parentNode).innerHTML = score;
-    DisplayValue(ev, 'score5', score)
+
+    var apply = A({'class': 'bapply'});
+    connect(apply, 'onclick', function(){doValueFixScore5(score)});
+    var revert = A({'class': 'bcancel'});
+    connect(revert, 'onclick', doValueRevertScore5);
+    var VE = SPAN({'class': 'valuevis'},
+                 revert, apply,
+                 SPAN({'class': 'valueask'}, "Установить оценку " + score + "?"));
+    swapDOM(ev, VE);
+    EditValue = VE
+}
+
+function doValueFixScore5(score){
+    // XXX ask confirmation
+    //ev = elt.parentNode.parentNode.parentNode;
+    //ValueValue(ev.parentNode).innerHTML = score;
+    //DisplayValue(ev, 'score5', score)
+    ValueValue(EditValue.parentNode).innerHTML = score;
+    DisplayValue(EditValue, 'score5', score);
+    EditValue = null
+}
+
+function doValueRevertScore5(){
+    DisplayValue(EditValue,
+                 'score5',
+                 ValueValue(EditValue.parentNode).innerHTML);
+    EditValue = null
 }
 
 function DisplayValueScore5(vis, type, value){
@@ -259,7 +284,7 @@ function DisplayValueScore5(vis, type, value){
                    LI({'class': 'current-rating', 'style': 'width:' + value * 20 + '%'}, value + " / 5"),  
                    map(function(i){
                            var a = A({'title': i + " / 5", 'class': 'score-' + i}, i);
-                           connect(a, 'onclick', function(){doValueFixScore5(a, i)});
+                           connect(a, 'onclick', function(){doValueShotScore5(a, i)});
                            return LI(null, a)
                        },
                        [1, 2, 3, 4, 5]));
