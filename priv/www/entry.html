@@ -203,6 +203,17 @@ function ValueEditor1(type, value){
     return DIV({'class': 'valuevis'}, [revert, apply, ed])
 }
 
+function sigFieldKeys(ev){
+    if(ev.key().code==27){
+        disconnectAll(EditValue);
+        doValueRevert()
+    }else if(ev.key().code==9){
+        disconnectAll(EditValue);
+        doValueRevert()
+    }
+}
+
+
 function DisplayValueText(vis, type, value){
     vis.innerHTML = value
 }
@@ -213,7 +224,6 @@ function ValueEditorText(elt, type, value){
     var revert = A({'class': 'bcancel'});
     connect(revert, 'onclick', doValueRevertText);
     var ed = DIV({'id': 'entEditorText'});
-    connect(ed, 'onkeydown', sigFieldKeys);
     var VE = DIV({'class': 'valuevis'}, revert, apply, ed);
     swapDOM(elt, VE);
     setupEditor('entEditorText', value);
@@ -237,16 +247,6 @@ function doValueRevertText(){
     EditValue = null
 }
 
-function sigFieldKeys(ev){
-    if(ev.key().code==27){
-        disconnectAll(EditValue);
-        doValueRevert()
-    }else if(ev.key().code==9){
-        disconnectAll(EditValue);
-        doValueRevert()
-    }
-}
-
 // XXX ask confirmation
 function doValueShotScore5(elt, score){
     ev = elt.parentNode.parentNode.parentNode;
@@ -263,10 +263,6 @@ function doValueShotScore5(elt, score){
 }
 
 function doValueFixScore5(score){
-    // XXX ask confirmation
-    //ev = elt.parentNode.parentNode.parentNode;
-    //ValueValue(ev.parentNode).innerHTML = score;
-    //DisplayValue(ev, 'score5', score)
     ValueValue(EditValue.parentNode).innerHTML = score;
     DisplayValue(EditValue, 'score5', score);
     EditValue = null
