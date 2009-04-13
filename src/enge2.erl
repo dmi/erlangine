@@ -43,4 +43,5 @@ prepare_db() ->
     mnesia:start(),
     authdb:reset(),
     realmdb:reset(),
-    destination:reset().
+    destination:reset(),
+    entry:reset().
