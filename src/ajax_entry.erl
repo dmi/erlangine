@@ -12,7 +12,7 @@ template(<<"Запись">>, _Session, _Req) ->
                       {values, [[{name, <<"Название">>}, {type, text}, {value, <<"Введите название (тему)">>}]]}],
                      [{name, <<"Тип">>},
                       {values, [[{name, <<"Тип">>}, {type, text}, {value, <<"Запись">>}]]}],
-                     [{name, <<"Тип">>},
+                     [{name, <<"Текст">>},
                       {values, [[{name, <<"Текст">>}, {type, text}, {value, <<"<p>Текст статьи или заметки.</p><p>Дважды щелкните для редактирования.</p><p><font color=red><b>Приятной работы! ;-)</b></font></p>">>}]]}]]}]},
      []};
 template(Any, _Session, _Req) ->
