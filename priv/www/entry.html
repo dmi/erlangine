@@ -30,7 +30,17 @@
 
 <script>
 
+function ClearEntry(){
+    // XXX partial list
+    map(disconnectAllTo,
+        [doEditValue, doValueNameFix, doValueNameCancel]);
+    $('entId').value="";
+    $('entRev').value="";
+    $('entFields').innerHTML=""
+}
+
 function prepEntEditor(){
+    ClearEntry();
     var json = {
         "module": "entry",
         "action": "entry_templates",
@@ -117,8 +127,7 @@ function doAddValue(){
 }
 
 function cbEntTemplate(json){
-    map(disconnectAllTo,
-        [doEditValue, doValueNameFix, doValueNameCancel]);
+    ClearEntry();
     replaceChildNodes('entFields', map(composeTR, json.reply.fields));
     hideElement('entCreate');
     showElement('entInfo');
@@ -133,9 +142,7 @@ function cbEntTemplate(json){
 
 function doCancel(){
     // XXX _partial_ list for disconnect
-    map(disconnectAllTo,
-        [doEditValue, doValueNameFix, doValueNameCancel]);
-    replaceChildNodes('entFields', TR(null));
+    ClearEntry();
     showElement('entCreate');
     hideElement('entInfo')
 }
@@ -364,18 +371,12 @@ function doValueFix1(){
     EditValue = null
 }
 
-function doNewEntry(){
-    $('entId').value="";
-    $('entRev').value="";
-    $('entFields').innerHTML=""
-}
-
 function cbEntEdit(json){
     statusM("Edit entry: " + json.reply._id + " : " + json.reply._rev);
+    cbEntTemplate(json);
     $('entId').value = json.reply._id;
     $('entRev').value = json.reply._rev;
     signal('entEditor_tab', 'onclick')
-    cbEntTemplate(json);
 }
 
 function EntryToJSON(){
