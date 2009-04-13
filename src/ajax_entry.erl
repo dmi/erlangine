@@ -4,28 +4,16 @@
 -include("authkey.hrl").
 
 entry_templates(_Struct, _Session, _Req) ->
-    {{ok, [{entry, [<<"Запись">>, <<"Кафе">>]}]},
+    {{ok, [{entry, [<<"Запись">>]}]},
      []}.
 
 template(<<"Запись">>, _Session, _Req) ->
-    {{ok, [{fields, [[{name, <<"Название">>}]]}]},
-     []};
-template(<<"Кафе">>, _Session, _Req) ->
     {{ok, [{fields, [[{name, <<"Название">>},
-                      {values, [[{name, <<"Название">>}, {type, text}, {value, <<"Портос">>}]]}],
+                      {values, [[{name, <<"Название">>}, {type, text}, {value, <<"Введите название (тему)">>}]]}],
                      [{name, <<"Тип">>},
-                      {values, [[{name, <<"Тип">>}, {type, text}, {value, <<"Кафе">>}]]}],
-                     [{name, <<"Место">>},
-                      {values,
-                          [[{name, <<"Город">>}, {type, text}, {value, <<"Санкт-Петербург">>}],
-                           [{name, <<"Адрес">>}, {type, text}, {value, <<"Кузнечный пер.">>}],
-                           [{name, <<"Гео">>}]]}],
-                     [{name, <<"Бизнес-ланч">>},
-                      {values, [[{name, <<"Описание">>}, {type, text}, {value, <<"<p>Стабильно приличная пища, среднего объема, не жирная.</p><p>Можно длительно ходить</p>">>}],
-                                [{name, <<"Оценка">>}, {type, score5}, {value, <<"4">>}]]}],
-                     [{name, <<"Коктейль">>},
-                      {values,
-                           [[{name, <<"Оценка">>}, {type, score5}, {value, <<"3">>}]]}]]}]},
+                      {values, [[{name, <<"Тип">>}, {type, text}, {value, <<"Запись">>}]]}],
+                     [{name, <<"Тип">>},
+                      {values, [[{name, <<"Текст">>}, {type, text}, {value, <<"<p>Текст статьи или заметки.</p><p>Дважды щелкните для редактирования.</p><p><font color=red><b>Приятной работы! ;-)</b></font></p>">>}]]}]]}]},
      []};
 template(Any, _Session, _Req) ->
     {{fail, Any}, []}.

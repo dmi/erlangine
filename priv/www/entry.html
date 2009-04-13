@@ -81,7 +81,7 @@ function doApplyTemplate(){
 }
 
 function composeValue(Value){
-    var del_val = A({'class': 'rhint'}, 'x');
+    var del_val = A({'class': 'rhint', 'title': "удалить значение"}, 'x');
     connect (del_val, 'onclick', doDeleteValue);
     var vis = DIV({'class': 'valuevis'});
     var val = TD({'class': 'val-value'},
@@ -100,7 +100,7 @@ function composeValue(Value){
 function composeTR(Field){
     var del_fld = A({'class': 'bdelete'});
     connect (del_fld, 'onclick', doDeleteField);
-    var add_val = A({'class': 'rhint add-val'}, '+');
+    var add_val = A({'class': 'rhint add-val', 'title': "добавить значение"}, '+');
     connect (add_val, 'onclick', doAddValue);
     return TR({'class': 'fldtr'},
               TD({'class': 'fld-ctl'}, del_fld),
@@ -159,7 +159,9 @@ function doAddField(){
     }else{
         var val = $('entNewFieldValue').value;
         var values = [];
-        if(val != "") values = [{'type': 'text', 'value': val}];
+        if(val != ""){
+            values = [{'type': 'text', 'name': Name, 'value': val}];
+        }
         var tr = composeTR({'name': Name, 'values': values});
         appendChildNodes('entFields', tr);
         if(val == "") signal(findChildElements(tr, ['.add-val'])[0], 'onclick')

@@ -62,7 +62,6 @@ statusM = function(str){
 /* Button Handlers end */
 
 TabsList = [{'id': "docNavigator", 'name': "Navigator"},
-            //{'id': "docEditor", 'name': "Document Editor"},
             {'id': "entEditor", 'name': "Entry Editor"},
 	    {'id': "destinations", 'name': "Destinations"}];
 
@@ -81,9 +80,6 @@ function pageLoadFunction(){
     insert('recoverContainer', "/pwreco.html");
     insert('activTabs', "/tabs.html");
     insert('docSelector', "/search.html");
-    //insert('docSelector', "/selector.html");
-    //insert('docView', "/view.html");
-    //insert('docEditor', "/editor.html");
     insert('entEditor', "/entry.html");
     insert('destinations', "/dests.html");
     
@@ -164,10 +160,7 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 
 	    <div id=docNavigator>
 		<div id=docSelector></div>
-		<div id=docView></div>
 	    </div>
-
-	    <!-- div id=docEditor></div -->
 
 	    <div id=entEditor></div>
 

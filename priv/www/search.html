@@ -1,0 +1,85 @@
+<div class=toolbar>
+    <a id="entSearch" class=button>Search</a>
+    <a id="entDelete" class=gbutton>Delete</a>
+</div>
+<table id="entSelect" cellspacing=1>
+    <thead><tr><th>x</th><th>Author</th><th>Date</th><th>Name</th></tr></thead>
+    <tbody id="entSearchResult"> </tbody>
+</table>
+
+<script>
+
+function doSearchEnts(){
+    var json = {
+        "module": "entry",
+        "action": "search"
+    }
+    ajax(json, "/enge");
+};
+
+function composeEntRow(ent){
+    var Title = TD({'class': 'entSearchResultPick'}, SPAN({'class': 'entlistid hidden'}, ent.id),
+                         SPAN({'class': 'entlistrev hidden'}, ent.value.rev),
+                         SPAN(null, ent.value.title[0]));
+    connect(Title, 'onclick', doEntEdit);
+    log('compose: ' + ent.id + " : " + ent.key.uid);
+    return TR(null,
+              TD(null, INPUT({'type': 'checkbox',
+                              'class': 'entRowCheck',
+                              'name': ent.id,
+                              'value': undefined/*ent.rev*/})),
+              TD(null, ent.key.uid + '@' + ent.key.domain),
+              TD(null, ent.value.date.day + "." + ent.value.date.month + "." + ent.value.date.year),
+              Title)
+}
+
+function cbSearchResult(json){
+    log("search results: " + JSON.stringify(json.reply.rows));
+    statusM(json.event);
+    disconnectAllTo(doEntEdit);
+    var tab = map(function(ent){return composeEntRow(ent)},
+                  json.reply.rows);
+    replaceChildNodes('entSearchResult', tab)
+}
+
+function doDeleteEnts(){
+    var entlist = map(
+        function(elt){
+            var tr = elt.parentNode.parentNode;
+            var id = findChildElements(tr, ['.entlistid'])[0].innerHTML;
+            var rev = findChildElements(tr, ['.entlistrev'])[0].innerHTML
+            return({"id": id, "rev": rev})
+        },
+        ifilter(
+            function(elt){return(elt.checked)},
+            findChildElements($('entSelect'), ['.entRowCheck'])));
+    log("to delete: " + JSON.stringify(entlist));
+    var json = {
+        "module": "entry",
+        "action": "bulk_delete",
+        "data": entlist
+    }
+    ajax(json, "/enge")
+};
+
+function doEntEdit(){
+    var id = findChildElements(this, ['.entlistid'])[0].innerHTML;
+    var rev = findChildElements(this, ['.entlistrev'])[0].innerHTML;
+    var json = {
+        "module": "entry",
+        "action": "read",
+        "data": {
+            "id": id,
+        }
+    }
+    ajax(json, "/enge");
+}
+
+connect('entSearch', 'onclick', doSearchEnts);
+connect('entDelete', 'onclick', doDeleteEnts);
+
+connect(xapi, 'entry:search-ok', cbSearchResult);
+connect(xapi, 'entry:bulk_delete-ok', doSearchEnts);
+
+connect(xapi, 'logged', doSearchEnts);
+</script>
