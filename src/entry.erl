@@ -40,12 +40,12 @@ date_json() ->
 create(Uid, Destination, Fields) ->
     Guid = list_to_binary(session:guid()),
     Obj = [{'_id', Guid},
+           {type, entry},
            {author, uid_to_json(Uid)},
            {date, date_json()},
            {destination, Destination},
            {fields, Fields}],
-    io:format("saving doc: ~p~n", [Obj]),
-    {ok, Result} = ecouch:doc_create(?DB, Guid, Obj),
+    Result = ecouch:doc_create(?DB, Guid, Obj),
     io:format("save result: ~p~n", [Result]),
     decode_result(Result).
 
@@ -54,11 +54,12 @@ create(Uid, Destination, Fields) ->
 update(Uid, Id, Rev, Destination, Fields) ->
     Obj = [{'_id', Id},
            {'_rev', Rev},
+           {type, entry},
            {author, uid_to_json(Uid)},
            {date, date_json()},
            {destination, Destination},
            {fields, Fields}],
-    {ok, Result} = ecouch:doc_update(?DB, Id, Obj),
+    Result = ecouch:doc_update(?DB, Id, Obj),
     io:format("save doc: ~p~n", [Result]),
     decode_result(Result).
 
@@ -121,8 +122,26 @@ put_attach(Uid, Id, Rev, Name, ContentType, Data) ->
 reset() ->
     ecouch:db_delete(?DB),
     ecouch:db_create(?DB),
-    case create_view("store", [{"all", "function(doc){ if(doc.type == 'entry') emit(doc.author, doc) }", null},
-                               {"owner","function(doc){ if(doc.type == 'entry') emit({'author': doc.author, 'id': doc._id}, null) }", null}
+    case create_view("store", [{"entries", "
+function(doc){
+    var test = function(X){return X};
+    var extract_field = function(fld, doc){
+        return doc.fields.map(function(field){
+            if(field.name == fld)
+                return field.values.map(function(value){
+                    if(value.name == fld) return value.value
+                    else return undefined
+                }).filter(test)
+            else return undefined
+        }).filter(test)[0]
+    };
+    if(doc.type == 'entry')
+        emit(doc.author, {'rev': doc._rev, 'date': doc.date, 'destination': doc.destination,
+                          'title': extract_field('Название', doc), 'type': extract_field('Тип', doc)})
+}", null},
+                               {"owner","
+function(doc){ if(doc.type == 'entry') emit({'author': doc.author, 'id': doc._id}, null) }
+", null}
                               ])
     of
         {ok, _Id, _Rev} -> ok;

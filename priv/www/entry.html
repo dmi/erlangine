@@ -7,7 +7,7 @@
     <input id=entRev type=hidden />
     <div class=toolbar>
         <a id=entSave class=gbutton>Сохранить</a>
-        <a id=entSaveTemplate class=gbutton>Сохранить как шаблон</a>
+        <a id=entSaveNew class=gbutton>Сохранить как новый</a>
         <a class=button id=entFieldAdd>Добавить полe</a>
         <label for=entNewFieldName>имя:</label>
         <input id=entNewFieldName type=text />
@@ -77,12 +77,6 @@ function doApplyTemplate(){
         "data": $('entTemplate').value
     }
     ajax(json, "/enge");
-    json = {
-        "module": "entry",
-        "action": "value_names",
-        "data": $('entTemplate').value
-    }
-    ajax(json, "/enge");
     statusM("wait for new entry...")
 }
 
@@ -94,7 +88,7 @@ function composeValue(Value){
                   // XXX do not show value name if equal to field name
                   SPAN({'class': 'valuename'}, Value.name),
                   SPAN({'class': 'valuetype'}, Value.type),
-                  SPAN({'class': 'valueval'}, Value.value),
+                  INPUT({'class': 'valueval', 'type': 'hidden', 'value': Value.value}),
                   vis);
     DisplayValue(vis, Value.type, Value.value);
     connect(val, 'ondblclick', doEditValue);
@@ -128,6 +122,12 @@ function cbEntTemplate(json){
     replaceChildNodes('entFields', map(composeTR, json.reply.fields));
     hideElement('entCreate');
     showElement('entInfo');
+    json = {
+        "module": "entry",
+        "action": "value_names",
+        "data": $('entTemplate').value
+    }
+    ajax(json, "/enge");
     statusM("ok")
 }
 
@@ -194,29 +194,45 @@ callbacks calls (after cleanup):
     doFieldRevert() - simple redisplay the old value
 */
 
-function ValueEditor1(type, value){
+function ValueEditorString(elt, type, value){
     var apply = A({'class': 'bapply'});
-    connect(apply, 'onclick', doValueFix);
+    connect(apply, 'onclick', doValueFixString);
     var revert = A({'class': 'bcancel'});
-    connect(revert, 'onclick', doValueRevert);
-    var ed = TEXTAREA({'id': 'entEditorText'}, value);
+    connect(revert, 'onclick', doValueRevertString);
+    var ed = INPUT({'type': 'text', 'id': 'entEditorInput', 'value': dequote(value)});
     connect(ed, 'onkeydown', sigFieldKeys);
-    return DIV({'class': 'valuevis'}, [revert, apply, ed])
+    var VE = DIV({'class': 'valuevis'}, revert, apply, ed);
+    swapDOM(elt, VE);
+    EditValue = VE
 }
 
 function sigFieldKeys(ev){
     if(ev.key().code==27){
         disconnectAll(EditValue);
-        doValueRevert()
-    }else if(ev.key().code==9){
-        disconnectAll(EditValue);
-        doValueRevert()
+        doValueRevertString()
     }
+}
+
+function doValueFixString(){
+    var value = $('entEditorInput').value;
+    var qv = quote(value);
+    // XXX wrong when only one <p/> follows <ul> etc tags
+    ValueValue(EditValue.parentNode).value = qv;
+    DisplayValue(EditValue, 'string', qv);
+    EditValue = null
+}
+
+// XXX tautology for all types
+function doValueRevertString(){
+    DisplayValue(EditValue,
+                 'string',
+                 ValueValue(EditValue.parentNode).value);
+    EditValue = null
 }
 
 
 function DisplayValueText(vis, type, value){
-    vis.innerHTML = value
+    vis.innerHTML = dequote(value)
 }
 
 function ValueEditorText(elt, type, value){
@@ -227,16 +243,16 @@ function ValueEditorText(elt, type, value){
     var ed = DIV({'id': 'entEditorText'});
     var VE = DIV({'class': 'valuevis'}, revert, apply, ed);
     swapDOM(elt, VE);
-    setupEditor('entEditorText', value);
+    setupEditor('entEditorText', dequote(value));
     EditValue = VE
 }
 
 function doValueFixText(){
-    var qv = tinyMCE.get('entEditorText').getContent();
-    //var qv = quote(value);
+    var value = tinyMCE.get('entEditorText').getContent();
+    if(value.split("<p>").length <= 2) value = value.replace('<p>', '').replace('</p>', '');
+    var qv = quote(value);
     // XXX wrong when only one <p/> follows <ul> etc tags
-    if(qv.split("<p>").length <= 2) qv = qv.replace('<p>', '').replace('</p>', '');
-    ValueValue(EditValue.parentNode).innerHTML = qv;
+    ValueValue(EditValue.parentNode).value = qv;
     DisplayValue(EditValue, 'text', qv);
     EditValue = null
 }
@@ -244,7 +260,7 @@ function doValueFixText(){
 function doValueRevertText(){
     DisplayValue(EditValue,
                  'text',
-                 dequote(ValueValue(EditValue.parentNode).innerHTML));
+                 ValueValue(EditValue.parentNode).value);
     EditValue = null
 }
 
@@ -264,7 +280,7 @@ function doValueShotScore5(elt, score){
 }
 
 function doValueFixScore5(score){
-    ValueValue(EditValue.parentNode).innerHTML = score;
+    ValueValue(EditValue.parentNode).value = score;
     DisplayValue(EditValue, 'score5', score);
     EditValue = null
 }
@@ -272,7 +288,7 @@ function doValueFixScore5(score){
 function doValueRevertScore5(){
     DisplayValue(EditValue,
                  'score5',
-                 ValueValue(EditValue.parentNode).innerHTML);
+                 ValueValue(EditValue.parentNode).value);
     EditValue = null
 }
 
@@ -295,6 +311,8 @@ valueEditor = new Array();
 
 displayValue['text'] = DisplayValueText;
 valueEditor['text'] = ValueEditorText;
+displayValue['string'] = DisplayValueText;
+valueEditor['string'] = ValueEditorString;
 displayValue['score5'] = DisplayValueScore5;
 
 function DisplayValue(vis, type, value){
@@ -333,13 +351,13 @@ function doEditValue(){
     var type = ValueType(this);
     ValueEditor(ValueVis(this),
         type,
-        dequote(ValueValue(this).innerHTML))
+        ValueValue(this).value)
 }
 
 function doValueFix1(){
     var value = findChildElements(EditValue, ['textarea'])[0].value;
     var qv = quote(value);
-    ValueValue(EditValue.parentNode).innerHTML = qv;
+    ValueValue(EditValue.parentNode).value = qv;
     DisplayValue(EditValue, ValueType(EditValue.parentNode), qv);
     EditValue = null
 }
@@ -350,11 +368,12 @@ function doNewEntry(){
     $('entFields').innerHTML=""
 }
 
-function cbEditEntry(json){
+function cbEntEdit(json){
     statusM("Edit entry: " + json.reply._id + " : " + json.reply._rev);
     $('entId').value = json.reply._id;
     $('entRev').value = json.reply._rev;
     signal('entEditor_tab', 'onclick')
+    cbEntTemplate(json);
 }
 
 function EntryToJSON(){
@@ -364,7 +383,7 @@ function EntryToJSON(){
                             map(function(fldv){
                                     return {'name': findChildElements(fldv, ['.valuename'])[0].innerHTML,
                                             'type': findChildElements(fldv, ['.valuetype'])[0].innerHTML,
-                                            'value': findChildElements(fldv, ['.valueval'])[0].innerHTML
+                                            'value': findChildElements(fldv, ['.valueval'])[0].value
                                            }
                                 },
                                 findChildElements(fldn.parentNode, ['.val-value']))
@@ -380,6 +399,20 @@ function doSave(){
 	"data": {
 	    "id": $('entId').value,
 	    "rev": $('entRev').value,
+            "destination": "drafts",
+            "fields": EntryToJSON()
+	}
+    }
+    ajax(json, "/enge");
+}
+
+function doSaveNew(){
+    var json = {
+	"module": "entry",
+	"action": "save",
+	"data": {
+	    "id": "",
+	    "rev": "",
             "destination": "drafts",
             "fields": EntryToJSON()
 	}
@@ -418,6 +451,7 @@ function setupEditor(elt, value) {
 }
 
 connect('entSave', 'onclick', doSave);
+connect('entSaveNew', 'onclick', doSaveNew);
 connect('entCancel', 'onclick', doCancel);
 connect('entNew', 'onclick', doApplyTemplate);
 connect('entFieldAdd', 'onclick', doAddField);
@@ -425,6 +459,7 @@ connect('entFieldAdd', 'onclick', doAddField);
 connect(xapi, 'entry:entry_templates-ok', cbEntryTemplates);
 connect(xapi, 'entry:value_names-ok', cbValueNames);
 connect(xapi, 'entry:template-ok', cbEntTemplate);
+connect(xapi, 'entry:read-ok', cbEntEdit);
 connect(xapi, 'entry:save-ok', cbEntSaved);
 
 connect(xapi, 'logged', prepEntEditor);

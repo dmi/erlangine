@@ -343,16 +343,17 @@ input[type=text], input[type=password], textarea, select
    width: 70%;
 }
 
-#docSelect
+#docSelect, #entSelect
 {
    width: 100%;
    border-collapse: collapse;
 }
-#docSelect th
+#docSelect th, #entSelect th
 {
    background: #e7e7e7;
 }
 #docSelect td, #docSelect th
+#entSelect td, #entSelect th
 {
    border: solid 1px #d0d0d0;
 }
@@ -367,7 +368,7 @@ input[type=text], input[type=password], textarea, select
    display: inline;
 }
 
-.docSearchResultRow:hover, .tab:hover, .hint:hover, .rhint:hover
+.entSearchResultPick:hover, .tab:hover, .hint:hover, .rhint:hover
 {
    cursor: pointer;
 }
@@ -514,7 +515,6 @@ input[type=text], input[type=password], textarea, select
 {
    border: inset 1px #f0f0f0;
    background-color: #fdfdd0;
-   width: 99%;
 }
 
 
@@ -565,10 +565,13 @@ input[type=text], input[type=password], textarea, select
 {
    margin: 0.5em;
 }
+.valuevis input, .valuevis textarea
+{
+   float: left;
+   width: 80%;
+}
 .valuevis textarea
 {
-   float: right;
-   width: 80%;
    height: 5em;
 }
 .valueask

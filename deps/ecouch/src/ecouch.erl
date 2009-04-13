@@ -231,7 +231,6 @@ db_info(DatabaseName) ->
 
 doc_create(DatabaseName, Doc) ->
     DocJson = engejson:encode(Doc),
-    io:format("doc_create json: ~p~n",[list_to_binary(DocJson)]),
     Path = lists:flatten(io_lib:format("/~s/", [DatabaseName])),
     ec_listener:post(Path, DocJson).
 
