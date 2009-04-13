@@ -53,12 +53,7 @@ account(Struct, _Session, _Req) ->
         ok -> 
             case authdb:new({U, D}, [{passw, P}], #authop{realm = user, name = N, recovery = {email, M}}) of
                 ok ->
-                    case docs:reset_db({U, D}) of
-                        ok -> 
-                            {{ok, []}, []};
-                        error ->
-                            {{fail, <<"Db create failed">>}, []}
-                    end;
+                    {{ok, []}, []};
 
                 {error, exists} ->
                     {{fail, <<"Account already exists">>}, []};
