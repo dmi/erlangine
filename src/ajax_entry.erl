@@ -21,6 +21,7 @@ template(Any, _Session, _Req) ->
 value_names(_Struct, _Session, _Req) ->
     {{ok, [{values, [[{name, <<"Название">>}, {type, text}],
                      [{name, <<"Тип">>}, {type, text}],
+                     [{name, <<"Текст">>}, {type, text}],
                      [{name, <<"Город">>}, {type, text}],
                      [{name, <<"Адрес">>}, {type, text}],
                      [{name, <<"Гео">>}, {type, text}],
