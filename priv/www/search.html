@@ -1,7 +1,7 @@
 <div class=toolbar>
     <a id="entSearch" class=button>Search</a>
-    <a id="entNew" class=button>New</a>
-    <a id="entDelete" class=gbutton>Delete</a>
+    <a id="entNewEntry" class=button>New</a>
+    <a id="entDeleteEnts" class=gbutton>Delete</a>
 </div>
 <table id="entSelect" cellspacing=1>
     <thead><tr><th>x</th><th>Author</th><th>Date</th><th>Type</th><th>Name</th></tr></thead>
@@ -82,8 +82,8 @@ function doNewEntry(){
 }
 
 connect('entSearch', 'onclick', doSearchEnts);
-connect('entNew', 'onclick', doNewEntry);
-connect('entDelete', 'onclick', doDeleteEnts);
+connect('entNewEntry', 'onclick', doNewEntry);
+connect('entDeleteEnts', 'onclick', doDeleteEnts);
 
 connect(xapi, 'entry:search-ok', cbSearchResult);
 connect(xapi, 'entry:bulk_delete-ok', doSearchEnts);
