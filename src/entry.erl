@@ -7,7 +7,7 @@
 %%
 
 -module(entry).
--export([create/3, update/5, create_view/2, create_view/3, read/2, delete/3, get_attach/3, put_attach/6, reset/0]).
+-export([create/3, update/5, create_view/2, create_view/3, read/2, delete/3, get_attach/3, put_attach/6, reset/0, reset_view/0]).
 
 -define(DB, "entries").
 
@@ -122,6 +122,16 @@ put_attach(Uid, Id, Rev, Name, ContentType, Data) ->
 reset() ->
     ecouch:db_delete(?DB),
     ecouch:db_create(?DB),
+    reset_view().
+
+reset_view() ->
+    Id = "_design/store",
+    case ecouch:doc_get(?DB, Id) of
+        {ok, Json} ->
+            Rev = engejson:get_value(<<"_rev">>, Json),
+            ecouch:doc_delete(?DB, Id, Rev);
+        _ -> ok
+    end,
     case create_view("store", [{"entries", "
 function(doc){
     var test = function(X){return X};
@@ -141,7 +151,25 @@ function(doc){
 }", null},
                                {"owner","
 function(doc){ if(doc.type == 'entry') emit({'author': doc.author, 'id': doc._id}, null) }
-", null}
+", null},
+                               {"template","
+function(doc){
+    var test = function(X){return X};
+    var extract_field = function(fld, doc){
+        return doc.fields.map(function(field){
+            if(field.name == fld)
+                return field.values.map(function(value){
+                    if(value.name == fld) return value.value
+                    else return undefined
+                }).filter(test)
+            else return undefined
+        }).filter(test)[0]
+    };
+    if(doc.type == 'entry')
+        var name = extract_field('Шаблон', doc);
+        if(name)
+            emit(name[0], {'type': extract_field('Тип', doc)[0]})
+}", null}
                               ])
     of
         {ok, _Id, _Rev} -> ok;

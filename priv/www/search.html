@@ -1,9 +1,10 @@
 <div class=toolbar>
     <a id="entSearch" class=button>Search</a>
+    <a id="entNew" class=button>New</a>
     <a id="entDelete" class=gbutton>Delete</a>
 </div>
 <table id="entSelect" cellspacing=1>
-    <thead><tr><th>x</th><th>Author</th><th>Date</th><th>Name</th></tr></thead>
+    <thead><tr><th>x</th><th>Author</th><th>Date</th><th>Type</th><th>Name</th></tr></thead>
     <tbody id="entSearchResult"> </tbody>
 </table>
 
@@ -30,6 +31,7 @@ function composeEntRow(ent){
                               'value': undefined/*ent.rev*/})),
               TD(null, ent.key.uid + '@' + ent.key.domain),
               TD(null, ent.value.date.day + "." + ent.value.date.month + "." + ent.value.date.year),
+              TD(null, ent.value.type),
               Title)
 }
 
@@ -69,13 +71,18 @@ function doEntEdit(){
         "module": "entry",
         "action": "read",
         "data": {
-            "id": id,
+            "id": id
         }
     }
     ajax(json, "/enge");
 }
 
+function doNewEntry(){
+    doNewEntryFromSelector()
+}
+
 connect('entSearch', 'onclick', doSearchEnts);
+connect('entNew', 'onclick', doNewEntry);
 connect('entDelete', 'onclick', doDeleteEnts);
 
 connect(xapi, 'entry:search-ok', cbSearchResult);

@@ -1,19 +1,21 @@
 <div class=toolbar id=entCreate>
-    <a id=entNew class=gbutton>Новая запись</a>
+    <a id=entNew class=gbutton title="Новая запись по шаблону">Новая запись</a>
     <select id=entTemplate></select>
 </div>
 <div id=entInfo>
     <input id=entId type=hidden />
     <input id=entRev type=hidden />
     <div class=toolbar>
-        <a id=entSave class=gbutton>Сохранить</a>
-        <a id=entSaveNew class=gbutton>Сохранить как новый</a>
+        <a id=entSave class=gbutton title="Сохранить запись">Сохранить</a>
+        <a id=entDouble class=gbutton title="Сделать копию записи">Дублировать</a>
+        <a id=entCancel class=button>Отмена</a>
+    </div>
+    <div class=toolbar>
         <a class=button id=entFieldAdd>Добавить полe</a>
         <label for=entNewFieldName>имя:</label>
         <input id=entNewFieldName type=text />
         <label for=entNewFieldValue>значение:</label>
         <input id=entNewFieldValue type=text />
-        <a id=entCancel class=button>Отмена</a>
     </div>
     <div class=fieldscroll>
         <table class=fieldlist cellspacing=0>
@@ -50,8 +52,8 @@ function prepEntEditor(){
 }
 
 function cbEntryTemplates(json){
-    replaceChildNodes('entTemplate', map(function(Name){return OPTION({'value': Name}, Name)},
-                                    json.reply.entry))
+    replaceChildNodes('entTemplate', map(function(tpl){return OPTION({'value': tpl.id}, tpl.key + " : " + tpl.value.type)},
+                                    json.reply))
 }
 
 function cbValueNames(json){
@@ -72,11 +74,15 @@ function doValueNameFix(){
     var val = $('value-sel').value.split(',');
     var tab = this.parentNode.parentNode.parentNode;
     removeElement(this.parentNode.parentNode);
-    appendChildNodes(tab, composeValue({'name': val[0], 'type': val[1], 'value': ''}))
+    valrow = composeValue({'name': val[0], 'type': val[1], 'value': ''});
+    appendChildNodes(tab, valrow);
+    ValueSelectorActive = false;
+    signal(findChildElements(valrow, ['.val-value'])[0], 'ondblclick')
 }
 
 function doValueNameCancel(){
     removeElement(this.parentNode.parentNode)
+    ValueSelectorActive = false;
 }
 
 function doApplyTemplate(){
@@ -121,14 +127,20 @@ function composeTR(Field){
                       map(composeValue, Field.values)))))
 }
 
+ValueSelectorActive = false;
+
 function doAddValue(){
+    if (InEditor()) return;
     appendChildNodes(findChildElements(this.parentNode.parentNode, ['.val-tbody'])[0], TR(null, TD(), EntValueSelector));
+    ValueSelectorActive = true;
     $('value-sel').focus()
 }
 
 function cbEntTemplate(json){
     ClearEntry();
-    replaceChildNodes('entFields', map(composeTR, json.reply.fields));
+    replaceChildNodes('entFields', map(composeTR,
+                                       ifilter(function(Field){return (Field.name != 'Шаблон')},
+                                               json.reply.fields)));
     hideElement('entCreate');
     showElement('entInfo');
     json = {
@@ -138,6 +150,28 @@ function cbEntTemplate(json){
     }
     ajax(json, "/enge");
     statusM("ok")
+}
+
+function cbEntEdit(json){
+    statusM("Edit entry: " + json.reply._id + " : " + json.reply._rev);
+    ClearEntry();
+    replaceChildNodes('entFields', map(composeTR, json.reply.fields));
+    hideElement('entCreate');
+    showElement('entInfo');
+    $('entId').value = json.reply._id;
+    $('entRev').value = json.reply._rev;
+    signal('entEditor_tab', 'onclick');
+    json = {
+        "module": "entry",
+        "action": "value_names",
+        "data": $('entTemplate').value
+    }
+    ajax(json, "/enge")
+}
+
+doNewEntryFromSelector = function(){
+    //doCancel();
+    //signal('entEditor_tab', 'onclick');
 }
 
 function doCancel(){
@@ -155,6 +189,7 @@ function findField(Name){
 }
 
 function doAddField(){
+    if (InEditor()) return;
     var Name = $('entNewFieldName').value;
     if(Name == ""){
         statusM("Name for new field is not set!");
@@ -175,20 +210,21 @@ function doAddField(){
     }
 }
 
-function doDeleteField(){
-    if(EditValue){
+function InEditor(){
+    if(EditValue || ValueSelectorActive){
         statusM("please close value editor first");
-        return
+        return true
     }
+}
+
+function doDeleteField(){
+    if (InEditor()) return;
     disconnectAll(this);
     removeElement(this.parentNode.parentNode)
 }
 
 function doDeleteValue(){
-    if(EditValue){
-        statusM("please close value editor first");
-        return
-    }
+    if (InEditor()) return;
     disconnectAll(this);
     removeElement(this.parentNode.parentNode)
 }
@@ -352,10 +388,7 @@ function ValueVis(item){
 EditValue = null;
 
 function doEditValue(){
-    if(EditValue){
-        statusM("please close value editor first");
-        return
-    }
+    if (InEditor()) return;
     //var value = dequote(ValueValue(this).innerHTML);
     var type = ValueType(this);
     ValueEditor(ValueVis(this),
@@ -369,14 +402,6 @@ function doValueFix1(){
     ValueValue(EditValue.parentNode).value = qv;
     DisplayValue(EditValue, ValueType(EditValue.parentNode), qv);
     EditValue = null
-}
-
-function cbEntEdit(json){
-    statusM("Edit entry: " + json.reply._id + " : " + json.reply._rev);
-    cbEntTemplate(json);
-    $('entId').value = json.reply._id;
-    $('entRev').value = json.reply._rev;
-    signal('entEditor_tab', 'onclick')
 }
 
 function EntryToJSON(){
@@ -409,18 +434,10 @@ function doSave(){
     ajax(json, "/enge");
 }
 
-function doSaveNew(){
-    var json = {
-	"module": "entry",
-	"action": "save",
-	"data": {
-	    "id": "",
-	    "rev": "",
-            "destination": "drafts",
-            "fields": EntryToJSON()
-	}
-    }
-    ajax(json, "/enge");
+function doDouble(){
+    $('entId').value = "";
+    $('entRev').value = "";
+    statusM("Edit and save as new entry")
 }
 
 function cbEntSaved(json){
@@ -454,7 +471,7 @@ function setupEditor(elt, value) {
 }
 
 connect('entSave', 'onclick', doSave);
-connect('entSaveNew', 'onclick', doSaveNew);
+connect('entDouble', 'onclick', doDouble);
 connect('entCancel', 'onclick', doCancel);
 connect('entNew', 'onclick', doApplyTemplate);
 connect('entFieldAdd', 'onclick', doAddField);

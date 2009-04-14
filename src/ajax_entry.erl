@@ -3,24 +3,40 @@
 -include("session.hrl").
 -include("authkey.hrl").
 
-entry_templates(_Struct, _Session, _Req) ->
-    {{ok, [{entry, [<<"Запись">>]}]},
-     []}.
+%entry_templates(_Struct, _Session, _Req) ->
+%    {{ok, [{entry, [<<"Запись">>]}]},
+%     []}.
+%template(<<"Запись">>, _Session, _Req) ->
+%    {{ok, [{fields, [[{name, <<"Название">>},
+%                      {values, [[{name, <<"Название">>}, {type, text}, {value, <<"Введите название (тему)">>}]]}],
+%                     [{name, <<"Тип">>},
+%                      {values, [[{name, <<"Тип">>}, {type, text}, {value, <<"Запись">>}]]}],
+%                     [{name, <<"Текст">>},
+%                      {values, [[{name, <<"Текст">>}, {type, text}, {value, <<"<p>Текст статьи или заметки.</p><p>Дважды щелкните для редактирования.</p><p><font color=red><b>Приятной работы! ;-)</b></font></p>">>}]]}]]}]},
+%     []},
+%template(Any, _Session, _Req) ->
+%    {{fail, Any}, []}.
 
-template(<<"Запись">>, _Session, _Req) ->
-    {{ok, [{fields, [[{name, <<"Название">>},
-                      {values, [[{name, <<"Название">>}, {type, text}, {value, <<"Введите название (тему)">>}]]}],
-                     [{name, <<"Тип">>},
-                      {values, [[{name, <<"Тип">>}, {type, text}, {value, <<"Запись">>}]]}],
-                     [{name, <<"Текст">>},
-                      {values, [[{name, <<"Текст">>}, {type, text}, {value, <<"<p>Текст статьи или заметки.</p><p>Дважды щелкните для редактирования.</p><p><font color=red><b>Приятной работы! ;-)</b></font></p>">>}]]}]]}]},
-     []};
-template(Any, _Session, _Req) ->
-    {{fail, Any}, []}.
+entry_templates(_Struct, Session, _Req) ->
+    #session{opaque = #authkey{user = Uid}} = Session,
+    {ok, Templates} = entry:read(Uid, "_design/store/_view/template"),
+    T = engejson:get_value(<<"rows">>, Templates),
+    {{ok, T}, []}.
+
+template(Id, Session, _Req) ->
+    #session{opaque = #authkey{user = Uid}} = Session,
+    Reply = entry:read(Uid, Id),
+    {Reply, []}.
+
+read(Struct, Session, _Req) ->
+    [Id, Rev] = engejson:get_values(["id", "rev"], Struct),
+    #session{opaque = #authkey{user = Uid}} = Session,
+    Reply = entry:read(Uid, Id),
+    {Reply, []}.
 
 value_names(_Struct, _Session, _Req) ->
     {{ok, [{values, [[{name, <<"Название">>}, {type, text}],
-                     [{name, <<"Тип">>}, {type, text}],
+                     [{name, <<"Тип">>}, {type, string}],
                      [{name, <<"Текст">>}, {type, text}],
                      [{name, <<"Город">>}, {type, text}],
                      [{name, <<"Адрес">>}, {type, text}],
@@ -43,12 +59,6 @@ save(Struct, Session, _Req) ->
         {ok, Id1, Rev1} -> {{ok, [{id, Id1}, {rev, Rev1}]}, []};
         {error, _Reason} -> {{fail, <<"Save entry failed">>}, []}
     end.
-
-read(Struct, Session, _Req) ->
-    [Id, Rev] = engejson:get_values(["id", "rev"], Struct),
-    #session{opaque = #authkey{user = Uid}} = Session,
-    Reply = entry:read(Uid, Id),
-    {Reply, []}.
 
 search(Struct, Session, _Req) ->
     #session{opaque = #authkey{user = Uid}} = Session,
