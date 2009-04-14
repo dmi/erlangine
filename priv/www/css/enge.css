@@ -494,26 +494,6 @@ input[type=text], input[type=password], textarea, select
 {
    margin: 0;
 }
-.fld-ctl
-{
-   width: 16px;
-   vertical-align: top;
-}
-.fld-name
-{
-   font-weight: bold;
-   width: 20%;
-   vertical-align: top;
-}
-.fld-valctl
-{
-   vertical-align: top;
-   width: 1em;
-}
-.fld-values
-{
-   border-left: solid 1px #d0d0d0;
-}
 
 #entFields input
 {
@@ -522,45 +502,48 @@ input[type=text], input[type=password], textarea, select
 }
 
 
-.valuelist
+.fldtr
 {
-   width: 100%;
+   border: solid 1px #D0D0D0;
+   margin: 3px;
+   padding: 3px;
 }
-.valuelist td
+.fldtr-ondrop
 {
-   border: 0;
-   padding-top: 0;
+   background: #f0f0f0;
 }
-.val-ctl
+.fld-name
 {
-    vertical-align: top;
-    width: 1em;
+   font-weight: bold;
+   margin-left: 5px;
 }
 .val-value
 {
    color: #339933;
    background-color: #f7f7f7;
-   margin: 3px;
-   /*border: solid 1px #d0d0d0;*/
+   margin-left: 50px;
+   margin-top: 5px;
+   padding: 5px;
 }
-
+.val-value-ondrop
+{
+   background: #f0f0f0;
+}
 .valuename
 {
    color: #993333;
+   margin-left: 5px;
    margin-right: 0.5em;
    font-weight: bold;
 }
-
 .valueval, .valuetype
 {
    display: none;
 }
-
 .valuevis .bapply, .valuevis .bcancel
 {
    float: right;
 }
-
 .valuevis
 {
    display: inline;
@@ -572,7 +555,6 @@ input[type=text], input[type=password], textarea, select
 .valuevis input, .valuevis textarea
 {
    float: left;
-   width: 80%;
 }
 .valuevis textarea
 {
@@ -584,16 +566,20 @@ input[type=text], input[type=password], textarea, select
    color: red;
    font-weight: bold;
 }
+
 #entEditorText
 {
    width: 80%;
 }
 
+#entValueSelector
+{
+   height: 2em;
+}
 #entValueSelector select
 {
    float: left;
 }
-
 #entValueSelector .bapply, #entValueSelector .bcancel
 {
    margin-top: 5px;

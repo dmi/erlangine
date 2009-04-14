@@ -18,15 +18,7 @@
         <input id=entNewFieldValue type=text />
     </div>
     <div class=fieldscroll>
-        <table class=fieldlist cellspacing=0>
-            <thead><tr>
-                <th class=fld-ctl></th>
-                <th class=fld-name>Поле</th>
-                <th class=fld-valctl></th>
-                <th class=fld-values>Значение</th>
-            </tr></thead>
-            <tbody id=entFields></tbody>
-        </table>
+        <div id=entFields></div>
     </div>
 </div>
 
@@ -41,8 +33,7 @@ function ClearEntry(){
     $('entFields').innerHTML=""
 }
 
-function prepEntEditor(){
-    ClearEntry();
+function requestTemplates(){
     var json = {
         "module": "entry",
         "action": "entry_templates",
@@ -62,26 +53,26 @@ function cbValueNames(json){
     var cancel = A({'class': 'bcancel'});
     connect(cancel, 'onclick', doValueNameCancel);
     EntValueSelector =
-        TD({'id': 'entValueSelector'},
+        DIV({'id': 'entValueSelector'},
             SELECT({'id': 'value-sel'},
-                map(function(val){return OPTION({'value': val.name + ',' + val.type}, val.name)},
-                    json.reply.values)),
+                   map(function(val){return OPTION({'value': val.name + ',' + val.type}, val.name)},
+                       json.reply.values)),
             apply,
             cancel)
 }
 
 function doValueNameFix(){
     var val = $('value-sel').value.split(',');
-    var tab = this.parentNode.parentNode.parentNode;
-    removeElement(this.parentNode.parentNode);
+    var elt = this.parentNode.parentNode;
+    removeElement(this.parentNode);
     valrow = composeValue({'name': val[0], 'type': val[1], 'value': ''});
-    appendChildNodes(tab, valrow);
+    appendChildNodes(elt, valrow);
     ValueSelectorActive = false;
-    signal(findChildElements(valrow, ['.val-value'])[0], 'ondblclick')
+    signal(valrow, 'ondblclick')
 }
 
 function doValueNameCancel(){
-    removeElement(this.parentNode.parentNode)
+    removeElement(this.parentNode)
     ValueSelectorActive = false;
 }
 
@@ -100,17 +91,23 @@ function composeValue(Value){
     var del_val = A({'class': 'rhint', 'title': "удалить значение"}, 'x');
     connect (del_val, 'onclick', doDeleteValue);
     var vis = DIV({'class': 'valuevis'});
-    var val = TD({'class': 'val-value'},
-                  // XXX do not show value name if equal to field name
-                  SPAN({'class': 'valuename'}, Value.name),
-                  SPAN({'class': 'valuetype'}, Value.type),
-                  INPUT({'class': 'valueval', 'type': 'hidden', 'value': Value.value}),
-                  vis);
     DisplayValue(vis, Value.type, Value.value);
+    // XXX do not show value name if equal to field name
+    val = DIV({'class': 'val-value'},
+              SPAN(null, del_val),
+              SPAN({'class': 'valuename'}, Value.name),
+              SPAN({'class': 'valuetype'}, Value.type),
+              INPUT({'class': 'valueval', 'type': 'hidden', 'value': Value.value}),
+              vis);
     connect(val, 'ondblclick', doEditValue);
-    return TR(null,
-               TD({'class': 'val-ctl'}, del_val),
-               val)
+    new Draggable(val, {'revert': true});
+    new Droppable(val, {'hoverclass': 'val-value-ondrop',
+                        'accept': ['val-value'],
+                        'ondrop': function(drg, drp){
+                                      removeElement(drg);
+                                      insertSiblingNodesBefore(drp, drg)
+                                  }});
+    return val
 }
 
 function composeTR(Field){
@@ -118,20 +115,28 @@ function composeTR(Field){
     connect (del_fld, 'onclick', doDeleteField);
     var add_val = A({'class': 'rhint add-val', 'title': "добавить значение"}, '+');
     connect (add_val, 'onclick', doAddValue);
-    return TR({'class': 'fldtr'},
-              TD({'class': 'fld-ctl'}, del_fld),
-              TD({'class': 'fld-name'}, Field.name),
-              TD({'class': 'fld-valctl'}, add_val),
-              TD({'class': 'fld-values'},
-                  TABLE({'class': 'valuelist'}, TBODY({'class': 'val-tbody'},
-                      map(composeValue, Field.values)))))
+    var div = DIV({'class': 'fldtr'},
+              SPAN(null, del_fld, add_val),
+              SPAN({'class': 'fld-name'}, Field.name),
+              map(composeValue, Field.values));
+    new Draggable(div, {'revert': true});
+    new Droppable(div, {'hoverclass': 'fldtr-ondrop',
+                        'accept': ['fldtr', 'val-value'],
+                        'ondrop': function(drg, drp){
+                                      removeElement(drg);
+                                      if(hasElementClass(drg, 'fldtr'))
+                                          insertSiblingNodesBefore(drp, drg)
+                                      else
+                                          appendChildNodes(drp, drg)
+                                  }});
+    return div
 }
 
 ValueSelectorActive = false;
 
 function doAddValue(){
     if (InEditor()) return;
-    appendChildNodes(findChildElements(this.parentNode.parentNode, ['.val-tbody'])[0], TR(null, TD(), EntValueSelector));
+    appendChildNodes(this.parentNode.parentNode, EntValueSelector);
     ValueSelectorActive = true;
     $('value-sel').focus()
 }
@@ -177,6 +182,7 @@ doNewEntryFromSelector = function(){
 function doCancel(){
     // XXX _partial_ list for disconnect
     ClearEntry();
+    requestTemplates();
     showElement('entCreate');
     hideElement('entInfo')
 }
@@ -482,5 +488,5 @@ connect(xapi, 'entry:template-ok', cbEntTemplate);
 connect(xapi, 'entry:read-ok', cbEntEdit);
 connect(xapi, 'entry:save-ok', cbEntSaved);
 
-connect(xapi, 'logged', prepEntEditor);
+connect(xapi, 'logged', requestTemplates);
 </script>
