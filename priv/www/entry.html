@@ -265,9 +265,9 @@ callbacks calls (after cleanup):
 */
 
 function ValueEditorString(elt, type, value){
-    var apply = A({'class': 'bapply'});
+    var apply = DIV({'class': 'bapply'});
     connect(apply, 'onclick', doValueFixString);
-    var revert = A({'class': 'bcancel'});
+    var revert = DIV({'class': 'bcancel'});
     connect(revert, 'onclick', doValueRevertString);
     var ed = INPUT({'type': 'text', 'id': 'entEditorInput', 'value': dequote(value)});
     connect(ed, 'onkeydown', sigValueKeys);

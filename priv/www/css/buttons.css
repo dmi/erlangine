@@ -65,29 +65,29 @@ a.gbutton:active span {
     padding: 6px 0 4px 18px; /* push text down 1px */
 } 
 
-a.bapply {
+.bapply {
     background: transparent url('/images/apply.gif') no-repeat scroll 0 0;
     cursor: pointer;
-    display: block;
-    float: left;
+    /*display: block;
+    float: left;*/
     height: 11px;
     width: 11px;
     margin: 0 0.2em;
     outline: none; /* hide dotted outline in Firefox */
 }
 
-a.bcancel {
+.bcancel {
     background: transparent url('/images/cancel.gif') no-repeat scroll 0 0;
     cursor: pointer;
-    display: block;
-    float: left;
+    /*display: block;
+    float: left;*/
     height: 11px;
     width: 11px;
     margin: 0 0.2em;
     outline: none; /* hide dotted outline in Firefox */
 }
 
-a.bapply:hover, a.bcancel:hover {
+.bapply:hover, .bcancel:hover {
     background-position: 0 -22px;
     outline: none; /* hide dotted outline in Firefox */
 }
