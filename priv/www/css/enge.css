@@ -25,7 +25,7 @@ label
 {
    color:#707070;
 }     
-input[type=text], input[type=password], textarea, select
+input, textarea, select
 {
    border: solid 1px #202020;
    width: 150px;
@@ -463,8 +463,8 @@ input[type=text], input[type=password], textarea, select
 .fieldscroll
 {
    width: 70%;
-   height: 30em;
-   overflow: auto;
+   /*height: 30em;
+   overflow: auto;*/
 }
 
 .fieldlist
@@ -552,17 +552,17 @@ input[type=text], input[type=password], textarea, select
 {
    margin: 0.5em;
 }
-.valuevis input, .valuevis textarea
+.valuevis input
 {
-   float: left;
+   width: 80%;
 }
 .valuevis textarea
 {
    height: 5em;
+   width: 80%;
 }
 .valueask
 {
-   float: left;
    color: red;
    font-weight: bold;
 }
@@ -574,13 +574,10 @@ input[type=text], input[type=password], textarea, select
 
 #entValueSelector
 {
-   height: 2em;
-}
-#entValueSelector select
-{
-   float: left;
+   margin-left: 50px;
 }
 #entValueSelector .bapply, #entValueSelector .bcancel
 {
    margin-top: 5px;
+   float: right;
 }

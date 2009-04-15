@@ -23,7 +23,6 @@ function composeEntRow(ent){
                          SPAN({'class': 'entlistrev hidden'}, ent.value.rev),
                          SPAN(null, ent.value.title[0]));
     connect(Title, 'onclick', doEntEdit);
-    log('compose: ' + ent.id + " : " + ent.key.uid);
     return TR(null,
               TD(null, INPUT({'type': 'checkbox',
                               'class': 'entRowCheck',
@@ -31,12 +30,11 @@ function composeEntRow(ent){
                               'value': undefined/*ent.rev*/})),
               TD(null, ent.key.uid + '@' + ent.key.domain),
               TD(null, ent.value.date.day + "." + ent.value.date.month + "." + ent.value.date.year),
-              TD(null, ent.value.type),
+              TD(null, ent.value.type.join(", ")),
               Title)
 }
 
 function cbSearchResult(json){
-    log("search results: " + JSON.stringify(json.reply.rows));
     statusM(json.event);
     disconnectAllTo(doEntEdit);
     var tab = map(function(ent){return composeEntRow(ent)},

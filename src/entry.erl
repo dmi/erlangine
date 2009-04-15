@@ -135,7 +135,7 @@ reset_view() ->
     case create_view("store", [{"entries", "
 function(doc){
     var test = function(X){return X};
-    var extract_field = function(fld, doc){
+    var extract_field = function(doc, fld){
         return doc.fields.map(function(field){
             if(field.name == fld)
                 return field.values.map(function(value){
@@ -147,7 +147,7 @@ function(doc){
     };
     if(doc.type == 'entry')
         emit(doc.author, {'rev': doc._rev, 'date': doc.date, 'destination': doc.destination,
-                          'title': extract_field('Название', doc), 'type': extract_field('Тип', doc)})
+                          'title': extract_field(doc, 'Название'), 'type': extract_field(doc, 'Тип')})
 }", null},
                                {"owner","
 function(doc){ if(doc.type == 'entry') emit({'author': doc.author, 'id': doc._id}, null) }
@@ -155,20 +155,21 @@ function(doc){ if(doc.type == 'entry') emit({'author': doc.author, 'id': doc._id
                                {"template","
 function(doc){
     var test = function(X){return X};
-    var extract_field = function(fld, doc){
+    var extract_field = function(doc, fld, val){
         return doc.fields.map(function(field){
             if(field.name == fld)
                 return field.values.map(function(value){
-                    if(value.name == fld) return value.value
-                    else return undefined
+                    if((value.name == fld) && ((val == undefined) || (value.value == val)))
+                        return value.value
+                    else
+                        return undefined
                 }).filter(test)
             else return undefined
         }).filter(test)[0]
     };
     if(doc.type == 'entry')
-        var name = extract_field('Шаблон', doc);
-        if(name)
-            emit(name[0], {'type': extract_field('Тип', doc)[0]})
+        if(extract_field(doc, 'Тип', 'Шаблон').length > 0)
+            emit(extract_field(doc, 'Название')[0], {'type': extract_field(doc, 'Тип')[0]})
 }", null}
                               ])
     of

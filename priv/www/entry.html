@@ -7,7 +7,9 @@
     <input id=entRev type=hidden />
     <div class=toolbar>
         <a id=entSave class=gbutton title="Сохранить запись">Сохранить</a>
-        <a id=entDouble class=gbutton title="Сделать копию записи">Дублировать</a>
+        <input id=entCreateNew type=checkbox checked=false />
+        <label for=entCreateNew>как новую запись</label>
+        <!-- a id=entDouble class=gbutton title="Сделать копию записи">Дублировать</a-->
         <a id=entCancel class=button>Отмена</a>
     </div>
     <div class=toolbar>
@@ -30,6 +32,7 @@ function ClearEntry(){
         [doEditValue, doValueNameFix, doValueNameCancel]);
     $('entId').value="";
     $('entRev').value="";
+    $('entCreateNew').checked = false;
     $('entFields').innerHTML=""
 }
 
@@ -54,11 +57,11 @@ function cbValueNames(json){
     connect(cancel, 'onclick', doValueNameCancel);
     EntValueSelector =
         DIV({'id': 'entValueSelector'},
+            cancel,
+            apply,
             SELECT({'id': 'value-sel'},
                    map(function(val){return OPTION({'value': val.name + ',' + val.type}, val.name)},
-                       json.reply.values)),
-            apply,
-            cancel)
+                       json.reply.values)))
 }
 
 function doValueNameFix(){
@@ -143,9 +146,16 @@ function doAddValue(){
 
 function cbEntTemplate(json){
     ClearEntry();
-    replaceChildNodes('entFields', map(composeTR,
-                                       ifilter(function(Field){return (Field.name != 'Шаблон')},
-                                               json.reply.fields)));
+    replaceChildNodes('entFields', map(composeTR, json.reply.fields));
+    // removing type = "Template"
+    var ty = filter(function(elt){return (elt.innerHTML == "Тип")},
+                       findChildElements($('entFields'), ['.fld-name']));
+    if(ty.length > 0){
+        var tpl = filter(function(elt){return (elt.value == "Шаблон")},
+                          findChildElements(ty[0].parentNode, ['.valueval']));
+        // XXX must check for field.name == "Тип"
+        if(tpl.length > 0) removeElement(tpl[0].parentNode);
+    }
     hideElement('entCreate');
     showElement('entInfo');
     json = {
@@ -295,6 +305,7 @@ function ValueEditorText(elt, type, value){
     var VE = DIV({'class': 'valuevis'}, revert, apply, ed);
     swapDOM(elt, VE);
     setupEditor('entEditorText', dequote(value));
+    tinyMCE.execCommand(tinyMCE.get('mceFocus'), false, 'entEditorText');
     EditValue = VE
 }
 
@@ -427,6 +438,11 @@ function EntryToJSON(){
 }
 
 function doSave(){
+    if($('entCreateNew').checked){
+        $('entId').value = "";
+        $('entRev').value = "";
+        $('entCreateNew').checked = false;
+    }
     var json = {
 	"module": "entry",
 	"action": "save",
@@ -477,7 +493,7 @@ function setupEditor(elt, value) {
 }
 
 connect('entSave', 'onclick', doSave);
-connect('entDouble', 'onclick', doDouble);
+//connect('entDouble', 'onclick', doDouble);
 connect('entCancel', 'onclick', doCancel);
 connect('entNew', 'onclick', doApplyTemplate);
 connect('entFieldAdd', 'onclick', doAddField);
