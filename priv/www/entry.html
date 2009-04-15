@@ -55,19 +55,28 @@ function cbValueNames(json){
     connect(apply, 'onclick', doValueNameFix);
     var cancel = A({'class': 'bcancel'});
     connect(cancel, 'onclick', doValueNameCancel);
+    var sel = SELECT({'id': 'value-sel'},
+                     map(function(val){return OPTION({'value': val.name + ',' + val.type}, val.name)},
+                         json.reply.values));
+    connect(sel, 'onkeydown', sigValueNameKeys);
     EntValueSelector =
-        DIV({'id': 'entValueSelector'},
-            cancel,
-            apply,
-            SELECT({'id': 'value-sel'},
-                   map(function(val){return OPTION({'value': val.name + ',' + val.type}, val.name)},
-                       json.reply.values)))
+        DIV({'id': 'entValueSelector'}, cancel, apply, sel)
+}
+
+function sigValueNameKeys(ev){
+    if(ev.key().code==27){
+        disconnectAll(EditValue);
+        doValueNameCancel()
+    } else if(ev.key().code==13){
+        disconnectAll(EditValue);
+        doValueNameFix()
+    }
 }
 
 function doValueNameFix(){
     var val = $('value-sel').value.split(',');
-    var elt = this.parentNode.parentNode;
-    removeElement(this.parentNode);
+    var elt = EntValueSelector.parentNode;
+    removeElement(EntValueSelector);
     valrow = composeValue({'name': val[0], 'type': val[1], 'value': ''});
     appendChildNodes(elt, valrow);
     ValueSelectorActive = false;
@@ -75,7 +84,7 @@ function doValueNameFix(){
 }
 
 function doValueNameCancel(){
-    removeElement(this.parentNode)
+    removeElement(EntValueSelector)
     ValueSelectorActive = false;
 }
 
@@ -261,16 +270,20 @@ function ValueEditorString(elt, type, value){
     var revert = A({'class': 'bcancel'});
     connect(revert, 'onclick', doValueRevertString);
     var ed = INPUT({'type': 'text', 'id': 'entEditorInput', 'value': dequote(value)});
-    connect(ed, 'onkeydown', sigFieldKeys);
+    connect(ed, 'onkeydown', sigValueKeys);
     var VE = DIV({'class': 'valuevis'}, revert, apply, ed);
     swapDOM(elt, VE);
+    ed.focus();
     EditValue = VE
 }
 
-function sigFieldKeys(ev){
+function sigValueKeys(ev){
     if(ev.key().code==27){
         disconnectAll(EditValue);
         doValueRevertString()
+    } else if(ev.key().code==13){
+        disconnectAll(EditValue);
+        doValueFixString()
     }
 }
 
