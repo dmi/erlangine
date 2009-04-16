@@ -265,16 +265,20 @@ callbacks calls (after cleanup):
 */
 
 function ValueEditorString(elt, type, value){
-    var apply = DIV({'class': 'bapply'});
-    connect(apply, 'onclick', doValueFixString);
-    var revert = DIV({'class': 'bcancel'});
-    connect(revert, 'onclick', doValueRevertString);
     var ed = INPUT({'type': 'text', 'id': 'entEditorInput', 'value': dequote(value)});
     connect(ed, 'onkeydown', sigValueKeys);
-    var VE = DIV({'class': 'valuevis'}, revert, apply, ed);
+    var txt = SPAN({'class': 'rhint'}, "[текст]");
+    connect(txt, 'onclick', swapRichEditor);
+    var VE = DIV({'class': 'valuevis'}, ed, txt);
     swapDOM(elt, VE);
     ed.focus();
     EditValue = VE
+}
+
+function swapRichEditor(){
+    var val = EditValue.parentNode;
+    doValueFixString();
+    ValueEditorText(ValueVis(val), ValueType(val), ValueValue(val).value)
 }
 
 function sigValueKeys(ev){
@@ -283,7 +287,7 @@ function sigValueKeys(ev){
         doValueRevertString()
     } else if(ev.key().code==13){
         disconnectAll(EditValue);
-        doValueFixString()
+        doValueFixString();
     }
 }
 
@@ -318,15 +322,14 @@ function ValueEditorText(elt, type, value){
     var VE = DIV({'class': 'valuevis'}, revert, apply, ed);
     swapDOM(elt, VE);
     setupEditor('entEditorText', dequote(value));
-    tinyMCE.execCommand(tinyMCE.get('mceFocus'), false, 'entEditorText');
     EditValue = VE
 }
 
 function doValueFixText(){
     var value = tinyMCE.get('entEditorText').getContent();
+    // XXX wrong when only one <p/> follows <ul> etc tags
     if(value.split("<p>").length <= 2) value = value.replace('<p>', '').replace('</p>', '');
     var qv = quote(value);
-    // XXX wrong when only one <p/> follows <ul> etc tags
     ValueValue(EditValue.parentNode).value = qv;
     DisplayValue(EditValue, 'text', qv);
     EditValue = null
@@ -501,7 +504,11 @@ function setupEditor(elt, value) {
         theme_advanced_resizing : true,
         auto_resize: true,
         content_css : "css/tinymce.css",
-        init_instance_callback: function(){tinyMCE.get(elt).setContent(value)}
+        init_instance_callback: function(ed){
+            ed.setContent(value);
+            ed.execCommand('mceFocus');
+        }
+
     })
 }
 
