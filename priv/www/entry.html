@@ -50,44 +50,6 @@ function cbEntryTemplates(json){
                                     json.reply))
 }
 
-function cbValueNames(json){
-    var apply = A({'class': 'bapply'});
-    connect(apply, 'onclick', doValueNameFix);
-    var cancel = A({'class': 'bcancel'});
-    connect(cancel, 'onclick', doValueNameCancel);
-    var sel = SELECT({'id': 'value-sel'},
-                     map(function(val){return OPTION({'value': val.name + ',' + val.type}, val.name)},
-                         json.reply.values));
-    connect(sel, 'onkeydown', sigValueNameKeys);
-    EntValueSelector =
-        DIV({'id': 'entValueSelector'}, cancel, apply, sel)
-}
-
-function sigValueNameKeys(ev){
-    if(ev.key().code==27){
-        disconnectAll(EditValue);
-        doValueNameCancel()
-    } else if(ev.key().code==13){
-        disconnectAll(EditValue);
-        doValueNameFix()
-    }
-}
-
-function doValueNameFix(){
-    var val = $('value-sel').value.split(',');
-    var elt = EntValueSelector.parentNode;
-    removeElement(EntValueSelector);
-    valrow = composeValue({'name': val[0], 'type': val[1], 'value': ''});
-    appendChildNodes(elt, valrow);
-    ValueSelectorActive = false;
-    signal(valrow, 'ondblclick')
-}
-
-function doValueNameCancel(){
-    removeElement(EntValueSelector)
-    ValueSelectorActive = false;
-}
-
 function doApplyTemplate(){
     statusM("requesting new entry...")
     var json = {
@@ -144,13 +106,56 @@ function composeTR(Field){
     return div
 }
 
-ValueSelectorActive = false;
+ValueSelector = false;
 
 function doAddValue(){
     if (InEditor()) return;
-    appendChildNodes(this.parentNode.parentNode, EntValueSelector);
-    ValueSelectorActive = true;
+    ValueSelector = this;
+    json = {
+        "module": "entry",
+        "action": "value_names",
+        "data": $('entTemplate').value
+    }
+    ajax(json, "/enge")
+}
+
+function cbValueNames(json){
+    var apply = A({'class': 'bapply'});
+    connect(apply, 'onclick', doValueNameFix);
+    var cancel = A({'class': 'bcancel'});
+    connect(cancel, 'onclick', doValueNameCancel);
+    var sel = SELECT({'id': 'value-sel'},
+                     map(function(val){return OPTION({'value': val.name + ',' + val.type}, val.name)},
+                         json.reply.values));
+    connect(sel, 'onkeydown', sigValueNameKeys);
+    appendChildNodes(ValueSelector.parentNode.parentNode,
+                     DIV({'id': 'entValueSelector'}, cancel, apply, sel));
     $('value-sel').focus()
+}
+
+function sigValueNameKeys(ev){
+    if(ev.key().code==27){
+        disconnectAll(EditValue);
+        doValueNameCancel()
+    } else if(ev.key().code==13){
+        disconnectAll(EditValue);
+        doValueNameFix()
+    }
+}
+
+function doValueNameFix(){
+    var val = $('value-sel').value.split(',');
+    var elt = $('entValueSelector').parentNode;
+    removeElement('entValueSelector');
+    valrow = composeValue({'name': val[0], 'type': val[1], 'value': ''});
+    appendChildNodes(elt, valrow);
+    ValueSelector = false;
+    signal(valrow, 'ondblclick')
+}
+
+function doValueNameCancel(){
+    removeElement('entValueSelector');
+    ValueSelector = false;
 }
 
 function cbEntTemplate(json){
@@ -167,12 +172,6 @@ function cbEntTemplate(json){
     }
     hideElement('entCreate');
     showElement('entInfo');
-    json = {
-        "module": "entry",
-        "action": "value_names",
-        "data": $('entTemplate').value
-    }
-    ajax(json, "/enge");
     statusM("ok")
 }
 
@@ -185,12 +184,6 @@ function cbEntEdit(json){
     $('entId').value = json.reply._id;
     $('entRev').value = json.reply._rev;
     signal('entEditor_tab', 'onclick');
-    json = {
-        "module": "entry",
-        "action": "value_names",
-        "data": $('entTemplate').value
-    }
-    ajax(json, "/enge")
 }
 
 doNewEntryFromSelector = function(){
@@ -236,7 +229,7 @@ function doAddField(){
 }
 
 function InEditor(){
-    if(EditValue || ValueSelectorActive){
+    if(EditValue || ValueSelector){
         statusM("please close value editor first");
         return true
     }
@@ -264,6 +257,15 @@ callbacks calls (after cleanup):
     doFieldRevert() - simple redisplay the old value
 */
 
+/*
+   If string contains no angle brackets - it is a string, otherwise - text
+   If string - Esc - revert; Enter - fix; Tab - open text editor
+*/
+function ValueEditorStringOrText(elt, type, value){
+    if(dequote(value).split("<",2).length > 1) ValueEditorText(elt, type, value)
+    else ValueEditorString(elt, type, value)
+}
+
 function ValueEditorString(elt, type, value){
     var ed = INPUT({'type': 'text', 'id': 'entEditorInput', 'value': dequote(value)});
     connect(ed, 'onkeydown', sigValueKeys);
@@ -276,9 +278,10 @@ function ValueEditorString(elt, type, value){
 }
 
 function swapRichEditor(){
+    disconnectAll(EditValue);
     var val = EditValue.parentNode;
-    doValueFixString();
-    ValueEditorText(ValueVis(val), ValueType(val), ValueValue(val).value)
+    var value = $('entEditorInput').value;
+    ValueEditorText(ValueVis(val), ValueType(val), quote(value))
 }
 
 function sigValueKeys(ev){
@@ -288,6 +291,8 @@ function sigValueKeys(ev){
     } else if(ev.key().code==13){
         disconnectAll(EditValue);
         doValueFixString();
+    } else if(ev.key().code==9){
+        swapRichEditor()
     }
 }
 
@@ -388,9 +393,9 @@ displayValue = new Array();
 valueEditor = new Array();
 
 displayValue['text'] = DisplayValueText;
-valueEditor['text'] = ValueEditorText;
+valueEditor['text'] = ValueEditorStringOrText;
 displayValue['string'] = DisplayValueText;
-valueEditor['string'] = ValueEditorString;
+valueEditor['string'] = ValueEditorStringOrText;
 displayValue['score5'] = DisplayValueScore5;
 
 function DisplayValue(vis, type, value){
@@ -472,12 +477,6 @@ function doSave(){
     ajax(json, "/enge");
 }
 
-function doDouble(){
-    $('entId').value = "";
-    $('entRev').value = "";
-    statusM("Edit and save as new entry")
-}
-
 function cbEntSaved(json){
     log("entry saved: " + JSON.stringify(json))
     statusM(json.reply.action);
@@ -485,6 +484,7 @@ function cbEntSaved(json){
     $('entRev').value = json.reply.rev
 }
 
+// XXX set cursor to the end of text
 function setupEditor(elt, value) {
     try{ tinyMCE.remove(tinyMCE.get(elt)) }catch(err){ null };
 
@@ -513,7 +513,6 @@ function setupEditor(elt, value) {
 }
 
 connect('entSave', 'onclick', doSave);
-//connect('entDouble', 'onclick', doDouble);
 connect('entCancel', 'onclick', doCancel);
 connect('entNew', 'onclick', doApplyTemplate);
 connect('entFieldAdd', 'onclick', doAddField);
