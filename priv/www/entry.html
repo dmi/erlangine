@@ -106,15 +106,26 @@ function composeTR(Field){
     return div
 }
 
+function EntryTypes(){
+    var ty = filter(function(elt){return (elt.innerHTML == "Тип")},
+                    findChildElements($('entFields'), ['.fld-name']));
+    if(ty.length > 0){
+        return map(function(elt){return elt.value},
+                   findChildElements(ty[0].parentNode, ['.valueval']));
+    } else return []
+}
+
 ValueSelector = false;
 
 function doAddValue(){
     if (InEditor()) return;
-    ValueSelector = this;
+    ValueSelector = this.parentNode.parentNode;
     json = {
         "module": "entry",
         "action": "value_names",
-        "data": $('entTemplate').value
+        "data": {'type': EntryTypes(),
+                 'field': findChildElements(ValueSelector, ['.fld-name'])[0].innerHTML
+                }
     }
     ajax(json, "/enge")
 }
@@ -128,7 +139,7 @@ function cbValueNames(json){
                      map(function(val){return OPTION({'value': val.name + ',' + val.type}, val.name)},
                          json.reply.values));
     connect(sel, 'onkeydown', sigValueNameKeys);
-    appendChildNodes(ValueSelector.parentNode.parentNode,
+    appendChildNodes(ValueSelector,
                      DIV({'id': 'entValueSelector'}, cancel, apply, sel));
     $('value-sel').focus()
 }
