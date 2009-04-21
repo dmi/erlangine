@@ -193,8 +193,10 @@ function(doc){
         }).filter(test)[0]
     };
     if(doc.type == 'entry')
-        if(extract_field(doc, 'Тип', 'Значение').length > 0)
-            emit(null, {'name': extract_field(doc, 'Название')[0], 'type': extract_field(doc, 'Данные')[0]})
+        if(extract_field(doc, 'Тип', 'Значение').length > 0){
+            var name = extract_field(doc, 'Название')[0];
+            emit(name, {'name': name, 'type': extract_field(doc, 'Данные')[0]})
+        }
 }", null}
                               ])
     of
