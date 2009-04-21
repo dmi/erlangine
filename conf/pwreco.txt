@@ -1,0 +1,2 @@
+This is the ErlaNGinE project password recovery message.
+Your password is:
