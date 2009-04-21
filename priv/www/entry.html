@@ -309,6 +309,7 @@ function sigValueKeys(ev){
 
 function doValueFixString(){
     var value = $('entEditorInput').value;
+    disconnectAll($('entEditorInput'));
     var qv = quote(value);
     // XXX wrong when only one <p/> follows <ul> etc tags
     ValueValue(EditValue.parentNode).value = qv;
@@ -318,6 +319,7 @@ function doValueFixString(){
 
 // XXX tautology for all types
 function doValueRevertString(){
+    disconnectAll($('entEditorInput'));
     DisplayValue(EditValue,
                  'string',
                  ValueValue(EditValue.parentNode).value);
