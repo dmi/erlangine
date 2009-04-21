@@ -44,4 +44,10 @@ prepare_db() ->
     authdb:reset(),
     realmdb:reset(),
     destination:reset(),
-    entry:reset().
+    ensure_started(inets),
+    ensure_started(ecouch),
+    ensure_started(crypto),
+    receive
+        after 2000 -> ok
+    end,
+    io:format("Execute 'entry:reset().' manually to reset your CouchDB.").

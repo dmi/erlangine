@@ -122,7 +122,18 @@ put_attach(Uid, Id, Rev, Name, ContentType, Data) ->
 reset() ->
     ecouch:db_delete(?DB),
     ecouch:db_create(?DB),
-    reset_view().
+    reset_view(),
+    reset_template().
+
+reset_template() ->
+    create({<<"system">>, <<"localhost">>}, <<"system">>,
+           [[{name, <<"Название">>},
+             {values, [[{name, <<"Название">>}, {type, text}, {value, <<"Простая запись">>}]]}],
+            [{name, <<"Тип">>},
+             {values, [[{name, <<"Тип">>}, {type, text}, {value, <<"Запись">>}],
+                       [{name, <<"Тип">>}, {type, text}, {value, <<"Шаблон">>}]]}],
+            [{name, <<"Текст">>},
+             {values, [[{name, <<"Текст">>}, {type, text}, {value, <<"<p>Текст статьи или заметки.</p><p>Дважды щелкните для редактирования.</p><p><font color=red><b>Приятной работы! ;-)</b></font></p>">>}]]}]]).
 
 reset_view() ->
     Id = "_design/store",

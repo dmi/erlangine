@@ -27,6 +27,7 @@ make
 
 ./start.sh maint
 enge2:prepare_db().
+entry:reset().
 q().
 
 * Run
