@@ -3,20 +3,6 @@
 -include("session.hrl").
 -include("authkey.hrl").
 
-%entry_templates(_Struct, _Session, _Req) ->
-%    {{ok, [{entry, [<<"Запись">>]}]},
-%     []}.
-%template(<<"Запись">>, _Session, _Req) ->
-%    {{ok, [{fields, [[{name, <<"Название">>},
-%                      {values, [[{name, <<"Название">>}, {type, text}, {value, <<"Введите название (тему)">>}]]}],
-%                     [{name, <<"Тип">>},
-%                      {values, [[{name, <<"Тип">>}, {type, text}, {value, <<"Запись">>}]]}],
-%                     [{name, <<"Текст">>},
-%                      {values, [[{name, <<"Текст">>}, {type, text}, {value, <<"<p>Текст статьи или заметки.</p><p>Дважды щелкните для редактирования.</p><p><font color=red><b>Приятной работы! ;-)</b></font></p>">>}]]}]]}]},
-%     []},
-%template(Any, _Session, _Req) ->
-%    {{fail, Any}, []}.
-
 entry_templates(_Struct, Session, _Req) ->
     #session{opaque = #authkey{user = Uid}} = Session,
     {ok, Templates} = entry:read(Uid, "_design/store/_view/template"),
@@ -34,17 +20,12 @@ read(Struct, Session, _Req) ->
     Reply = entry:read(Uid, Id),
     {Reply, []}.
 
-value_names(_Struct, _Session, _Req) ->
-    {{ok, [{values, [[{name, <<"Название">>}, {type, text}],
-                     [{name, <<"Тип">>}, {type, string}],
-                     [{name, <<"Текст">>}, {type, text}],
-                     [{name, <<"Город">>}, {type, text}],
-                     [{name, <<"Адрес">>}, {type, text}],
-                     [{name, <<"Гео">>}, {type, text}],
-                     [{name, <<"Описание">>}, {type, text}],
-                     [{name, <<"Цена">>}, {type, string}],
-                     [{name, <<"Оценка">>}, {type, score5}]]}]},
-     []}.
+value_names(_Struct, Session, _Req) ->
+    #session{opaque = #authkey{user = Uid}} = Session,
+    {ok, Vals} = entry:read(Uid, "_design/store/_view/value"),
+    V = lists:map(fun(X) -> engejson:get_value(<<"value">>, X) end,
+                  engejson:get_value(<<"rows">>, Vals)),
+    {{ok, [{values, V}]}, []}.
 
 save(Struct, Session, _Req) ->
     [Id, Rev, Destination, Fields] =

@@ -556,6 +556,10 @@ input, textarea, select
 {
    width: 80%;
 }
+.valuevis input
+{
+   width: 80%;
+}
 .valuevis textarea
 {
    height: 5em;

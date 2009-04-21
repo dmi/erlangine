@@ -126,14 +126,9 @@ reset() ->
     reset_template().
 
 reset_template() ->
-    create({<<"system">>, <<"localhost">>}, <<"system">>,
-           [[{name, <<"Название">>},
-             {values, [[{name, <<"Название">>}, {type, text}, {value, <<"Простая запись">>}]]}],
-            [{name, <<"Тип">>},
-             {values, [[{name, <<"Тип">>}, {type, text}, {value, <<"Запись">>}],
-                       [{name, <<"Тип">>}, {type, text}, {value, <<"Шаблон">>}]]}],
-            [{name, <<"Текст">>},
-             {values, [[{name, <<"Текст">>}, {type, text}, {value, <<"<p>Текст статьи или заметки.</p><p>Дважды щелкните для редактирования.</p><p><font color=red><b>Приятной работы! ;-)</b></font></p>">>}]]}]]).
+    {ok, Data} = file:read_file("conf/entries.json"),
+    lists:map(fun(X) -> create({<<"system">>, <<"localhost">>}, <<"system">>, X) end,
+              engejson:decode(Data)).
 
 reset_view() ->
     Id = "_design/store",
@@ -181,6 +176,25 @@ function(doc){
     if(doc.type == 'entry')
         if(extract_field(doc, 'Тип', 'Шаблон').length > 0)
             emit(extract_field(doc, 'Название')[0], {'type': extract_field(doc, 'Тип')[0]})
+}", null},
+                               {"value","
+function(doc){
+    var test = function(X){return X};
+    var extract_field = function(doc, fld, val){
+        return doc.fields.map(function(field){
+            if(field.name == fld)
+                return field.values.map(function(value){
+                    if((value.name == fld) && ((val == undefined) || (value.value == val)))
+                        return value.value
+                    else
+                        return undefined
+                }).filter(test)
+            else return undefined
+        }).filter(test)[0]
+    };
+    if(doc.type == 'entry')
+        if(extract_field(doc, 'Тип', 'Значение').length > 0)
+            emit(null, {'name': extract_field(doc, 'Название')[0], 'type': extract_field(doc, 'Данные')[0]})
 }", null}
                               ])
     of
