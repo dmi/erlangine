@@ -1,9 +1,9 @@
 [
 [{"name":"Название",
-  "values": [{"name":"Название","type":"text","value":"Простая запись"}]},
+  "values": [{"name":"Текст","type":"text","value":"Простая запись"}]},
  {"name":"Тип",
-  "values":[{"name":"Тип","type":"text","value":"Запись"},
-            {"name":"Тип","type":"text","value":"Шаблон"}]},
+  "values":[{"name":"Тип","type":"text","value":"Шаблон"},
+            {"name":"Тип","type":"text","value":"Запись"}]},
   {"name":"Текст",
    "values":[{"name":"Текст","type":"text",
               "value":
