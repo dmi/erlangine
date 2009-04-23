@@ -37,6 +37,10 @@ input, textarea, select
 {
    display: none;
 }
+.inline
+{
+   display: inline;
+}
 .label
 {
    margin-top: 0.5em;
