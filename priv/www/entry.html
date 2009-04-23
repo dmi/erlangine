@@ -173,6 +173,7 @@ function cbEntTemplate(json){
     ClearEntry();
     replaceChildNodes('entFields', map(composeTR, json.reply.fields));
     // removing type = "Template"
+    // XXX can be done more cute by simply removing the first element of Type
     var ty = filter(function(elt){return (elt.innerHTML == "Тип")},
                        findChildElements($('entFields'), ['.fld-name']));
     if(ty.length > 0){

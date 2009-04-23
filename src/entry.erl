@@ -140,62 +140,76 @@ reset_view() ->
     end,
     case create_view("store", [{"entries", "
 function(doc){
+    /****** library start ******/
     var test = function(X){return X};
     var extract_field = function(doc, fld){
         return doc.fields.map(function(field){
             if(field.name == fld)
-                return field.values.map(function(value){
-                    if(value.name == fld) return value.value
-                    else return undefined
-                }).filter(test)
+                return field.values[0].value
             else return undefined
         }).filter(test)[0]
     };
+    var extract_values = function(doc, fld){
+        return doc.fields.map(function(field){
+            if(field.name == fld)
+                return field.values.map(function(V){return V.value})
+            else return undefined
+        }).filter(test)[0]
+    };
+    /******* library end *******/
     if(doc.type == 'entry')
         emit(doc.author, {'rev': doc._rev, 'date': doc.date, 'destination': doc.destination,
-                          'title': extract_field(doc, 'Название'), 'type': extract_field(doc, 'Тип')})
+                          'title': extract_field(doc, 'Название'), 'type': extract_values(doc, 'Тип')})
 }", null},
                                {"owner","
 function(doc){ if(doc.type == 'entry') emit({'author': doc.author, 'id': doc._id}, null) }
 ", null},
                                {"template","
 function(doc){
+    /****** library start ******/
     var test = function(X){return X};
-    var extract_field = function(doc, fld, val){
+    var extract_field = function(doc, fld){
         return doc.fields.map(function(field){
             if(field.name == fld)
-                return field.values.map(function(value){
-                    if((value.name == fld) && ((val == undefined) || (value.value == val)))
-                        return value.value
-                    else
-                        return undefined
-                }).filter(test)
+                return field.values[0].value
             else return undefined
         }).filter(test)[0]
     };
+    var extract_values = function(doc, fld){
+        return doc.fields.map(function(field){
+            if(field.name == fld)
+                return field.values.map(function(V){return V.value})
+            else return undefined
+        }).filter(test)[0]
+    };
+    /******* library end *******/
     if(doc.type == 'entry')
-        if(extract_field(doc, 'Тип', 'Шаблон').length > 0)
-            emit(extract_field(doc, 'Название')[0], {'type': extract_field(doc, 'Тип')[0]})
+        if(extract_field(doc, 'Тип') == 'Шаблон')
+            emit(extract_field(doc, 'Название'), {'type': extract_values(doc, 'Тип')[1]})
 }", null},
                                {"value","
 function(doc){
+    /****** library start ******/
     var test = function(X){return X};
-    var extract_field = function(doc, fld, val){
+    var extract_field = function(doc, fld){
         return doc.fields.map(function(field){
             if(field.name == fld)
-                return field.values.map(function(value){
-                    if((value.name == fld) && ((val == undefined) || (value.value == val)))
-                        return value.value
-                    else
-                        return undefined
-                }).filter(test)
+                return field.values[0].value
             else return undefined
         }).filter(test)[0]
     };
+    var extract_values = function(doc, fld){
+        return doc.fields.map(function(field){
+            if(field.name == fld)
+                return field.values.map(function(V){return V.value})
+            else return undefined
+        }).filter(test)[0]
+    };
+    /******* library end *******/
     if(doc.type == 'entry')
-        if(extract_field(doc, 'Тип', 'Значение').length > 0){
-            var name = extract_field(doc, 'Название')[0];
-            emit(name, {'name': name, 'type': extract_field(doc, 'Данные')[0]})
+        if(extract_field(doc, 'Тип') == 'Значение'){
+            var name = extract_field(doc, 'Название');
+            emit(name, {'name': name, 'type': extract_field(doc, 'Данные')})
         }
 }", null}
                               ])
