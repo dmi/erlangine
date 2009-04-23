@@ -66,10 +66,11 @@ function composeValue(Value){
     connect (del_val, 'onclick', doDeleteValue);
     var vis = DIV({'class': 'valuevis'});
     DisplayValue(vis, Value.type, Value.value);
-    // XXX do not show value name if equal to field name
+    var vnamehidden = "";
+    if(Value.name == 'Текст') vnamehidden = ' hidden';
     val = DIV({'class': 'val-value'},
               SPAN(null, del_val),
-              SPAN({'class': 'valuename'}, Value.name),
+              SPAN({'class': 'valuename' + vnamehidden}, Value.name),
               SPAN({'class': 'valuetype'}, Value.type),
               INPUT({'class': 'valueval', 'type': 'hidden', 'value': Value.value}),
               vis);
@@ -101,7 +102,7 @@ function composeTR(Field){
                                           removeElement(drg);
                                           insertSiblingNodesBefore(drp, drg)
                                       }else if(!isChildNode(drg, drp)){
-                                              drg.removeElement(drg);
+                                              removeElement(drg);
                                               appendChildNodes(drp, drg)
                                       }
                                   }});
@@ -239,7 +240,7 @@ function doAddField(){
         var val = $('entNewFieldValue').value;
         var values = [];
         if(val != ""){
-            values = [{'type': 'text', 'name': Name, 'value': val}];
+            values = [{'type': 'text', 'name': "Текст", 'value': val}];
         }
         var tr = composeTR({'name': Name, 'values': values});
         appendChildNodes('entFields', tr);

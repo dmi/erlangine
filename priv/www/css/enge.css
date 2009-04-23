@@ -533,7 +533,6 @@ input, textarea, select
 {
    color: #993333;
    margin-left: 5px;
-   margin-right: 0.5em;
    font-weight: bold;
 }
 .valueval, .valuetype
@@ -547,6 +546,7 @@ input, textarea, select
 .valuevis
 {
    display: inline;
+   margin-left: 0.5em;
 }
 .valuevis p
 {
