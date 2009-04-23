@@ -91,8 +91,8 @@ function composeTR(Field){
     var add_val = A({'class': 'rhint add-val', 'title': "добавить значение"}, '+');
     connect (add_val, 'onclick', doAddValue);
     var div = DIV({'class': 'fldtr'},
-              SPAN(null, del_fld, add_val),
-              SPAN({'class': 'fld-name'}, Field.name),
+              DIV({'class': 'fld-ctl'}, del_fld, add_val),
+              DIV({'class': 'fld-name'}, Field.name),
               map(composeValue, Field.values));
     new Draggable(div, {'revert': true});
     new Droppable(div, {'hoverclass': 'fldtr-ondrop',

@@ -516,10 +516,20 @@ input, textarea, select
 {
    background: #f0f0f0;
 }
+.fld-ctl
+{
+   display: inline;
+}
 .fld-name
 {
    font-weight: bold;
    margin-left: 5px;
+   width: 150px;
+   display: inline;
+}
+.fld-values
+{
+   display: inline;
 }
 .val-value
 {
