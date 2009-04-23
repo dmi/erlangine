@@ -7,7 +7,7 @@
 %%
 
 -module(entry).
--export([create/3, update/5, create_view/2, create_view/3, read/2, delete/3, get_attach/3, put_attach/6, reset/0, reset_view/0]).
+-export([create/3, update/5, create_view/2, create_view/3, read/2, delete/3, get_attach/3, put_attach/6, reset/0, reset_template/0, reset_view/0]).
 
 -define(DB, "entries").
 
