@@ -10,12 +10,6 @@
 "<p>Текст статьи или заметки.<\/p>
 <p>Дважды щелкните для редактирования.<\/p>
 <p><font color=red><b>Приятной работы! ;-)<\/b><\/font><\/p>"}]}],
-[{"name":"Название", "values": [{"name":"Название","type":"text","value":"Название"}]},
- {"name":"Тип", "values":[{"name":"Тип","type":"text","value":"Значение"}]},
- {"name":"Данные", "values":[{"name":"Данные","type":"text","value":"text"}]}],
-[{"name":"Название", "values": [{"name":"Название","type":"text","value":"Тип"}]},
- {"name":"Тип", "values":[{"name":"Тип","type":"text","value":"Значение"}]},
- {"name":"Данные", "values":[{"name":"Данные","type":"text","value":"text"}]}],
 [{"name":"Название", "values": [{"name":"Название","type":"text","value":"Текст"}]},
  {"name":"Тип", "values":[{"name":"Тип","type":"text","value":"Значение"}]},
  {"name":"Данные", "values":[{"name":"Данные","type":"text","value":"text"}]}],
@@ -26,9 +20,6 @@
  {"name":"Тип", "values":[{"name":"Тип","type":"text","value":"Значение"}]},
  {"name":"Данные", "values":[{"name":"Данные","type":"text","value":"text"}]}],
 [{"name":"Название", "values": [{"name":"Название","type":"text","value":"Гео"}]},
- {"name":"Тип", "values":[{"name":"Тип","type":"text","value":"Значение"}]},
- {"name":"Данные", "values":[{"name":"Данные","type":"text","value":"text"}]}],
-[{"name":"Название", "values": [{"name":"Название","type":"text","value":"Описание"}]},
  {"name":"Тип", "values":[{"name":"Тип","type":"text","value":"Значение"}]},
  {"name":"Данные", "values":[{"name":"Данные","type":"text","value":"text"}]}],
 [{"name":"Название", "values": [{"name":"Название","type":"text","value":"Цена"}]},

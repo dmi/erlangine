@@ -20,12 +20,22 @@ read(Struct, Session, _Req) ->
     Reply = entry:read(Uid, Id),
     {Reply, []}.
 
-value_names(_Struct, Session, _Req) ->
+value_names(Struct, Session, _Req) ->
+    [Field, _Type] = engejson:get_values(["field", "type"], Struct),
+    FieldS = binary_to_list(Field),
     #session{opaque = #authkey{user = Uid}} = Session,
     {ok, Vals} = entry:read(Uid, "_design/store/_view/value"),
     V = lists:map(fun(X) -> engejson:get_value(<<"value">>, X) end,
                   engejson:get_value(<<"rows">>, Vals)),
-    {{ok, [{values, V}]}, []}.
+    {ok, ValTop} = entry:read(Uid, "_design/store/_view/value_weight?group=true&startkey=[\"" ++ FieldS ++ "\"]&endkey=[\"" ++ FieldS ++ "\",\"\\u9999\"]"),
+    T = lists:map(fun(X) ->
+                      [[_Field, ValName, ValType], Weight] = engejson:get_values(["key", "value"], X),
+                      {Weight, ValName, ValType}
+                  end,
+                  engejson:get_value(<<"rows">>, ValTop)),
+    TS = lists:map(fun({_Weight, ValName, ValType}) -> [{name, ValName}, {type, ValType}] end,
+                   lists:reverse(lists:keysort(1, T))),
+    {{ok, [{top, TS}, {all, V}]}, []}.
 
 save(Struct, Session, _Req) ->
     [Id, Rev, Destination, Fields] =

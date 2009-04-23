@@ -97,11 +97,13 @@ function composeTR(Field){
     new Droppable(div, {'hoverclass': 'fldtr-ondrop',
                         'accept': ['fldtr', 'val-value'],
                         'ondrop': function(drg, drp){
-                                      removeElement(drg);
-                                      if(hasElementClass(drg, 'fldtr'))
+                                      if(hasElementClass(drg, 'fldtr')){
+                                          removeElement(drg);
                                           insertSiblingNodesBefore(drp, drg)
-                                      else
-                                          appendChildNodes(drp, drg)
+                                      }else if(!isChildNode(drg, drp)){
+                                              drg.removeElement(drg);
+                                              appendChildNodes(drp, drg)
+                                      }
                                   }});
     return div
 }
@@ -137,7 +139,10 @@ function cbValueNames(json){
     connect(cancel, 'onclick', doValueNameCancel);
     var sel = SELECT({'id': 'value-sel'},
                      map(function(val){return OPTION({'value': val.name + ',' + val.type}, val.name)},
-                         json.reply.values));
+                         json.reply.top),
+                     OPTION({'value': "separator"}, ""),
+                     map(function(val){return OPTION({'value': val.name + ',' + val.type}, val.name)},
+                         json.reply.all));
     connect(sel, 'onkeydown', sigValueNameKeys);
     appendChildNodes(ValueSelector,
                      DIV({'id': 'entValueSelector'}, cancel, apply, sel));
@@ -155,13 +160,15 @@ function sigValueNameKeys(ev){
 }
 
 function doValueNameFix(){
-    var val = $('value-sel').value.split(',');
-    var elt = $('entValueSelector').parentNode;
-    removeElement('entValueSelector');
-    valrow = composeValue({'name': val[0], 'type': val[1], 'value': ''});
-    appendChildNodes(elt, valrow);
-    ValueSelector = false;
-    signal(valrow, 'ondblclick')
+    if($('value-sel').value != "separator"){
+        var val = $('value-sel').value.split(',');
+        var elt = $('entValueSelector').parentNode;
+        removeElement('entValueSelector');
+        valrow = composeValue({'name': val[0], 'type': val[1], 'value': ''});
+        appendChildNodes(elt, valrow);
+        ValueSelector = false;
+        signal(valrow, 'ondblclick')
+    }else doValueNameCancel()
 }
 
 function doValueNameCancel(){

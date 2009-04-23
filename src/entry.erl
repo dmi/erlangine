@@ -211,7 +211,17 @@ function(doc){
             var name = extract_field(doc, 'Название');
             emit(name, {'name': name, 'type': extract_field(doc, 'Данные')})
         }
-}", null}
+}", null},
+                               {"value_weight","
+function(doc){
+    if(doc.type == 'entry')
+        doc.fields.forEach(function(field){
+            field.values.forEach(function(value){ emit([field.name, value.name, value.type], 1) })
+        })
+}", "
+function(keys, values){
+    return sum(values)
+}"}
                               ])
     of
         {ok, _Id, _Rev} -> ok;
