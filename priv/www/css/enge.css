@@ -466,7 +466,7 @@ input, textarea, select
 
 .fieldscroll
 {
-   width: 70%;
+   width: 655px;
    /*height: 30em;
    overflow: auto;*/
 }
@@ -510,7 +510,7 @@ input, textarea, select
 {
    border: solid 1px #D0D0D0;
    margin: 3px;
-   padding: 3px;
+   padding: 8px;
 }
 .fldtr-ondrop
 {
@@ -518,26 +518,35 @@ input, textarea, select
 }
 .fld-ctl
 {
-   display: inline;
+   display: inline-block;
+   margin-top: 0.5em;
+   vertical-align: top;
+}
+.fld-ctl a
+{
+   margin-right: 5px;
 }
 .fld-name
 {
    font-weight: bold;
-   margin-left: 5px;
    width: 150px;
-   display: inline;
+   display: inline-block;
+   vertical-align: top;
+   margin-top: 0.5em;
 }
 .fld-values
 {
-   display: inline;
+   display: inline-block;
+   vertical-align: top;
 }
 .val-value
 {
    color: #339933;
    background-color: #f7f7f7;
-   margin-left: 50px;
-   margin-top: 5px;
-   padding: 5px;
+   width: 450px;
+   margin-left: 5px;
+   margin-top: 0.5em;
+   margin-bottom: 0.5em;
 }
 .val-value-ondrop
 {
@@ -553,14 +562,21 @@ input, textarea, select
 {
    display: none;
 }
+.val-ctl
+{
+   vertical-align: top;
+   display: inline-block;
+}
 .valuevis .bapply, .valuevis .bcancel
 {
    float: right;
 }
 .valuevis
 {
-   display: inline;
+   /*display: inline-block;*/
    margin-left: 0.5em;
+   margin-bottom: 0.5em;
+   /*width: 95%;*/
 }
 .valuevis p
 {
@@ -570,9 +586,9 @@ input, textarea, select
 {
    width: 80%;
 }
-.valuevis input
+.valuevis select
 {
-   width: 80%;
+   width: 100px;
 }
 .valuevis textarea
 {

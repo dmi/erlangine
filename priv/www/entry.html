@@ -64,14 +64,14 @@ function doApplyTemplate(){
 function composeValue(Value){
     var del_val = A({'class': 'rhint', 'title': "удалить значение"}, 'x');
     connect (del_val, 'onclick', doDeleteValue);
-    var vis = DIV({'class': 'valuevis'});
+    var vis = SPAN({'class': 'valuevis'});
     DisplayValue(vis, Value.type, Value.value);
     var vnamehidden = "";
     if(Value.name == 'Текст') vnamehidden = ' hidden';
     val = DIV({'class': 'val-value'},
-              SPAN(null, del_val),
+              SPAN({'class': 'val-ctl'}, del_val),
               SPAN({'class': 'valuename' + vnamehidden}, Value.name),
-              SPAN({'class': 'valuetype'}, Value.type),
+              DIV({'class': 'valuetype'}, Value.type),
               INPUT({'class': 'valueval', 'type': 'hidden', 'value': Value.value}),
               vis);
     connect(val, 'ondblclick', doEditValue);
@@ -86,14 +86,14 @@ function composeValue(Value){
 }
 
 function composeTR(Field){
-    var del_fld = A({'class': 'bdelete'});
+    var del_fld = A({'class': 'rhint', 'title': "удалить поле"}, 'x');
     connect (del_fld, 'onclick', doDeleteField);
     var add_val = A({'class': 'rhint add-val', 'title': "добавить значение"}, '+');
     connect (add_val, 'onclick', doAddValue);
     var div = DIV({'class': 'fldtr'},
-              DIV({'class': 'fld-ctl'}, del_fld, add_val),
-              DIV({'class': 'fld-name'}, Field.name),
-              map(composeValue, Field.values));
+                  DIV({'class': 'fld-ctl'}, del_fld, add_val),
+                  DIV({'class': 'fld-name'}, Field.name),
+                  DIV({'class': 'fld-values'}, map(composeValue, Field.values)));
     new Draggable(div, {'revert': true});
     new Droppable(div, {'hoverclass': 'fldtr-ondrop',
                         'accept': ['fldtr', 'val-value'],
@@ -103,7 +103,7 @@ function composeTR(Field){
                                           insertSiblingNodesBefore(drp, drg)
                                       }else if(!isChildNode(drg, drp)){
                                               removeElement(drg);
-                                              appendChildNodes(drp, drg)
+                                              appendChildNodes(findChildElements(drp, ['.fld-values'])[0], drg)
                                       }
                                   }});
     return div
@@ -291,7 +291,7 @@ function ValueEditorString(elt, type, value){
     connect(ed, 'onkeydown', sigValueKeys);
     var txt = SPAN({'class': 'rhint'}, "[текст]");
     connect(txt, 'onclick', swapRichEditor);
-    var VE = DIV({'class': 'valuevis'}, ed, txt);
+    var VE = SPAN({'class': 'valuevis'}, ed, txt);
     swapDOM(elt, VE);
     ed.focus();
     EditValue = VE
@@ -346,7 +346,7 @@ function ValueEditorText(elt, type, value){
     var revert = A({'class': 'bcancel'});
     connect(revert, 'onclick', doValueRevertText);
     var ed = DIV({'id': 'entEditorText'});
-    var VE = DIV({'class': 'valuevis'}, revert, apply, ed);
+    var VE = SPAN({'class': 'valuevis'}, revert, apply, ed);
     swapDOM(elt, VE);
     setupEditor('entEditorText', dequote(value));
     EditValue = VE
@@ -529,6 +529,8 @@ function setupEditor(elt, value) {
         init_instance_callback: function(ed){
             ed.setContent(value);
             ed.execCommand('mceFocus');
+            $('docEditorText_tbl').style.width = "450px";
+            $('docEditorText_ifr').style.width = "450px";
         }
 
     })
