@@ -12,12 +12,12 @@
         <!-- a id=entDouble class=gbutton title="Сделать копию записи">Дублировать</a-->
         <a id=entCancel class=button>Отмена</a>
     </div>
-    <div class=toolbar>
-        <a class=button id=entFieldAdd>Добавить полe</a>
-        <label for=entNewFieldName>имя:</label>
-        <input id=entNewFieldName type=text />
-        <label for=entNewFieldValue>значение:</label>
-        <input id=entNewFieldValue type=text />
+    <div class=fieldscroll>
+        <div class=fldtr>
+            <a class=rhint id=entFieldAdd title="добавиь поле">+</a>
+            <input id=entNewFieldName type=text />
+            <input id=entNewFieldValue type=text />
+        </div>
     </div>
     <div class=fieldscroll>
         <div id=entFields></div>
@@ -282,7 +282,8 @@ callbacks calls (after cleanup):
    If string - Esc - revert; Enter - fix; Tab - open text editor
 */
 function ValueEditorStringOrText(elt, type, value){
-    if(dequote(value).split("<",2).length > 1) ValueEditorText(elt, type, value)
+    if(value.search("\n") > 0) ValueEditorText(elt, type, value)
+    else if(dequote(value).split("<",2).length > 1) ValueEditorText(elt, type, value)
     else ValueEditorString(elt, type, value)
 }
 
@@ -454,14 +455,6 @@ function doEditValue(){
     ValueEditor(ValueVis(this),
         type,
         ValueValue(this).value)
-}
-
-function doValueFix1(){
-    var value = findChildElements(EditValue, ['textarea'])[0].value;
-    var qv = quote(value);
-    ValueValue(EditValue.parentNode).value = qv;
-    DisplayValue(EditValue, ValueType(EditValue.parentNode), qv);
-    EditValue = null
 }
 
 function EntryToJSON(){

@@ -556,7 +556,7 @@ input, textarea, select
 .valuename
 {
    color: #993333;
-   margin-left: 5px;
+   margin-right: 0.5em;
    font-weight: bold;
 }
 .valueval, .valuetype
@@ -586,6 +586,7 @@ input, textarea, select
 .valuevis input
 {
    width: 80%;
+   border: inset 1px #D0D0D0;
 }
 .valuevis select
 {
@@ -605,4 +606,14 @@ input, textarea, select
 #entEditorText
 {
    width: 80%;
+}
+#entNewFieldValue
+{
+   width: 400px;
+   border: inset 1px #D0D0D0;
+}
+#entNewFieldName
+{
+   width: 150px;
+   border: inset 1px #D0D0D0;
 }
