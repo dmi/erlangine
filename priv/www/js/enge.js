@@ -68,10 +68,12 @@ function cbInsertResult(id, XHR){
 	    //log("Get script: " + script[0]);
 	    scripts[i] = script[0];
 	}
-	var elt = document.getElementById(id);
-	//log("Get html: " + html);
-	elt.innerHTML = html.replace(/\n\n/g,'\n');
-	if(tuneInterface)tuneInterface(elt);
+        if(id){
+            var elt = document.getElementById(id);
+            //log("Get html: " + html);
+            elt.innerHTML = html.replace(/\n\n/g,'\n');
+            if(tuneInterface)tuneInterface(elt);
+        }
 	for(i in scripts)
         try{ eval(scripts[i]) }
         catch(E){ log("insert script error: " + E) };

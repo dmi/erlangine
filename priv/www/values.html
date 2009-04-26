@@ -1,0 +1,179 @@
+<script>
+/* ********************
+display field by value
+    DisplayValue(vis, type, value) -- DOM element, class=valuevis
+edit field by value - make input construct
+    ValueEditor(elt, type, value) -- DOM
+callbacks calls (after cleanup):
+    doFieldFix(value) - save and redisplay
+    doFieldRevert() - simple redisplay the old value
+*/
+
+/*
+   If string contains no angle brackets - it is a string, otherwise - text
+   If string - Esc - revert; Enter - fix; Tab - open text editor
+*/
+function ValueEditorStringOrText(elt, type, value){
+    if(value.search("\n") > 0) ValueEditorText(elt, type, value)
+    else if(dequote(value).split("<",2).length > 1) ValueEditorText(elt, type, value)
+    else ValueEditorString(elt, type, value)
+}
+
+function ValueEditorString(elt, type, value){
+    var ed = INPUT({'type': 'text', 'id': 'entEditorInput', 'value': dequote(value)});
+    connect(ed, 'onkeydown', sigValueEditorStringKeys);
+    var txt = SPAN({'class': 'rhint'}, "[текст]");
+    connect(txt, 'onclick', swapRichEditor);
+    var VE = SPAN({'class': 'valuevis'}, ed, txt);
+    swapDOM(elt, VE);
+    ed.focus();
+    EditValue = VE
+}
+
+function swapRichEditor(){
+    disconnectAll(EditValue);
+    var val = EditValue.parentNode;
+    var value = $('entEditorInput').value;
+    ValueEditorText(ValueVis(val), ValueType(val), quote(value))
+}
+
+function sigValueEditorStringKeys(ev){
+    if(ev.key().code==27){
+        disconnectAll(EditValue);
+        doValueRevertString()
+    } else if(ev.key().code==13){
+        disconnectAll(EditValue);
+        doValueFixString();
+    } else if(ev.key().code==9){
+        swapRichEditor()
+    }
+}
+
+function doValueFixString(){
+    var value = $('entEditorInput').value;
+    disconnectAll($('entEditorInput'));
+    var qv = quote(value);
+    // XXX wrong when only one <p/> follows <ul> etc tags
+    ValueValue(EditValue.parentNode).value = qv;
+    DisplayValue(EditValue, 'string', qv);
+    EditValue = null
+}
+
+// XXX tautology for all types
+function doValueRevertString(){
+    disconnectAll($('entEditorInput'));
+    DisplayValue(EditValue,
+                 'string',
+                 ValueValue(EditValue.parentNode).value);
+    EditValue = null
+}
+
+function DisplayValueText(vis, type, value){
+    vis.innerHTML = dequote(value)
+}
+
+function ValueEditorText(elt, type, value){
+    var apply = A({'class': 'bapply'});
+    connect(apply, 'onclick', doValueFixText);
+    var revert = A({'class': 'bcancel'});
+    connect(revert, 'onclick', doValueRevertText);
+    var ed = DIV({'id': 'entEditorText'});
+    var VE = SPAN({'class': 'valuevis'}, revert, apply, ed);
+    swapDOM(elt, VE);
+    setupEditor('entEditorText', dequote(value));
+    EditValue = VE
+}
+
+function doValueFixText(){
+    var value = tinyMCE.get('entEditorText').getContent();
+    // XXX wrong when only one <p/> follows <ul> etc tags
+    if(value.split("<p>").length <= 2) value = value.replace('<p>', '').replace('</p>', '');
+    var qv = quote(value);
+    ValueValue(EditValue.parentNode).value = qv;
+    DisplayValue(EditValue, 'text', qv);
+    EditValue = null
+}
+
+function doValueRevertText(){
+    DisplayValue(EditValue,
+                 'text',
+                 ValueValue(EditValue.parentNode).value);
+    EditValue = null
+}
+
+function doValueShotScore5(elt, score){
+    ev = elt.parentNode.parentNode.parentNode;
+
+    var apply = A({'class': 'rhint', 'title': "установить"}, "[да]");
+    connect(apply, 'onclick', function(){doValueFixScore5(score)});
+    var revert = A({'class': 'rhint', 'title': "отменить"}, "[нет]");
+    connect(revert, 'onclick', doValueRevertScore5);
+    var VE = SPAN({'class': 'valuevis'},
+                 SPAN({'class': 'valueask'}, "Установить оценку " + score + "?"),
+                 apply, revert);
+    swapDOM(ev, VE);
+    EditValue = VE
+}
+
+function doValueFixScore5(score){
+    ValueValue(EditValue.parentNode).value = score;
+    DisplayValue(EditValue, 'score5', score);
+    EditValue = null
+}
+
+function doValueRevertScore5(){
+    DisplayValue(EditValue,
+                 'score5',
+                 ValueValue(EditValue.parentNode).value);
+    EditValue = null
+}
+
+function DisplayValueScore5(vis, type, value){
+    var score = UL({'class': 'star-rating inline-rating small-star'},
+                   LI({'class': 'current-rating', 'style': 'width:' + value * 20 + '%'}, value + " / 5"),  
+                   map(function(i){
+                           var a = A({'title': i + " / 5", 'class': 'score-' + i}, i);
+                           connect(a, 'onclick', function(){doValueShotScore5(a, i)});
+                           return LI(null, a)
+                       },
+                       [1, 2, 3, 4, 5]));
+    replaceChildNodes(vis, score)
+}
+
+// XXX set cursor to the end of text
+function setupEditor(elt, value) {
+    try{ tinyMCE.remove(tinyMCE.get(elt)) }catch(err){ null };
+
+    tinyMCE.init({
+        mode : "exact",
+        elements: elt,
+        theme : "advanced",
+        plugins : "safari,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
+        //theme_advanced_buttons1 : "formatselect,|,bold,italic,underline,strikethrough,forecolor,backcolor,|,bullist,numlist,|,justifyleft,justifycenter,justifyright,justifyfull,outdent,indent,blockquote,|,link,unlink,|,paste,pastetext,pasteword,|,undo,redo",
+        theme_advanced_buttons1 : "bold,italic,underline,strikethrough,forecolor,backcolor,|,bullist,numlist,|,blockquote,|,link,unlink,|,paste,pastetext,pasteword,|,undo,redo",
+        theme_advanced_buttons2 : "",
+        theme_advanced_buttons3 : "",
+        theme_advanced_buttons4 : "",
+        theme_advanced_toolbar_location : "top",
+        theme_advanced_toolbar_align : "left",
+        theme_advanced_statusbar_location : "bottom",
+        theme_advanced_resizing : true,
+        auto_resize: true,
+        content_css : "css/tinymce.css",
+        init_instance_callback: function(ed){
+            ed.setContent(value);
+            ed.execCommand('mceFocus');
+            $('entEditorText_tbl').style.width = "450px";
+            $('entEditorText_ifr').style.width = "450px";
+        }
+
+    })
+}
+
+displayValue['text'] = DisplayValueText;
+valueEditor['text'] = ValueEditorStringOrText;
+displayValue['string'] = DisplayValueText;
+valueEditor['string'] = ValueEditorStringOrText;
+displayValue['score5'] = DisplayValueScore5;
+
+</script>
