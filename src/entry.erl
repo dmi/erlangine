@@ -212,6 +212,18 @@ function(doc){
             emit(name, {'name': name, 'type': extract_field(doc, 'Данные')})
         }
 }", null},
+                               %% field/value when length <= 3
+                               {"search_field","
+function(doc){
+    if(doc.type == 'entry')
+        doc.fields.forEach(function(field){
+            field.values.forEach(function(value){
+                if((value.value.length < 50) &&
+                   (value.value.split(/\s+/).length < 4))
+                  emit([field.name, value.value], null)
+            })
+        })
+}", null},
                                {"value_weight","
 function(doc){
     if(doc.type == 'entry')
@@ -229,3 +241,9 @@ function(keys, values){
             io:format("create view fail: ~p~n", [Reason]),
             {error, Reason}
     end.
+
+% indexing notes:
+% indexing all field/value name/value pairs with field.length <= 5 words and value.length <= 5 words
+% indexing all field/word pairs where word is one in field name or value
+% request: field: value|value|value, field: value, ....
+% field = field name or 'all'
