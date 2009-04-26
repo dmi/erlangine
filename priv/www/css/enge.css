@@ -55,6 +55,7 @@ input, textarea, select
 {
    color: red;
    font-size: 1em;
+   margin-right: 0.5em;
 }
 
 
@@ -574,7 +575,7 @@ input, textarea, select
 .valuevis
 {
    /*display: inline-block;*/
-   margin-left: 0.5em;
+   /*margin-left: 0.5em;*/
    margin-bottom: 0.5em;
    /*width: 95%;*/
 }
@@ -604,14 +605,4 @@ input, textarea, select
 #entEditorText
 {
    width: 80%;
-}
-
-#entValueSelector
-{
-   margin-left: 50px;
-}
-#entValueSelector .bapply, #entValueSelector .bcancel
-{
-   margin-top: 5px;
-   float: right;
 }

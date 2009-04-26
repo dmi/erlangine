@@ -134,9 +134,9 @@ function doAddValue(){
 }
 
 function cbValueNames(json){
-    var apply = A({'class': 'bapply'});
+    var apply = A({'class': 'rhint', 'title': "ok"}, "[ok]");
     connect(apply, 'onclick', doValueNameFix);
-    var cancel = A({'class': 'bcancel'});
+    var cancel = A({'class': 'rhint', 'title': "отмена"}, "[х]");
     connect(cancel, 'onclick', doValueNameCancel);
     var sel = SELECT({'id': 'value-sel'},
                      map(function(val){return OPTION({'value': val.name + ',' + val.type}, val.name)},
@@ -145,8 +145,8 @@ function cbValueNames(json){
                      map(function(val){return OPTION({'value': val.name + ',' + val.type}, val.name)},
                          json.reply.all));
     connect(sel, 'onkeydown', sigValueNameKeys);
-    appendChildNodes(ValueSelector,
-                     DIV({'id': 'entValueSelector'}, cancel, apply, sel));
+    appendChildNodes(findChildElements(ValueSelector, ['.fld-values'])[0],
+                     DIV({'id': 'entValueSelector'}, sel, apply, cancel));
     $('value-sel').focus()
 }
 
@@ -373,13 +373,13 @@ function doValueRevertText(){
 function doValueShotScore5(elt, score){
     ev = elt.parentNode.parentNode.parentNode;
 
-    var apply = A({'class': 'bapply'});
+    var apply = A({'class': 'rhint', 'title': "установить"}, "[да]");
     connect(apply, 'onclick', function(){doValueFixScore5(score)});
-    var revert = A({'class': 'bcancel'});
+    var revert = A({'class': 'rhint', 'title': "отменить"}, "[нет]");
     connect(revert, 'onclick', doValueRevertScore5);
     var VE = SPAN({'class': 'valuevis'},
-                 revert, apply,
-                 SPAN({'class': 'valueask'}, "Установить оценку " + score + "?"));
+                 SPAN({'class': 'valueask'}, "Установить оценку " + score + "?"),
+                 apply, revert);
     swapDOM(ev, VE);
     EditValue = VE
 }
