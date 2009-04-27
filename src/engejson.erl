@@ -501,6 +501,8 @@ tokenize(B, S=#decoder{offset=O}) ->
 % additional part from struct.erl by BeeBole
 
 %% @spec get_value(path() | key(), struct()) -> value()
+get_value(_, undefined) ->
+    undefined;
 get_value(_, {empty}) ->
     undefined;
 get_value(Path, Struct) when is_tuple(Path) ->
