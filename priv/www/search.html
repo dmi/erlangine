@@ -3,10 +3,7 @@
     <a id="entNewEntry" class=button>New</a>
     <a id="entDeleteEnts" class=gbutton>Delete</a>
 </div>
-<table id="entSelect" cellspacing=1>
-    <thead><tr><th>x</th><th>Author</th><th>Date</th><th>Type</th><th>Name</th></tr></thead>
-    <tbody id="entSearchResult"> </tbody>
-</table>
+<div id="entSearchResult"></div>
 
 <script>
 
@@ -14,25 +11,27 @@ function doSearchEnts(){
     var json = {
         "module": "entry",
         "action": "search",
-        "data": {}
     }
     ajax(json, "/enge");
 };
 
 function composeEntRow(ent){
-    var Title = TD({'class': 'entSearchResultPick'}, SPAN({'class': 'entlistid hidden'}, ent.id),
-                         SPAN({'class': 'entlistrev hidden'}, ent.value.rev),
-                         SPAN(null, ent.value.title));
+    var Title = DIV({'class': 'entSRTitle'},
+                     SPAN({'class': 'entlistid hidden'}, ent.id),
+                     SPAN({'class': 'entlistrev hidden'}, ent.value.rev),
+                     SPAN(null, ent.value.title));
     connect(Title, 'onclick', doEntEdit);
-    return TR(null,
-              TD(null, INPUT({'type': 'checkbox',
-                              'class': 'entRowCheck',
-                              'name': ent.id,
-                              'value': undefined/*ent.rev*/})),
-              TD(null, ent.key.uid + '@' + ent.key.domain),
-              TD(null, ent.value.date.day + "." + ent.value.date.month + "." + ent.value.date.year),
-              TD(null, ent.value.type.join(", ")),
-              Title)
+    var div = DIV({'class': 'entSR'},
+              INPUT({'type': 'checkbox',
+                     'class': 'entRowCheck',
+                    }),
+              Title,
+              SPAN({'class': 'entSRInfo'}, ent.value.author.uid + '@' + ent.value.author.domain),
+              SPAN({'class': 'entSRInfo'}, ent.value.date.day + "." + ent.value.date.month + "." + ent.value.date.year),
+              SPAN({'class': 'entSRInfo'}, ent.value.type.join(", ")));
+    //connect(div, 'ondblclick', doEntEdit);
+    return div
+
 }
 
 function cbSearchResult(json){
@@ -46,14 +45,14 @@ function cbSearchResult(json){
 function doDeleteEnts(){
     var entlist = map(
         function(elt){
-            var tr = elt.parentNode.parentNode;
+            var tr = elt.parentNode;
             var id = findChildElements(tr, ['.entlistid'])[0].innerHTML;
             var rev = findChildElements(tr, ['.entlistrev'])[0].innerHTML
             return({"id": id, "rev": rev})
         },
         ifilter(
             function(elt){return(elt.checked)},
-            findChildElements($('entSelect'), ['.entRowCheck'])));
+            findChildElements($('entSearchResult'), ['.entRowCheck'])));
     log("to delete: " + JSON.stringify(entlist));
     var json = {
         "module": "entry",

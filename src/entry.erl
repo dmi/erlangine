@@ -158,7 +158,7 @@ function(doc){
     };
     /******* library end *******/
     if(doc.type == 'entry')
-        emit(doc.author, {'rev': doc._rev, 'date': doc.date, 'destination': doc.destination,
+        emit(doc.author, {'rev': doc._rev, 'date': doc.date, 'destination': doc.destination, 'author': doc.author,
                           'title': extract_field(doc, 'Название'), 'type': extract_values(doc, 'Тип')})
 }", null},
                                {"owner","
@@ -220,7 +220,7 @@ function(doc){
             field.values.forEach(function(value){
                 if((value.value.length < 50) &&
                    (value.value.split(/\s+/).length < 4))
-                  emit([field.name, value.value], null)
+                  emit([field.name, value.value], {'author': field.author, 'date': field.date})
             })
         })
 }", null},

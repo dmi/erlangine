@@ -374,7 +374,7 @@ input, textarea, select
    display: inline;
 }
 
-.entSearchResultPick:hover, .tab:hover, .hint:hover, .rhint:hover
+.tab:hover, .hint:hover, .rhint:hover
 {
    cursor: pointer;
 }
@@ -582,10 +582,11 @@ input, textarea, select
 .valuevis p
 {
    margin: 0.5em;
+   margin-top: 3px;
 }
 .valuevis input
 {
-   width: 80%;
+   width: 70%;
    border: inset 1px #D0D0D0;
 }
 .valuevis select
@@ -601,6 +602,7 @@ input, textarea, select
 {
    color: red;
    font-weight: bold;
+   margin-right: 0.5em;
 }
 
 #entEditorText
@@ -616,4 +618,37 @@ input, textarea, select
 {
    width: 150px;
    border: inset 1px #D0D0D0;
+}
+
+.entSR
+{
+   border: solid 1px #D0D0D0;
+   margin: 3px;
+   padding: 8px;
+}
+.entSR:hover
+{
+   background: #EFEFEF;
+}
+.entSRTitle:hover
+{
+   cursor: pointer;
+   text-decoration: underline;
+}
+.entSRInfo
+{
+   font-size: 0.9em;
+   color: #339933;
+   margin-right: 1em;
+}
+.entSRTitle
+{
+   color: #0000FF;
+   margin-left: 0.5em;
+}
+.entRowCheck
+{
+   float: left;
+   margin-top: 0.5em;
+   margin-right: 1em;
 }

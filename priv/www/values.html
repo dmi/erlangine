@@ -24,7 +24,11 @@ function ValueEditorString(elt, type, value){
     connect(ed, 'onkeydown', sigValueEditorStringKeys);
     var txt = SPAN({'class': 'rhint'}, "[текст]");
     connect(txt, 'onclick', swapRichEditor);
-    var VE = SPAN({'class': 'valuevis'}, ed, txt);
+    var apply = A({'class': 'rhint', 'title': "ok"}, "[ok]");
+    connect(apply, 'onclick', doValueFixString);
+    var cancel = A({'class': 'rhint', 'title': "отмена"}, "[х]");
+    connect(cancel, 'onclick', doValueRevertString);
+    var VE = SPAN({'class': 'valuevis'}, ed, txt, apply, cancel);
     swapDOM(elt, VE);
     ed.focus();
     EditValue = VE
@@ -39,10 +43,8 @@ function swapRichEditor(){
 
 function sigValueEditorStringKeys(ev){
     if(ev.key().code==27){
-        disconnectAll(EditValue);
         doValueRevertString()
     } else if(ev.key().code==13){
-        disconnectAll(EditValue);
         doValueFixString();
     } else if(ev.key().code==9){
         swapRichEditor()
@@ -52,6 +54,7 @@ function sigValueEditorStringKeys(ev){
 function doValueFixString(){
     var value = $('entEditorInput').value;
     disconnectAll($('entEditorInput'));
+    disconnectAll(EditValue);
     var qv = quote(value);
     // XXX wrong when only one <p/> follows <ul> etc tags
     ValueValue(EditValue.parentNode).value = qv;
@@ -62,6 +65,7 @@ function doValueFixString(){
 // XXX tautology for all types
 function doValueRevertString(){
     disconnectAll($('entEditorInput'));
+    disconnectAll(EditValue);
     DisplayValue(EditValue,
                  'string',
                  ValueValue(EditValue.parentNode).value);

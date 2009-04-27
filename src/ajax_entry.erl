@@ -52,8 +52,10 @@ save(Struct, Session, _Req) ->
     end.
 
 search(Struct, Session, _Req) ->
+    io:format("search: ~p", [Struct]),
     [Field, Value] = engejson:get_values(["field", "value"], Struct),
     #session{opaque = #authkey{user = Uid}} = Session,
+    io:format("search: ~p ~p", [Field, Value]),
     Reply = case Field of
         undefined -> entry:read(Uid, "_design/store/_view/entries");
         _ ->
