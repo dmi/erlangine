@@ -63,7 +63,7 @@ statusM = function(str){
 /* Button Handlers end */
 
 TabsList = [{'id': "docNavigator", 'name': "Navigator"},
-            {'id': "entEditor", 'name': "Entry Editor"},
+            /*{'id': "entEditor", 'name': "Entry Editor"},*/
 	    {'id': "destinations", 'name': "Destinations"}];
 
 function pageLoadFunction(){
@@ -163,9 +163,8 @@ MochiKit.Signal.connect(window, "onload", pageLoadFunction);
 
 	    <div id=docNavigator>
 		<div id=docSelector></div>
+                <div id=entEditor></div>
 	    </div>
-
-	    <div id=entEditor></div>
 
 	    <div id=gmPane></div>
 

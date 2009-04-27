@@ -52,20 +52,22 @@ save(Struct, Session, _Req) ->
     end.
 
 search(Struct, Session, _Req) ->
-    io:format("search: ~p", [Struct]),
+    io:format("search: ~p~n", [Struct]),
     [Field, Value] = engejson:get_values(["field", "value"], Struct),
     #session{opaque = #authkey{user = Uid}} = Session,
     io:format("search: ~p ~p", [Field, Value]),
     Reply = case Field of
-        undefined -> entry:read(Uid, "_design/store/_view/entries");
+        <<>> ->
+            io:format("search words"),
+            entry:read(Uid, "_design/store/_view/entries");
         _ ->
             FieldS = binary_to_list(Field),
             case Value of
-                undefined -> entry:read(Uid, "_design/store/_view/search_field?startkey=[\"" ++ FieldS ++ "\"]&endkey=[\"" ++ FieldS ++ "\",\"\\u9999\"]");
+                <<>> -> entry:read(Uid, "_design/store/_view/search_field?startkey=[\"" ++ FieldS ++ "\"]&endkey=[\"" ++ FieldS ++ "\",\"\\u9999\"]");
                 _ ->
                     ValueS = binary_to_list(Value),
-                    entry:read(Uid, "_design/store/_view/search_field?key=[\"" ++ FieldS ++ "\", \"" ++ ValueS ++ "\"]")
-        end
+                    entry:read(Uid, "_design/store/_view/search_field?key=[\"" ++ FieldS ++ "\",\"" ++ ValueS ++ "\"]")
+            end
     end,
     {Reply, []}.
 

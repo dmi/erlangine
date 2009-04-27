@@ -215,12 +215,32 @@ function(doc){
                                %% field/value when length <= 3
                                {"search_field","
 function(doc){
+    /****** library start ******/
+    var test = function(X){return X};
+    var extract_field = function(doc, fld){
+        return doc.fields.map(function(field){
+            if(field.name == fld)
+                return field.values[0].value
+            else return undefined
+        }).filter(test)[0]
+    };
+    var extract_values = function(doc, fld){
+        return doc.fields.map(function(field){
+            if(field.name == fld)
+                return field.values.map(function(V){return V.value})
+            else return undefined
+        }).filter(test)[0]
+    };
+    /******* library end *******/
     if(doc.type == 'entry')
+        var title = extract_field(doc, 'Название');
         doc.fields.forEach(function(field){
             field.values.forEach(function(value){
                 if((value.value.length < 50) &&
                    (value.value.split(/\s+/).length < 4))
-                  emit([field.name, value.value], {'author': field.author, 'date': field.date})
+                  emit([field.name, value.value],
+                       {'rev': doc._rev, 'date': doc.date, 'destination': doc.destination, 'author': doc.author,
+                        'title': extract_field(doc, 'Название'), 'type': extract_values(doc, 'Тип')})
             })
         })
 }", null},

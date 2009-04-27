@@ -308,7 +308,7 @@ input, textarea, select
 {
    margin-top: 1em;
 }
-#docNavigator, #docEditor, #entEditor, #destinations
+#docNavigator, #docEditor, #destinations
 {
    display:none;
 }
@@ -338,7 +338,7 @@ input, textarea, select
    float: left;
    margin-right: 2em;
    padding-right: 2em;
-   width: 50%;
+   width: 35%;
 }
 
 #docView
@@ -459,6 +459,10 @@ input, textarea, select
 /*******************************
  *  entEditor
  *******************************/
+
+#entEditor{
+   float:left;
+}
 
 #entInfo
 {

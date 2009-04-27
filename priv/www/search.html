@@ -3,6 +3,8 @@
     <a id="entNewEntry" class=button>New</a>
     <a id="entDeleteEnts" class=gbutton>Delete</a>
 </div>
+<input id="entSearchField" type=text />
+<input id="entSearchValue" type=text />
 <div id="entSearchResult"></div>
 
 <script>
@@ -11,6 +13,9 @@ function doSearchEnts(){
     var json = {
         "module": "entry",
         "action": "search",
+        "data": {"field": $('entSearchField').value,
+                 "value": $('entSearchValue').value
+                }
     }
     ajax(json, "/enge");
 };
@@ -28,7 +33,8 @@ function composeEntRow(ent){
               Title,
               SPAN({'class': 'entSRInfo'}, ent.value.author.uid + '@' + ent.value.author.domain),
               SPAN({'class': 'entSRInfo'}, ent.value.date.day + "." + ent.value.date.month + "." + ent.value.date.year),
-              SPAN({'class': 'entSRInfo'}, ent.value.type.join(", ")));
+              SPAN({'class': 'entSRInfo'}, ent.value.type.join(", ")),
+              DIV(null, ent.key[0] + " " + ent.key[1]));
     //connect(div, 'ondblclick', doEntEdit);
     return div
 
@@ -37,8 +43,7 @@ function composeEntRow(ent){
 function cbSearchResult(json){
     statusM(json.event);
     disconnectAllTo(doEntEdit);
-    var tab = map(function(ent){return composeEntRow(ent)},
-                  json.reply.rows);
+    var tab = map(composeEntRow, json.reply.rows);
     replaceChildNodes('entSearchResult', tab)
 }
 
