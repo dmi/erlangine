@@ -13,8 +13,8 @@ function doSearchEnts(){
     var json = {
         "module": "entry",
         "action": "search",
-        "data": {"field": $('entSearchField').value,
-                 "value": $('entSearchValue').value
+        "data": {"field": $('entSearchField').value.toLowerCase(),
+                 "value": $('entSearchValue').value.toLowerCase()
                 }
     }
     ajax(json, "/enge");
