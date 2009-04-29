@@ -9,11 +9,6 @@ INSTALLATION INSTRUCTIONS
 For Debian-based linux: apt-get install git-core
 For others see http://github.com/guides/home
 
-* Install apache CouchDB 0.9.
-
-Follow http://couchdb.apache.org/
-Run CouchDb on localhost
-
 * Obtain sources:
 
 git clone git://github.com/dmi/erlangine.git
@@ -22,6 +17,21 @@ git clone git://github.com/dmi/erlangine.git
 
 cd erlangine
 make
+
+* Install apache CouchDB 0.9.
+
+Follow http://couchdb.apache.org/
+
+Replace
+  couchdb/share/couchdb/server/main.js
+with
+  erlangine/conf/main.js
+
+If CouchDB's version has changed, You can use
+  diff -R erlangine/conf/couch.js erlangine/conf/main.js
+to obtain diff and patch couchdb script manually.
+
+Run CouchDb on localhost
 
 * Init
 

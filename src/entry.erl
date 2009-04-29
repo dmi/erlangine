@@ -140,23 +140,6 @@ reset_view() ->
     end,
     case create_view("store", [{"entries", "
 function(doc){
-    /****** library start ******/
-    var test = function(X){return X};
-    var extract_field = function(doc, fld){
-        return doc.fields.map(function(field){
-            if(field.name == fld)
-                return field.values[0].value
-            else return undefined
-        }).filter(test)[0]
-    };
-    var extract_values = function(doc, fld){
-        return doc.fields.map(function(field){
-            if(field.name == fld)
-                return field.values.map(function(V){return V.value})
-            else return undefined
-        }).filter(test)[0]
-    };
-    /******* library end *******/
     if(doc.type == 'entry')
         emit(doc.author, {'rev': doc._rev, 'date': doc.date, 'destination': doc.destination, 'author': doc.author,
                           'title': extract_field(doc, 'Название'), 'type': extract_values(doc, 'Тип')})
@@ -166,46 +149,12 @@ function(doc){ if(doc.type == 'entry') emit({'author': doc.author, 'id': doc._id
 ", null},
                                {"template","
 function(doc){
-    /****** library start ******/
-    var test = function(X){return X};
-    var extract_field = function(doc, fld){
-        return doc.fields.map(function(field){
-            if(field.name == fld)
-                return field.values[0].value
-            else return undefined
-        }).filter(test)[0]
-    };
-    var extract_values = function(doc, fld){
-        return doc.fields.map(function(field){
-            if(field.name == fld)
-                return field.values.map(function(V){return V.value})
-            else return undefined
-        }).filter(test)[0]
-    };
-    /******* library end *******/
     if(doc.type == 'entry')
         if(extract_field(doc, 'Тип') == 'Шаблон')
             emit(extract_field(doc, 'Название'), {'type': extract_values(doc, 'Тип')[1]})
 }", null},
                                {"value","
 function(doc){
-    /****** library start ******/
-    var test = function(X){return X};
-    var extract_field = function(doc, fld){
-        return doc.fields.map(function(field){
-            if(field.name == fld)
-                return field.values[0].value
-            else return undefined
-        }).filter(test)[0]
-    };
-    var extract_values = function(doc, fld){
-        return doc.fields.map(function(field){
-            if(field.name == fld)
-                return field.values.map(function(V){return V.value})
-            else return undefined
-        }).filter(test)[0]
-    };
-    /******* library end *******/
     if(doc.type == 'entry')
         if(extract_field(doc, 'Тип') == 'Значение'){
             var name = extract_field(doc, 'Название');
@@ -215,28 +164,19 @@ function(doc){
                                %% field/value when length <= 3
                                {"search_field","
 function(doc){
-    /****** library start ******/
-    var test = function(X){return X};
-    var extract_field = function(doc, fld){
-        return doc.fields.map(function(field){
-            if(field.name == fld)
-                return field.values[0].value
-            else return undefined
-        }).filter(test)[0]
-    };
-    var extract_values = function(doc, fld){
-        return doc.fields.map(function(field){
-            if(field.name == fld)
-                return field.values.map(function(V){return V.value})
-            else return undefined
-        }).filter(test)[0]
-    };
-    var simplify = function(str){
-        if(typeof(str) == 'string')
-            return str.substr(0, 50).toLowerCase()
-        else return str
-    };
-    /******* library end *******/
+var simplify = function(str){
+    if(typeof(str) == 'string')
+        return str.substr(0, 50)
+                  .toLowerCase()
+                  .replace(/&lt;/g,'<')
+                  .replace(/&gt;/g,'>')
+                  .replace(/<[^>]*>/g,' ')
+                  .replace(/^[^<]*>/,'')
+                  .replace(/<[^>]*$/,'')
+                  .replace(/ +/g,' ')
+    else return toJSON(str)
+}
+
     if(doc.type == 'entry')
         var title = extract_field(doc, 'Название');
         doc.fields.forEach(function(field){
