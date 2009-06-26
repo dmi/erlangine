@@ -5,7 +5,7 @@
 %%      wrapper and it only knows how to decode UTF-8 (and ASCII).
 %%      
 %%      Original code was written by Bob Ippolito bob@mochimedia.com, copyright 2007 Mochi Media, Inc.
-%%      This version also has some modified includes from "struct.erl" originally written by BeeBole.
+%%      This version also has some modified inclusions from "struct.erl" originally written by BeeBole.
 %%
 %%      This version introduces more compact form instead of using 'obj' or 'struct'.
 %%      Also this version uses utf8 encoding instead of \uXXXX. \uXXXX is converted to utf8
