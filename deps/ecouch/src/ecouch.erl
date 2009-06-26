@@ -77,7 +77,8 @@
         view_adhoc/2,
         view_adhoc/3,
         view_access/3,
-        view_access/4
+        view_access/4,
+        decode_result/1
         ]).
 
 -define(MAX_RESTART,    5).
@@ -391,4 +392,15 @@ get_app_opt(Opt, Default) ->
                 error -> Default
             end
         end.
+
+%% @spec decode_result(result()) -> {ok, id(), rev()} | {error, reason()}
+%% @doc Decode ecouch function result
+decode_result({ok, Result}) ->
+    case engejson:get_values(["ok", "id", "rev"], Result) of
+        [true, Id, Rev] ->
+            {ok, Id, Rev};
+        _NoOk -> {error, Result}
+    end;
+
+decode_result(Error) -> Error.
 
