@@ -8,9 +8,8 @@
     <div class=toolbar>
         <a id=entSave class=gbutton title="Сохранить запись">Сохранить</a>
         <input id=entCreateNew type=checkbox checked=false />
-        <label for=entCreateNew>создать новую запись</label>
-        <!-- a id=entDouble class=gbutton title="Сделать копию записи">Дублировать</a-->
-        <a id=entCancel class=button>Отмена</a>
+        <label for=entCreateNew>как новую запись</label>
+        <a id=entCancel class=button title="Восстановить значения">Отмена</a>
     </div>
     <div class=fieldscroll>
         <div class=fldtr>
@@ -25,6 +24,9 @@
 </div>
 
 <script>
+
+displayValue = new Array();
+valueEditor = new Array();
 
 function ClearEntry(){
     // XXX partial list
@@ -207,16 +209,26 @@ function cbEntEdit(json){
 }
 
 doNewEntryFromSelector = function(){
-    doCancel();
-    //signal('entEditor_tab', 'onclick');
-}
-
-function doCancel(){
     // XXX _partial_ list for disconnect
     ClearEntry();
     requestTemplates();
     showElement('entCreate');
-    hideElement('entInfo')
+    hideElement('entInfo');
+
+    //signal('entEditor_tab', 'onclick');
+}
+
+function doCancel(){
+    var id = $('entId').value;
+    var rev = $('entRev').value;
+    var json = {
+        "module": "entry",
+        "action": "read",
+        "data": {
+            "id": id
+        }
+    }
+    ajax(json, "/enge");
 }
 
 function findField(Name){
@@ -267,9 +279,6 @@ function doDeleteValue(){
     removeElement(this.parentNode.parentNode)
 }
 
-
-displayValue = new Array();
-valueEditor = new Array();
 
 DisplayValue = function(vis, type, value){
     f = displayValue[type];
