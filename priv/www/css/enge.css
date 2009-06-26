@@ -138,11 +138,12 @@ input, textarea, select
 .toolbar select, .toolbar input
 {
    float: left;
+   margin: 5px 6px 3px 0px;
 }
 .toolbar label
 {
    float: left;
-   margin: 3px;
+   margin: 5px 6px 3px 0px;
 }
 
 
