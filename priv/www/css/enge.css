@@ -140,6 +140,10 @@ input, textarea, select
    float: left;
    margin: 5px 6px 3px 0px;
 }
+.toolbar select
+{
+   width: 200px;
+}
 .toolbar label
 {
    float: left;
@@ -544,12 +548,12 @@ input, textarea, select
 {
    display: inline-block;
    vertical-align: top;
+   width: 456px;
 }
 .val-value
 {
    color: #339933;
    background-color: #f7f7f7;
-   width: 450px;
    margin-left: 5px;
    margin-top: 0.5em;
    margin-bottom: 0.5em;
@@ -579,7 +583,7 @@ input, textarea, select
 }
 .valuevis
 {
-   /*display: inline-block;*/
+   display: inline-block;
    /*margin-left: 0.5em;*/
    margin-bottom: 0.5em;
    /*width: 95%;*/
