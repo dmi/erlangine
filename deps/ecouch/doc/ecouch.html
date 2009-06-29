@@ -12,20 +12,20 @@
 <ul class="index"><li><a href="#description">Description</a></li><li><a href="#types">Data Types</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>
   <h1>Elang API to CouchDb</h1>
   eCouch is an application that provides an API to a CouchDb server
-  It uses the <a href="http://www.lshift.net/blog/2007/02/17/json-and-json-rpc-for-erlang">rfc4627</a> module from <a href="http://www.lshift.net/">LShift</a>
+  It uses the <a href="http://www.lshift.net/blog/2007/02/17/json-and-json-rpc-for-erlang">engejson</a> module from <a href="http://www.lshift.net/">LShift</a>
   The design was inspired in the article <a href="http://www.trapexit.org/Building_a_Non-blocking_TCP_server_using_OTP_principles">Building a Non-blocking TCP server using OTP principles</a>
   and assumes that <a href="http://www.erlang.org/doc/apps/inets/index.html">inets</a> application is running.
 <p>Copyright © 2008 Vitor Rodrigues</p>
 
-<p><b>Version:</b> Apr 11 2008 00:08:38
+<p><b>Version:</b> Jun 30 2009 01:48:02
  </p>
 <p><b>Behaviours:</b> <a href="application.html"><tt>application</tt></a>.</p>
-<p><b>Authors:</b> Vitor Rodrigues (<a href="mailto:vitor@tarpipe.com"><tt>vitor@tarpipe.com</tt></a>).</p>
+<p><b>Authors:</b> Vitor Rodrigues (<a href="mailto:vitor@tarpipe.com"><tt>vitor@tarpipe.com</tt></a>), Yoan Blanc (<a href="mailto:yoan@dosimple.ch"><tt>yoan@dosimple.ch</tt></a>), Dmitry Chernyak (<a href="mailto:losthost@narod.ru"><tt>losthost@narod.ru</tt></a>).</p>
 
 <h2><a name="description">Description</a></h2>
   <h1>Elang API to CouchDb</h1>
   eCouch is an application that provides an API to a CouchDb server
-  It uses the <a href="http://www.lshift.net/blog/2007/02/17/json-and-json-rpc-for-erlang">rfc4627</a> module from <a href="http://www.lshift.net/">LShift</a>
+  It uses the <a href="http://www.lshift.net/blog/2007/02/17/json-and-json-rpc-for-erlang">engejson</a> module from <a href="http://www.lshift.net/">LShift</a>
   The design was inspired in the article <a href="http://www.trapexit.org/Building_a_Non-blocking_TCP_server_using_OTP_principles">Building a Non-blocking TCP server using OTP principles</a>
   and assumes that <a href="http://www.erlang.org/doc/apps/inets/index.html">inets</a> application is running.
   todo:
@@ -55,7 +55,7 @@
 
 
 <h3 class="typedecl"><a name="type-obj">obj()</a></h3>
-<p><tt>obj() = {obj, [{<a href="#type-key">key()</a>, <a href="#type-val">val()</a>}]}</tt></p>
+<p><tt>obj() = [{<a href="#type-key">key()</a>, <a href="#type-val">val()</a>}]</tt></p>
 
 
 <h3 class="typedecl"><a name="type-startargs">startargs()</a></h3>
@@ -75,10 +75,15 @@
 
 
 <h2><a name="index">Function Index</a></h2>
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#db_create-1">db_create/1</a></td><td>Create a database.</td></tr>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#attach_get-2">attach_get/2</a></td><td>Get binary attach.</td></tr>
+<tr><td valign="top"><a href="#attach_put-5">attach_put/5</a></td><td>Get binary attach.</td></tr>
+<tr><td valign="top"><a href="#db_create-1">db_create/1</a></td><td>Create a database.</td></tr>
 <tr><td valign="top"><a href="#db_delete-1">db_delete/1</a></td><td>Delete a database.</td></tr>
 <tr><td valign="top"><a href="#db_info-1">db_info/1</a></td><td>Database info.</td></tr>
 <tr><td valign="top"><a href="#db_list-0">db_list/0</a></td><td>List databases.</td></tr>
+<tr><td valign="top"><a href="#decode_result-1">decode_result/1</a></td><td>Decode ecouch function result.</td></tr>
+<tr><td valign="top"><a href="#doc_bulk_create-2">doc_bulk_create/2</a></td><td>Batch create a set of documents.</td></tr>
+<tr><td valign="top"><a href="#doc_bulk_update-2">doc_bulk_update/2</a></td><td>Batch update a set of documents.</td></tr>
 <tr><td valign="top"><a href="#doc_create-2">doc_create/2</a></td><td>Create document.</td></tr>
 <tr><td valign="top"><a href="#doc_create-3">doc_create/3</a></td><td>Create a named document.</td></tr>
 <tr><td valign="top"><a href="#doc_delete-3">doc_delete/3</a></td><td>Delete document.</td></tr>
@@ -97,6 +102,16 @@
 </table>
 
 <h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="attach_get-2">attach_get/2</a></h3>
+<div class="spec">
+<p><tt>attach_get(DatabaseName::string(), DocName::string()) -&gt; {bin, Response::binary()} | {error, Reason::term()}</tt></p>
+</div><p>Get binary attach</p>
+
+<h3 class="function"><a name="attach_put-5">attach_put/5</a></h3>
+<div class="spec">
+<p><tt>attach_put(DatabaseName::string(), DocName::string(), Rev::string(), ContentType::string(), Data::binary()) -&gt; {ok, Response::<a href="#type-json">json()</a>} | {error, Reason::term()}</tt></p>
+</div><p>Get binary attach</p>
 
 <h3 class="function"><a name="db_create-1">db_create/1</a></h3>
 <div class="spec">
@@ -117,6 +132,25 @@
 <div class="spec">
 <p><tt>db_list() -&gt; ok | {error, Reason::term()}</tt></p>
 </div><p>List databases</p>
+
+<h3 class="function"><a name="decode_result-1">decode_result/1</a></h3>
+<div class="spec">
+<p><tt>decode_result(Error::<a href="#type-result">result()</a>) -&gt; {ok, <a href="#type-id">id()</a>, <a href="#type-rev">rev()</a>} | {error, <a href="#type-reason">reason()</a>}</tt></p>
+</div><p>Decode ecouch function result</p>
+
+<h3 class="function"><a name="doc_bulk_create-2">doc_bulk_create/2</a></h3>
+<div class="spec">
+<p><tt>doc_bulk_create(DatabaseName::string(), DocList) -&gt; {ok, Response::<a href="#type-json">json()</a>} | {error, Reason::term()}</tt>
+<ul class="definitions"><li><tt>DocList = [<a href="#type-json">json()</a>]</tt></li>
+</ul></p>
+</div><p>Batch create a set of documents.</p>
+
+<h3 class="function"><a name="doc_bulk_update-2">doc_bulk_update/2</a></h3>
+<div class="spec">
+<p><tt>doc_bulk_update(DatabaseName::string(), DocListRev) -&gt; {ok, Response::<a href="#type-json">json()</a>} | {error, Reason::term()}</tt>
+<ul class="definitions"><li><tt>DocListRev = [<a href="#type-json">json()</a>]</tt></li>
+</ul></p>
+</div><p>Batch update a set of documents</p>
 
 <h3 class="function"><a name="doc_create-2">doc_create/2</a></h3>
 <div class="spec">
@@ -186,6 +220,6 @@
 <hr>
 
 <div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
-<p><i>Generated by EDoc, Apr 11 2008, 00:08:38.</i></p>
+<p><i>Generated by EDoc, Jun 30 2009, 01:48:02.</i></p>
 </body>
 </html>

@@ -18,7 +18,8 @@
 %%
 %% @copyright 2008 Vitor Rodrigues
 %% @author Vitor Rodrigues <vitor@tarpipe.com>
-%% @contributor Yoan Blanc <yoan@dosimple.ch>
+%% @author Yoan Blanc <yoan@dosimple.ch>
+%% @author Dmitry Chernyak <losthost@narod.ru>
 %% @version {@version}
 %%
 %% @doc
