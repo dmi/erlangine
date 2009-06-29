@@ -14,7 +14,7 @@
 -author('losthost@narod.ru').
 -export([encoder/1, encode/1]).
 -export([decoder/1, decode/1]).
--export([get_value/2, get_values/2]).
+-export([get_value/2, get_values/2, set_value/3, delete_value/2]).
 -export([test/0]).
 
 % This is a macro to placate syntax highlighters..
@@ -509,7 +509,7 @@ get_value(Path, Struct) when is_tuple(Path) ->
     L = tuple_to_list(Path),
     get_val(L, Struct);
 get_value(Key, Struct) when is_list(Key) ->
-        get_value(list_to_binary(Key),Struct);
+    get_value(list_to_binary(Key), Struct);
 get_value(Key, Struct) ->
     proplists:get_value(Key, Struct).
 
@@ -531,6 +531,30 @@ get_values([Key | Keys], Struct, Acc) ->
 
 get_values([], _Struct, Acc) ->
     lists:reverse(Acc).
+
+%% @spec set_value(key(), value(), struct()) -> struct()
+%% @doc Set value in the top level of object
+set_value(Key, Value, {empty}) ->
+    [{Key, Value}];
+set_value(Key, Value, Struct) when is_list(Key) ->
+    set_value(list_to_binary(Key), Value, Struct);
+set_value(Key, Value, Struct) ->
+    NewS = proplists:delete(Key, Struct),
+    lists:append(NewS, [{Key, Value}]).
+
+%% @spec delete_value(key(), struct()) -> struct()
+%% @doc Delete value from the top level of object
+delete_value(_, {empty}) ->
+    {empty};
+delete_value(Key, Struct) when is_list(Key) ->
+    delete_value(list_to_binary(Key), Struct);
+delete_value(Key, Struct) ->
+    case proplists:delete(Key, Struct) of
+        [] ->
+            {empty};
+        NewS -> NewS
+    end.
+
 
 %% testing constructs borrowed from the Yaws JSON implementation.
 
