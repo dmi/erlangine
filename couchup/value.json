@@ -1,0 +1,7 @@
+{
+    "_id": "_design/value",
+    "language": "javascript",
+    "views": {
+	"value": { "map": "!(inc:js/value_map.js)" }
+    }
+}

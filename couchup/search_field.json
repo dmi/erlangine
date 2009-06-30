@@ -1,0 +1,7 @@
+{
+    "_id": "_design/search_field",
+    "language": "javascript",
+    "views": {
+	"search_field": { "map": "!(inc:js/search_field_map.js)" }
+    }
+}

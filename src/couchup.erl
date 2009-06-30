@@ -66,12 +66,12 @@ upload_doc(Db, Dir, DocFile) ->
                     {ok, Id, Rev}
             end;
         {fail, [{<<"error">>,<<"not_found">>},
-                {<<"reason">>,<<"missing">>}]} ->
+                {<<"reason">>, _Reason}]} ->
             io:format("creating new id: ~p~n", [Id]),
             Result = ecouch:doc_create(Db, Id, JSON),
             ecouch:decode_result(Result);
-        _ ->
-            {error, broken_couchdb}
+        Error ->
+            {error, Error}
     end.
 
 %% @spec expand_doc(dir(), docfile()) -> iolist()

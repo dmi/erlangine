@@ -1,0 +1,7 @@
+{
+    "_id": "_design/value_weight",
+    "language": "javascript",
+    "views": {
+	"value_weight": { "map": "!(inc:js/value_weight_map.js)", "reduce": "!(inc:js/value_weight_reduce.js)" }
+    }
+}

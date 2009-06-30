@@ -1,0 +1,7 @@
+{
+    "_id": "_design/entries",
+    "language": "javascript",
+    "views": {
+	"entries": { "map": "!(inc:js/entries_map.js)" }
+    }
+}

@@ -5,7 +5,7 @@
 
 entry_templates(_Struct, Session, _Req) ->
     #session{opaque = #authkey{user = Uid}} = Session,
-    {ok, Templates} = entry:read(Uid, "_design/store/_view/template"),
+    {ok, Templates} = entry:read(Uid, "_design/template/_view/template"),
     T = engejson:get_value(<<"rows">>, Templates),
     {{ok, T}, []}.
 
@@ -24,10 +24,10 @@ value_names(Struct, Session, _Req) ->
     [Field, _Type] = engejson:get_values(["field", "type"], Struct),
     FieldS = binary_to_list(Field),
     #session{opaque = #authkey{user = Uid}} = Session,
-    {ok, Vals} = entry:read(Uid, "_design/store/_view/value"),
+    {ok, Vals} = entry:read(Uid, "_design/value/_view/value"),
     V = lists:map(fun(X) -> engejson:get_value(<<"value">>, X) end,
                   engejson:get_value(<<"rows">>, Vals)),
-    {ok, ValTop} = entry:read(Uid, "_design/store/_view/value_weight?group=true&startkey=[\"" ++ FieldS ++ "\"]&endkey=[\"" ++ FieldS ++ "\",\"\\u9999\"]"),
+    {ok, ValTop} = entry:read(Uid, "_design/value_weight/_view/value_weight?group=true&startkey=[\"" ++ FieldS ++ "\"]&endkey=[\"" ++ FieldS ++ "\",\"\\u9999\"]"),
     T = lists:map(fun(X) ->
                       [[_Field, ValName, ValType], Weight] = engejson:get_values(["key", "value"], X),
                       {Weight, ValName, ValType}
@@ -59,14 +59,14 @@ search(Struct, Session, _Req) ->
     Reply = case Field of
         <<>> ->
             io:format("search words"),
-            entry:read(Uid, "_design/store/_view/entries");
+            entry:read(Uid, "_design/entries/_view/entries");
         _ ->
             FieldS = binary_to_list(Field),
             case Value of
-                <<>> -> entry:read(Uid, "_design/store/_view/search_field?startkey=[\"" ++ FieldS ++ "\"]&endkey=[\"" ++ FieldS ++ "\",\"\\u9999\"]");
+                <<>> -> entry:read(Uid, "_design/search_field/_view/search_field?startkey=[\"" ++ FieldS ++ "\"]&endkey=[\"" ++ FieldS ++ "\",\"\\u9999\"]");
                 _ ->
                     ValueS = binary_to_list(Value),
-                    entry:read(Uid, "_design/store/_view/search_field?key=[\"" ++ FieldS ++ "\",\"" ++ ValueS ++ "\"]")
+                    entry:read(Uid, "_design/search_field/_view/search_field?key=[\"" ++ FieldS ++ "\",\"" ++ ValueS ++ "\"]")
             end
     end,
     {Reply, []}.

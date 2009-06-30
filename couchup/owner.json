@@ -1,0 +1,7 @@
+{
+    "_id": "_design/owner",
+    "language": "javascript",
+    "views": {
+	"owner": { "map": "!(inc:js/owner_map.js)" }
+    }
+}

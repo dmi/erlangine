@@ -22,16 +22,11 @@ make
 
 Follow http://couchdb.apache.org/
 
-Replace
-  couchdb/share/couchdb/server/main.js
-with
-  erlangine/conf/main.js
 
-If CouchDB's version has changed, You can use
-  diff -R erlangine/conf/couch.js erlangine/conf/main.js
-to obtain diff and patch couchdb script manually.
+* Run CouchDb on localhost
 
-Run CouchDb on localhost
+cd couchdb_dir
+bin/couchdb
 
 * Init
 
