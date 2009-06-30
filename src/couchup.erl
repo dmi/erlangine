@@ -41,8 +41,9 @@ upload_docs(Db, Dir, [Doc | T], Acc) ->
 %% @spec upload_doc(db(), dir(), file()) -> result()
 %% @doc Upload Dir/DocFile into Db
 %%
-%%      File can contain include directve !(inc:FILENAME).
-%%      <br/>Document Id is determined from "_id" property in the file.
+%%      Document Id is determined from "_id" property in the file.
+%%      <br/>File can contain include directve !(inc:FILENAME).
+%%      <br/>includes are recursive, but all file paths are relative to Dir
 %%
 %%      File MUST NOT contain "_rev" property.
 upload_doc(Db, Dir, DocFile) ->
@@ -80,11 +81,14 @@ expand_doc(Dir, DocFile) ->
     Str = binary_to_list(Bin),
     parse_inc(Dir, Str, []).
 
+%% @spec parse_inc(dir(), string(), list()) -> iolist()
+%% @doc Recursive substitution engine
 parse_inc(Dir, Str, Acc) ->
     case strex:extract_meta("!(inc:", ")", Str) of
         {none, _, _} ->
             lists:reverse([Str | Acc]);
         {File, Before, After} ->
             {ok, Fbin} = file:read_file(Dir ++ "/" ++ File),
-            parse_inc(Dir, After, [Fbin, Before | Acc])
+            Fbin1 = parse_inc(Dir, binary_to_list(Fbin), []),
+            parse_inc(Dir, After, [Fbin1, Before | Acc])
     end.
