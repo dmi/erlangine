@@ -3,12 +3,19 @@
 
 %% @doc CouchDB document uploader
 %%
-%%      Supports !(inc:FILENAME) include directive.
+%%      Upload one or several documets from filesystem to CouchDb.
 %%
-%%      Verifies documents for changes before upload, so it is good for view uploads.
+%%      Document Id is determined from "_id" property in the file.
+%%      <br/>Includes are allowed via !(inc:FILENAME) include directive.
+%%      <br/>Verifies documents for changes before upload, to avoid unnesesairy updates.
 %%
-%%      uses eCouch fork from the ErlaNGinE project.
-%%      uses strex module from the ErlaNGinE project.
+%%      This code was inspired by CouchApp toolkit from Chris Anderson,
+%%      following he's reply in dev.couchdb.apache.org mailing list.
+%%
+%%      <ul>
+%%      <li>uses eCouch fork from the ErlaNGinE project.</li>
+%%      <li>uses strex module from the ErlaNGinE project.</li>
+%%      </ul>
 
 -module(couchup).
 -export([upload_dir/3, upload_doc/3]).
@@ -16,9 +23,9 @@
 -include_lib("kernel/include/file.hrl").
 
 %% @spec upload_dir(db(), dir(), suffix()) -> [{file(), result()}]
-%% @doc Upload dir()/*.suffix() files into db()
+%% @doc Upload Dir/*.Suffix files into Db
 %% @type db() = string(). Database name.
-%% @type dir() = string(). Filesystem directory which contains files to upload.
+%% @type dir() = string(). Filesystem directory.
 %% @type result() = {ok, id(), rev()} | {error, reason()}
 upload_dir(Db, Dir, Suffix) ->
     {ok, FList} = file:list_dir(Dir),
@@ -32,11 +39,10 @@ upload_docs(Db, Dir, [Doc | T], Acc) ->
     upload_docs(Db, Dir, T, [{Doc, R} | Acc]).
 
 %% @spec upload_doc(db(), dir(), file()) -> result()
-%% @doc Upload dir()/file() into db()
+%% @doc Upload Dir/DocFile into Db
 %%
 %%      File can contain include directve !(inc:FILENAME).
-%%
-%%      Document Id is determined from "_id" property in the file.
+%%      <br/>Document Id is determined from "_id" property in the file.
 %%
 %%      File MUST NOT contain "_rev" property.
 upload_doc(Db, Dir, DocFile) ->
@@ -60,7 +66,7 @@ upload_doc(Db, Dir, DocFile) ->
             end;
         {fail, [{<<"error">>,<<"not_found">>},
                 {<<"reason">>,<<"missing">>}]} ->
-            io:format("creating new~n"),
+            io:format("creating new id: ~p~n", [Id]),
             Result = ecouch:doc_create(Db, Id, JSON),
             ecouch:decode_result(Result);
         _ ->
