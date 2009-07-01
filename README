@@ -22,7 +22,6 @@ make
 
 Follow http://couchdb.apache.org/
 
-
 * Run CouchDb on localhost
 
 cd couchdb_dir
