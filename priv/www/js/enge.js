@@ -20,46 +20,55 @@ function cbError(result){
 	if(result.number == "403"){
 	    statusM("Session has expired! Login again please.");
 	    logOut();
-        }else if(result.number == "404"){
-	    statusM("This function is not available (possible You have to log in?)");
-        }else if(result.number == "500"){
-	    statusM("Unexpected error occured while processing request");
-        }else if(result.number == "501"){
-	    statusM("Function not implemented");
+	}else if(result.number == "404"){
+		statusM("This function is not available (possible You are not logged on?)");
+	}else if(result.number == "500"){
+		statusM("Unexpected error occured while processing request");
+	}else if(result.number == "501"){
+		statusM("Function not implemented");
 	}
 }
 
 
 /*
-   Simple insert content into id.innerHTML from url:
+   Insert content into id.innerHTML from url:
 
-     insert('testResult', '/hello.html');
+     insertChunks([{id: 'testResult', chunk: '/hello.html'}, ...]);
 
    hello.html may contain plain html, mixed with <script>...</script> elements,
    which will be sequentally evaluated after inserting html into page.
 
-   calls tuneInterface(DOM) to dynamically tune loaded content after inserting, if redefined (default - false)
-   calls insertCompleted() when no more callbacks expected, if redefined (default - false)
+   If defuned tuneInterface(DOM) - it will be called to dynamically tune loaded content just after inserting
+   If defined insertCompleted() - it will be called after all chunks are processed
 
-   in scripts, external functions must be defined as
+   In scripts, external functions must be defined as
      
      fname = function(){};
 */
 
-var insertCount = 0;
+// chunks is [{id: ID, file: FILE}]
+function insertChunks(chunks){
+	ajax({module: "chunks", action: "load", data: chunks}, "/enge");
+}
+
+// should be connected to chunks:load-ok
+function cbChunksOk(json){
+    forEach(json.reply,
+            function(x){
+				try{ insertChunk(x.id, Base64.decode(x.chunk)) }
+				catch(E){ log("insert chunk error: " + E) };
+            });
+    if(insertCompleted)insertCompleted();
+}
+
+MochiKit.Signal.connect(window, "onload", function(){ connect(xapi, 'chunks:load-ok', cbChunksOk); });
+
 var insertCompleted = false;
 var tuneInterface = false;
 
-function insert(id, url){
-	insertCount++;
-	var d = doXHR( url, {method: 'GET'});
-	d.addCallbacks(function(XHR){cbInsertResult(id,XHR)}, cbInsertError);
-}
-
-function cbInsertResult(id, XHR){
-	insertCount--;
-	//log("Get Result status: " + XHR.status);
-    var parts = XHR.responseText.split('<script>');
+function insertChunk(id, chunk){
+    // log("get chunk id: "+ id);
+    var parts = chunk.split('<script>');
 	var html = parts[0];
 	var scripts = [];
 	for(i = 1; i<parts.length; i++){
@@ -71,19 +80,34 @@ function cbInsertResult(id, XHR){
         if(id){
             var elt = document.getElementById(id);
             //log("Get html: " + html);
-            elt.innerHTML = html.replace(/\n\n/g,'\n');
-            if(tuneInterface)tuneInterface(elt);
+			if(elt){
+				elt.innerHTML = html.replace(/\n\n/g,'\n');
+				if(tuneInterface)tuneInterface(elt);
+			}
         }
 	for(i in scripts)
         try{ eval(scripts[i]) }
         catch(E){ log("insert script error: " + E) };
-	if((insertCount==0) && insertCompleted) insertCompleted();
+}
+
+var insertCount = 0;
+
+// rudimentary function for one-file insert
+function insert(id, url){
+	insertCount++;
+	var d = doXHR( url, {method: 'GET'});
+	d.addCallbacks(function(XHR){cbInsertResult(id,XHR)}, cbInsertError);
+}
+
+function cbInsertResult(id, XHR){
+	insertCount--;
+	//log("Get Result status: " + XHR.status);
+    insertChunk(id, XHR.responseText);
 }
 
 function cbInsertError(result){
 	insertCount--;
 	log("Get Error: " + result.number);
-	if((insertCount==0) && insertCompleted) insertCompleted();
 }
 
 function rand(upper){

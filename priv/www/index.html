@@ -75,17 +75,19 @@ function pageLoadFunction(){
         insertCompleted = false;
     };
 
-    insert('loggedContainer', "/logged.html");
-    insert('loginContainer', "/login.html");
-    insert('registerContainer', "/register.html");
-    insert('recoverContainer', "/pwreco.html");
-    insert('activTabs', "/tabs.html");
-    insert('docSelector', "/search.html");
-    insert('entEditor', "/entry.html");
-    insert(undefined, "/values.html");
-    //insert('gmPane', "/gmaps.html");
-    insert('destinations', "/dests.html");
-    
+    insertChunks([
+        {id: 'loggedContainer', file: "/logged.html"},
+        {id: 'loginContainer', file: "/login.html"},
+        {id: 'registerContainer', file: "/register.html"},
+        {id: 'recoverContainer', file: "/pwreco.html"},
+        {id: 'activTabs', file: "/tabs.html"},
+        {id: 'docSelector', file: "/search.html"},
+        {id: 'entEditor', file: "/entry.html"},
+        {id: undefined, file: "/values.html"},
+        //{id: 'gmPane', file: "/gmaps.html"},
+        {id: 'destinations', file: "/dests.html"}
+    ]);
+
     // on-click handlers
 
     connect('siteTitle', 'onclick', doTest);
