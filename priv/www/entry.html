@@ -73,6 +73,7 @@ function composeValue(Value){
     val = DIV({'class': 'val-value'},
               SPAN({'class': 'val-ctl'}, del_val),
               SPAN({'class': 'valuename' + vnamehidden}, Value.name),
+              SPAN({'class': 'valuevis-ctl'}),
               DIV({'class': 'valuetype'}, Value.type),
               INPUT({'class': 'valueval', 'type': 'hidden', 'value': Value.value}),
               vis);
@@ -285,9 +286,9 @@ DisplayValue = function(vis, type, value){
     if(f != undefined) f(vis, type, value);
 }
 
-ValueEditor = function(vis, type, value){
+ValueEditor = function(vis, ctl, type, value){
     f = valueEditor[type];
-    if(f != undefined) f(vis, type, value);
+    if(f != undefined) f(vis, ctl, type, value);
 }
 
 // return TD
@@ -305,15 +306,17 @@ ValueVis = function(item){
     return findChildElements(item, ['.valuevis'])[0]
 }
 
+// return DOM
+VisCtl = function(item){
+    return findChildElements(item, ['.valuevis-ctl'])[0]
+}
+
 EditValue = null;
 
 function doEditValue(){
     if (InEditor()) return;
     //var value = dequote(ValueValue(this).innerHTML);
-    var type = ValueType(this);
-    ValueEditor(ValueVis(this),
-        type,
-        ValueValue(this).value)
+    ValueEditor(ValueVis(this), VisCtl(this), ValueType(this), ValueValue(this).value)
 }
 
 function EntryToJSON(){

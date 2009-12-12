@@ -13,32 +13,37 @@ callbacks calls (after cleanup):
    If string contains no angle brackets - it is a string, otherwise - text
    If string - Esc - revert; Enter - fix; Tab - open text editor
 */
-function ValueEditorStringOrText(elt, type, value){
-    if(value.search("\n") > 0) ValueEditorText(elt, type, value)
-    else if(dequote(value).split("<",2).length > 1) ValueEditorText(elt, type, value)
-    else ValueEditorString(elt, type, value)
+function ValueEditorStringOrText(elt, ctl, type, value){
+    if(value.search("\n") > 0) ValueEditorText(elt, ctl, type, value)
+    else if(dequote(value).split("<",2).length > 1) ValueEditorText(elt, ctl, type, value)
+    else ValueEditorString(elt, ctl, type, value)
 }
 
-function ValueEditorString(elt, type, value){
+function ValueEditorString(elt, ctl, type, value){
     var ed = INPUT({'type': 'text', 'id': 'entEditorInput', 'value': dequote(value)});
     connect(ed, 'onkeydown', sigValueEditorStringKeys);
-    var txt = SPAN({'class': 'rhint'}, "[текст]");
+    var txt = SPAN({'class': 'rhint', 'title': "текстовый редактор"}, "[текст]");
     connect(txt, 'onclick', swapRichEditor);
     var apply = A({'class': 'rhint', 'title': "ok"}, "[ok]");
     connect(apply, 'onclick', doValueFixString);
     var cancel = A({'class': 'rhint', 'title': "отмена"}, "[х]");
     connect(cancel, 'onclick', doValueRevertString);
-    var VE = SPAN({'class': 'valuevis'}, ed, txt, apply, cancel);
+    var VE = SPAN({'class': 'valuevis'}, ed);
     swapDOM(elt, VE);
+    var CT = SPAN({'class': 'valuevis-ctl'}, txt, apply, cancel);
+    swapDOM(ctl, CT);
     ed.focus();
-    EditValue = VE
+    EditValue = VE;
 }
 
 function swapRichEditor(){
+    disconnectAll($('entEditorInput'));
     disconnectAll(EditValue);
     var val = EditValue.parentNode;
+    var visctl = clearVisCtl(val);
+
     var value = $('entEditorInput').value;
-    ValueEditorText(ValueVis(val), ValueType(val), quote(value))
+    ValueEditorText(ValueVis(val), visctl, ValueType(val), quote(value))
 }
 
 function sigValueEditorStringKeys(ev){
@@ -51,10 +56,20 @@ function sigValueEditorStringKeys(ev){
     }
 }
 
+function clearVisCtl(val) {
+    var visctl = VisCtl(val);
+    forEach(findChildElements(visctl, ['.rhint']), function(item){ disconnectAll(item) });
+    visctl.innerHTML="";
+    return visctl
+}
+
 function doValueFixString(){
-    var value = $('entEditorInput').value;
     disconnectAll($('entEditorInput'));
     disconnectAll(EditValue);
+    var val = EditValue.parentNode;
+    clearVisCtl(val);
+    var value = $('entEditorInput').value;
+
     var qv = quote(value);
     // XXX wrong when only one <p/> follows <ul> etc tags
     ValueValue(EditValue.parentNode).value = qv;
@@ -66,6 +81,9 @@ function doValueFixString(){
 function doValueRevertString(){
     disconnectAll($('entEditorInput'));
     disconnectAll(EditValue);
+    var val = EditValue.parentNode;
+    clearVisCtl(val);
+
     DisplayValue(EditValue,
                  'string',
                  ValueValue(EditValue.parentNode).value);
@@ -76,14 +94,16 @@ function DisplayValueText(vis, type, value){
     vis.innerHTML = dequote(value)
 }
 
-function ValueEditorText(elt, type, value){
-    var apply = A({'class': 'bapply'});
+function ValueEditorText(elt, ctl, type, value){
+    var apply = A({'class': 'rhint', 'title': "ok"}, "[ok]");
     connect(apply, 'onclick', doValueFixText);
-    var revert = A({'class': 'bcancel'});
-    connect(revert, 'onclick', doValueRevertText);
+    var cancel = A({'class': 'rhint', 'title': "отмена"}, "[х]");
+    connect(cancel, 'onclick', doValueRevertText);
     var ed = DIV({'id': 'entEditorText'});
-    var VE = SPAN({'class': 'valuevis'}, revert, apply, ed);
+    var VE = SPAN({'class': 'valuevis'}, ed);
     swapDOM(elt, VE);
+    var CT = SPAN({'class': 'valuevis-ctl'}, apply, cancel);
+    swapDOM(ctl, CT);
     setupEditor('entEditorText', dequote(value));
     EditValue = VE
 }
@@ -93,12 +113,23 @@ function doValueFixText(){
     // XXX wrong when only one <p/> follows <ul> etc tags
     if(value.split("<p>").length <= 2) value = value.replace('<p>', '').replace('</p>', '');
     var qv = quote(value);
+
+    disconnectAll($('entEditorInput'));
+    disconnectAll(EditValue);
+    var val = EditValue.parentNode;
+    clearVisCtl(val);
+
     ValueValue(EditValue.parentNode).value = qv;
     DisplayValue(EditValue, 'text', qv);
     EditValue = null
 }
 
 function doValueRevertText(){
+    disconnectAll($('entEditorInput'));
+    disconnectAll(EditValue);
+    var val = EditValue.parentNode;
+    clearVisCtl(val);
+
     DisplayValue(EditValue,
                  'text',
                  ValueValue(EditValue.parentNode).value);

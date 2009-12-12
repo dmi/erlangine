@@ -581,6 +581,13 @@ input, textarea, select
 {
    float: right;
 }
+.valuevis-ctl
+{
+   display: inline-block;
+   /*margin-left: 0.5em;*/
+   margin-bottom: 0.5em;
+   /*width: 95%;*/
+}
 .valuevis
 {
    display: inline-block;
@@ -595,7 +602,7 @@ input, textarea, select
 }
 .valuevis input
 {
-   width: 70%;
+   width: 400px;
    border: inset 1px #D0D0D0;
 }
 .valuevis select
