@@ -25,7 +25,7 @@ function composeEntRow(ent){
                      SPAN({'class': 'entlistid hidden'}, ent.id),
                      SPAN({'class': 'entlistrev hidden'}, ent.value.rev),
                      SPAN(null, ent.value.title));
-    connect(Title, 'onclick', doEntEdit);
+    var vtype = ''; if(ent.value.type != undefined) vtype = ent.value.type.join(", "); // ugly? ;)
     var div = DIV({'class': 'entSR'},
               INPUT({'type': 'checkbox',
                      'class': 'entRowCheck',
@@ -33,7 +33,7 @@ function composeEntRow(ent){
               Title,
               SPAN({'class': 'entSRInfo'}, ent.value.author.uid + '@' + ent.value.author.domain),
               SPAN({'class': 'entSRInfo'}, ent.value.date.day + "." + ent.value.date.month + "." + ent.value.date.year),
-              SPAN({'class': 'entSRInfo'}, ent.value.type.join(", ")),
+              SPAN({'class': 'entSRInfo'}, vtype),
               DIV(null, ent.key[0] + " " + ent.key[1]));
     //connect(div, 'ondblclick', doEntEdit);
     return div
