@@ -25,6 +25,7 @@ function composeEntRow(ent){
                      SPAN({'class': 'entlistid hidden'}, ent.id),
                      SPAN({'class': 'entlistrev hidden'}, ent.value.rev),
                      SPAN(null, ent.value.title));
+    connect(Title, 'onclick', doEntEdit);
     var vtype = ''; if(ent.value.type != undefined) vtype = ent.value.type.join(", "); // ugly? ;)
     var div = DIV({'class': 'entSR'},
               INPUT({'type': 'checkbox',
